@@ -54,6 +54,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.createGraph
+import com.example.socialmediaapp.screens.GroupScreen
+import com.example.socialmediaapp.screens.InboxScreen
+import com.example.socialmediaapp.screens.LoginScreen
+import com.example.socialmediaapp.screens.ProfileScreen
+import com.example.socialmediaapp.screens.UploadScreen
+import com.example.socialmediaapp.screens.homeScreen
 import java.time.format.TextStyle
 
 data class BottomNavigationItem(
@@ -112,6 +123,45 @@ fun myNavBar() {
         mutableStateOf(0)
     }
 
+    val navController = rememberNavController()
+
+    val myNavGraph = navController.createGraph(startDestination = "Home") {
+        composable(
+            route = "Home",
+            content = {
+                homeScreen()
+            }
+        )
+
+        composable(
+            route = "Groups",
+            content = {
+                GroupScreen()
+            }
+        )
+
+        composable(
+            route = "Upload",
+            content = {
+                UploadScreen()
+            }
+        )
+
+        composable(
+            route = "Inbox",
+            content = {
+                InboxScreen()
+            }
+        )
+
+        composable(
+            route = "Profile",
+            content = {
+                ProfileScreen()
+            }
+        )
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,7 +178,9 @@ fun myNavBar() {
                     NavigationBarItem(selected = selectedItemIndex == index,
                         onClick = {
                             selectedItemIndex = index
-                            //  navController.navigate(item.title)
+                            navController.navigate(item.title) {
+                                launchSingleTop = true
+                            }
                         },
                         colors = NavigationBarItemDefaults.colors(
                             indicatorColor = Color.Black
@@ -185,6 +237,6 @@ fun myNavBar() {
             }
         }
     ) {
-
+        NavHost(navController = navController, graph = myNavGraph)
     }
 }

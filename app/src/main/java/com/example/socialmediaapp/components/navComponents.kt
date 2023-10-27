@@ -33,7 +33,5 @@ fun appNavigation() {
     }
 
     NavHost(navController = navController, graph = myNavGraph)
-
-
-
 }
+
