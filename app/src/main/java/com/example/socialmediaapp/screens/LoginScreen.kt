@@ -31,7 +31,7 @@ import com.example.socialmediaapp.components.darkBG
 import com.example.socialmediaapp.components.loginButtonComponent
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(signInButton: () -> Unit){
 
     Surface(
         modifier = Modifier
@@ -90,9 +90,7 @@ fun LoginScreen(){
                         }
                     )
                     Spacer(modifier = Modifier.padding(12.dp))
-                    loginButtonComponent(value = "Sign in", thisOnClick = {
-
-                    })
+                    loginButtonComponent(value = "Sign in", thisOnClick = signInButton)
                     Spacer(modifier = Modifier.weight(1f))
                     ClickableTextElement(
                         nonClickColor = Color.Gray,
@@ -115,6 +113,6 @@ fun LoginScreen(){
 @Preview
 @Composable
 fun DefaultPreviewOfSignUpScreen() {
-    LoginScreen()
+    LoginScreen(signInButton = {})
 }
 
