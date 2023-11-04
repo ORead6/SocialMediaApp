@@ -23,7 +23,6 @@ fun ProfileScreen() {
                 .background(Color.White)
         ) {
             Text(text = "Profile")
-            myNavBar()
         }
 
     }

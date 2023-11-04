@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import com.example.socialmediaapp.screens.GroupScreen
 import com.example.socialmediaapp.screens.LoginScreen
 import com.example.socialmediaapp.screens.homeScreen
 import kotlin.math.sign
@@ -27,7 +28,7 @@ fun appNavigation() {
         composable(
             route = "home",
             content = {
-                homeScreen()
+                myNavBar()
             }
         )
     }

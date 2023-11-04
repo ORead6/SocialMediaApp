@@ -23,7 +23,6 @@ fun GroupScreen() {
                 .background(Color.White)
         ) {
             Text(text = "Groups")
-            myNavBar()
         }
 
     }

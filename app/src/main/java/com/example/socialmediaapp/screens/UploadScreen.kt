@@ -23,7 +23,6 @@ fun UploadScreen() {
                 .background(Color.White)
         ) {
             Text(text = "Upload")
-            myNavBar()
         }
 
     }

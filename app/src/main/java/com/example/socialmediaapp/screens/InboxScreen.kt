@@ -23,7 +23,6 @@ fun InboxScreen() {
                 .background(Color.White)
         ) {
             Text(text = "Inbox")
-            myNavBar()
         }
 
     }
