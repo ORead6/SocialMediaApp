@@ -9,9 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.socialmediaapp.components.myNavBar
+import com.example.socialmediaapp.signIn.UserData
 
 @Composable
-fun GroupScreen() {
+fun GroupScreen(
+    userData: UserData?
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()

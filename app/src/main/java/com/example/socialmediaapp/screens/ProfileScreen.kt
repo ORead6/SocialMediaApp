@@ -3,15 +3,19 @@ package com.example.socialmediaapp.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.example.socialmediaapp.components.myNavBar
+import com.example.socialmediaapp.signIn.UserData
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    userData: UserData?,
+    onSignOut: () -> Unit
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -23,6 +27,9 @@ fun ProfileScreen() {
                 .background(Color.White)
         ) {
             Text(text = "Profile")
+            Button(onClick = onSignOut) {
+                Text(text = "Sign Out")
+            }
         }
 
     }

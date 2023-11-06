@@ -4,42 +4,30 @@ package com.example.socialmediaapp.components
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AddCircleOutline
-import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Message
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,20 +40,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.socialmediaapp.screens.GroupScreen
 import com.example.socialmediaapp.screens.InboxScreen
-import com.example.socialmediaapp.screens.LoginScreen
 import com.example.socialmediaapp.screens.ProfileScreen
 import com.example.socialmediaapp.screens.UploadScreen
 import com.example.socialmediaapp.screens.homeScreen
-import java.time.format.TextStyle
+import com.example.socialmediaapp.signIn.UserData
 
 data class BottomNavigationItem(
     val title: String,
@@ -78,7 +62,10 @@ data class BottomNavigationItem(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun myNavBar() {
+fun myNavBar(
+    userData: UserData?,
+    onSignOut: () -> Unit
+) {
 
     val items = listOf(
         BottomNavigationItem(
@@ -129,35 +116,35 @@ fun myNavBar() {
         composable(
             route = "Home",
             content = {
-                homeScreen()
+                homeScreen(userData)
             }
         )
 
         composable(
             route = "Groups",
             content = {
-                GroupScreen()
+                GroupScreen(userData)
             }
         )
 
         composable(
             route = "Upload",
             content = {
-                UploadScreen()
+                UploadScreen(userData)
             }
         )
 
         composable(
             route = "Inbox",
             content = {
-                InboxScreen()
+                InboxScreen(userData)
             }
         )
 
         composable(
             route = "Profile",
             content = {
-                ProfileScreen()
+                ProfileScreen(userData, onSignOut)
             }
         )
     }

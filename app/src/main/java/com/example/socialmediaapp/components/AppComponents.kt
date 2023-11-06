@@ -311,9 +311,9 @@ fun ClickableTextElement(
 }
 
 @Composable
-fun GoogleLoginButtonComponent(label: String) {
+fun GoogleLoginButtonComponent(label: String, onSignInClick: () -> Unit) {
     Button(
-        onClick = { /* TODO: Handle button click */ },
+        onClick = onSignInClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp),
@@ -474,6 +474,7 @@ fun pfpIcon() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BioInputWithCharacterLimit(
     maxCharacterLimit: Int,

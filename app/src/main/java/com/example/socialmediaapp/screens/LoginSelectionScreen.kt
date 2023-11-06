@@ -1,6 +1,7 @@
 package com.example.socialmediaapp.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -19,9 +22,24 @@ import com.example.socialmediaapp.components.HeadingTextComponent
 import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.NormalTextComponent
 import com.example.socialmediaapp.components.RegisterButtonComponent
+import com.example.socialmediaapp.signIn.SignInState
 
 @Composable
-fun LoginSelectionScreen(){
+fun LoginSelectionScreen(
+    state: SignInState,
+    onSignInClick1: () -> Unit
+){
+
+    val context = LocalContext.current
+    LaunchedEffect(key1 = state.signInError) {
+        state.signInError?.let  {error ->
+            Toast.makeText(
+                context,
+                error,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     Surface(
         modifier = Modifier
@@ -55,7 +73,7 @@ fun LoginSelectionScreen(){
                 bold = true
             )
             Spacer(modifier = Modifier.padding(25.dp))
-            GoogleLoginButtonComponent(label = "Sign in with Google")
+            GoogleLoginButtonComponent(label = "Sign in with Google", onSignInClick = onSignInClick1)
             Spacer(modifier = Modifier.padding(6.dp))
             RegisterButtonComponent(label = "Create an account")
             Spacer(modifier = Modifier.padding(8.dp))
@@ -73,8 +91,8 @@ fun LoginSelectionScreen(){
 
 }
 
-@Preview
-@Composable
-fun DefaultPreviewOfLoginSelectionScreen() {
-    LoginSelectionScreen()
-}
+//@Preview
+//@Composable
+//fun DefaultPreviewOfLoginSelectionScreen() {
+//    LoginSelectionScreen(state = LocalContext.current, onSignInClick = {})
+//}
