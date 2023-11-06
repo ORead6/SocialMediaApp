@@ -63,14 +63,14 @@ fun LoginSelectionScreen(
                 value = "Find your motivation",
                 thisColor = Color.White,
                 alignment = TextAlign.Left,
-                bold = false
+                bold = false,
             )
             Spacer(modifier = Modifier.padding(2.dp))
             NormalTextComponent(
                 value = "seamlessly & effortlessly",
                 thisColor = Color.White,
                 alignment = TextAlign.Left,
-                bold = true
+                bold = true,
             )
             Spacer(modifier = Modifier.padding(25.dp))
             GoogleLoginButtonComponent(label = "Sign in with Google", onSignInClick = onSignInClick1)

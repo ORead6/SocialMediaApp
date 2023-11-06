@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.socialmediaapp.components.myNavBar
 import com.example.socialmediaapp.screens.LoginSelectionScreen
+import com.example.socialmediaapp.screens.RegisterScreen
 import com.example.socialmediaapp.signIn.GoogleAuthUiClient
 import com.example.socialmediaapp.signIn.SignInViewModel
 import com.google.android.gms.auth.api.identity.Identity
@@ -40,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
-            val myNavGraph = navController.createGraph(startDestination = "loginSelection") {
+            val myNavGraph = navController.createGraph(startDestination = "register") {
                 composable(
                     route = "loginSelection",
                     content = {
@@ -116,6 +117,13 @@ class MainActivity : ComponentActivity() {
                                 }
                             })
 
+                    }
+                )
+
+                composable(
+                    route = "register",
+                    content = {
+                        RegisterScreen()
                     }
                 )
             }

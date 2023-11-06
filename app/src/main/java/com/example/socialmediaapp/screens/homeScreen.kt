@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.components.myNavBar
+import com.example.socialmediaapp.components.pfpCircle
 import com.example.socialmediaapp.signIn.UserData
 
 @Composable
@@ -48,6 +49,7 @@ fun homeScreen(
                 )
 
             }
+
         }
 
     }

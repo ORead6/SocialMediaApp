@@ -36,6 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,15 +56,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.R
+import com.example.socialmediaapp.viewModels.registerViewModel
 
 val myCustomFont = FontFamily(
     Font(R.font.montserratbold, weight = FontWeight.Bold),
@@ -71,7 +70,12 @@ val myCustomFont = FontFamily(
 )
 
 @Composable
-fun NormalTextComponent(value: String, thisColor: Color, alignment: TextAlign = TextAlign.Center, bold: Boolean = false) {
+fun NormalTextComponent(
+    value: String,
+    thisColor: Color,
+    alignment: TextAlign = TextAlign.Center,
+    bold: Boolean = false,
+) {
     Text(
         text = value,
         modifier = Modifier
@@ -85,7 +89,6 @@ fun NormalTextComponent(value: String, thisColor: Color, alignment: TextAlign = 
             fontFamily = myCustomFont
         ),
         textAlign = alignment,
-
     )
 }
 
@@ -109,7 +112,7 @@ fun HeadingTextComponent(value: String, thisColor: Color, alignment: TextAlign) 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NormalTextField(labelValue: String, painterResource: Painter) {
+fun EmailTextField(labelValue: String, painterResource: Painter, viewModel: registerViewModel) {
 
     val textValue = remember {
         mutableStateOf("")
@@ -120,7 +123,51 @@ fun NormalTextField(labelValue: String, painterResource: Painter) {
             .fillMaxWidth()
             .heightIn(20.dp),
         value = textValue.value,
-        onValueChange = { textValue.value = it },
+        onValueChange = {
+            textValue.value = it
+            viewModel.setEmailVal(it)
+        },
+        label = { Text(labelValue, fontFamily = myCustomFont) },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = textFieldOutline,
+            focusedLabelColor = textFieldOutline,
+            cursorColor = Primary,
+            containerColor = textFieldBG,
+            unfocusedBorderColor = textFieldOutline,
+            placeholderColor = Color.LightGray,
+            textColor = darkBG
+        ),
+        keyboardOptions = KeyboardOptions.Default,
+        shape = RoundedCornerShape(10.dp),
+        leadingIcon = {
+            Icon(
+                painter = painterResource,
+                contentDescription = "",
+                modifier = Modifier
+                    .size(24.dp)
+                    .fillMaxHeight()
+            )
+        },
+        textStyle = TextStyle(fontSize = 18.sp, lineHeight = 20.sp)
+    )
+}
+
+@Composable
+fun UsernameTextField(labelValue: String, painterResource: Painter, viewModel: registerViewModel) {
+
+    val textValue = remember {
+        mutableStateOf("")
+    }
+
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(20.dp),
+        value = textValue.value,
+        onValueChange = {
+            textValue.value = it
+            viewModel.setUsernameVal(it)
+        },
         label = { Text(labelValue, fontFamily = myCustomFont) },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = textFieldOutline,
@@ -148,7 +195,13 @@ fun NormalTextField(labelValue: String, painterResource: Painter) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordTextField(labelValue: String, painterResource: Painter, seePass: Boolean = true) {
+fun PasswordTextField(
+    labelValue: String,
+    painterResource: Painter,
+    seePass: Boolean = true,
+    viewModel: registerViewModel,
+    passwordType: Int
+) {
 
     val password = remember {
         mutableStateOf("")
@@ -163,7 +216,14 @@ fun PasswordTextField(labelValue: String, painterResource: Painter, seePass: Boo
             .fillMaxWidth()
             .heightIn(20.dp),
         value = password.value,
-        onValueChange = { password.value = it },
+        onValueChange = {
+            password.value = it
+            if (passwordType == 1) {
+                viewModel.setPass1Val(it)
+            } else {
+                viewModel.setPass2Val(it)
+            }
+            },
         label = { Text(labelValue, fontFamily = myCustomFont) },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = textFieldOutline,
@@ -507,6 +567,7 @@ fun BioInputWithCharacterLimit(
                 placeholderColor = Color.LightGray,
                 textColor = darkBG
             ),
+
             singleLine = false,
             keyboardOptions = KeyboardOptions.Default,
             shape = RoundedCornerShape(10.dp),

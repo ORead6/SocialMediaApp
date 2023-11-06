@@ -106,7 +106,7 @@ fun myNavBar(
 
     )
 
-    var selectedItemIndex  by rememberSaveable {
+    var selectedItemIndex by rememberSaveable {
         mutableStateOf(0)
     }
 
@@ -176,15 +176,17 @@ fun myNavBar(
                         label = {
                             val isVisible = (index == selectedItemIndex)
 
-                            AnimatedContent(targetState = isVisible, content = {isVisible ->
-                                if(isVisible) {
-                                    Text(text = item.title, color = Color.White)
-                                } else {
-                                    Text(text = item.title, color = myDarkGrey)
-                                }
-                            },
+                            AnimatedContent(
+                                targetState = isVisible, content = { isVisible ->
+                                    if (isVisible) {
+                                        Text(text = item.title, color = Color.White)
+                                    } else {
+                                        Text(text = item.title, color = myDarkGrey)
+                                    }
+                                },
                                 transitionSpec = { fadeIn() togetherWith fadeOut() },
-                                label = "")
+                                label = ""
+                            )
                         },
                         icon = {
 
@@ -192,31 +194,34 @@ fun myNavBar(
 
                             BadgedBox(
                                 badge = {
-                                    if(item.badgeCount != null) {
+                                    if (item.badgeCount != null) {
                                         Badge {
                                             Text(text = item.badgeCount.toString())
                                         }
-                                    } else if(item.hasNews) {
+                                    } else if (item.hasNews) {
                                         Badge()
                                     }
                                 }
                             ) {
-                                
-                                AnimatedContent(targetState = isVisible, content = {isVisible ->
-                                    if(isVisible) {
-                                        Icon(
-                                            imageVector = item.selectedIcon,
-                                            contentDescription = item.title,
-                                            tint = Color.White)
-                                    } else {
-                                        Icon(
-                                            imageVector = item.unselectedItem,
-                                            contentDescription = item.title,
-                                            tint = Color.White)
-                                    }
-                                },
-                                transitionSpec = { fadeIn() togetherWith fadeOut() },
-                                    label = "")
+
+                                AnimatedContent(
+                                    targetState = isVisible, content = { isVisible ->
+                                        if (isVisible) {
+                                            Icon(
+                                                imageVector = item.selectedIcon,
+                                                contentDescription = item.title,
+                                                tint = Color.White
+                                            )
+                                        } else {
+                                            Icon(
+                                                imageVector = item.unselectedItem,
+                                                contentDescription = item.title,
+                                                tint = Color.White
+                                            )
+                                        }
+                                    },
+                                    label = ""
+                                )
 
                             }
                         })

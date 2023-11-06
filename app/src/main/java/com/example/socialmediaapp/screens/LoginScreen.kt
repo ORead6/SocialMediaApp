@@ -21,14 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.components.ClickableTextElement
+import com.example.socialmediaapp.components.EmailTextField
 import com.example.socialmediaapp.components.HeadingTextComponent
 import com.example.socialmediaapp.components.LoginScreensColor
-import com.example.socialmediaapp.components.NormalTextField
 import com.example.socialmediaapp.components.NormalTextComponent
 import com.example.socialmediaapp.components.PasswordTextField
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.darkBG
 import com.example.socialmediaapp.components.loginButtonComponent
+import com.example.socialmediaapp.viewModels.registerViewModel
 
 @Composable
 fun LoginScreen(signInButton: () -> Unit){
@@ -43,6 +44,9 @@ fun LoginScreen(signInButton: () -> Unit){
                 .fillMaxSize()
                 .background(LoginScreensColor)
         ) {
+
+            // REMOVE THIS
+            val myRegisterViewModel = registerViewModel()
 
             Column( modifier = Modifier
                 .fillMaxWidth()
@@ -69,15 +73,36 @@ fun LoginScreen(signInButton: () -> Unit){
 
                     HeadingTextComponent(value = "Welcome Back", thisColor = darkBG, alignment = TextAlign.Left)
                     Spacer(modifier = Modifier.padding(2.dp))
-                    NormalTextComponent(value = "Hello there, sign in to continue!", thisColor = Color.Gray, alignment = TextAlign.Left)
+                    NormalTextComponent(
+                        value = "Hello there, sign in to continue!",
+                        thisColor = Color.Gray,
+                        alignment = TextAlign.Left,
+                    )
                     Spacer(modifier = Modifier.padding(12.dp))
-                    NormalTextComponent(value = "Username or email", thisColor = Color.LightGray, alignment = TextAlign.Left, bold = true)
-                    NormalTextField(labelValue = "Enter your username or email", painterResource = painterResource(id = R.drawable.user))
+                    NormalTextComponent(
+                        value = "Username or email",
+                        thisColor = Color.LightGray,
+                        alignment = TextAlign.Left,
+                        bold = true,
+                    )
+                    EmailTextField(
+                        labelValue = "Enter your username or email",
+                        painterResource = painterResource(id = R.drawable.user),
+                        viewModel = myRegisterViewModel
+                    )
                     Spacer(modifier = Modifier.padding(8.dp))
-                    NormalTextComponent(value = "Password", thisColor = Color.LightGray, alignment = TextAlign.Left, bold = true)
-                    PasswordTextField(labelValue = "Enter your password", painterResource = painterResource(
-                        id = R.drawable.lock
-                    ))
+                    NormalTextComponent(
+                        value = "Password",
+                        thisColor = Color.LightGray,
+                        alignment = TextAlign.Left,
+                        bold = true,
+                    )
+                    PasswordTextField(
+                        labelValue = "Enter your password", painterResource = painterResource(
+                            id = R.drawable.lock
+                        ), viewModel = myRegisterViewModel, passwordType = 1
+                    )
+
                     Spacer(modifier = Modifier.padding(8.dp))
                     ClickableTextElement(
                         nonClickColor = Color.White,
