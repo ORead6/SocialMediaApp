@@ -1,6 +1,5 @@
 package com.example.socialmediaapp.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.components.ClickableTextElement
 import com.example.socialmediaapp.components.EmailTextField
@@ -32,7 +31,7 @@ import com.example.socialmediaapp.components.loginButtonComponent
 import com.example.socialmediaapp.viewModels.registerViewModel
 
 @Composable
-fun RegisterScreen () {
+fun RegisterScreen(navController: NavHostController) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -116,10 +115,11 @@ fun RegisterScreen () {
                     )
                     Spacer(modifier = Modifier.padding(16.dp))
                     loginButtonComponent(value = "Create Account", thisOnClick = {
-                        Log.d("REGISTERFIELDS", myRegisterViewModel.emailVal.value)
-                        Log.d("REGISTERFIELDS", myRegisterViewModel.usernameVal.value)
-                        Log.d("REGISTERFIELDS", myRegisterViewModel.pass1Val.value)
-                        Log.d("REGISTERFIELDS", myRegisterViewModel.pass2Val.value)
+                        myRegisterViewModel.registerUser(myRegisterViewModel.emailVal.value, myRegisterViewModel.usernameVal.value, myRegisterViewModel.pass1Val.value, navController)
+//                        Log.d("REGISTERFIELDS", myRegisterViewModel.emailVal.value)
+//                        Log.d("REGISTERFIELDS", myRegisterViewModel.usernameVal.value)
+//                        Log.d("REGISTERFIELDS", myRegisterViewModel.pass1Val.value)
+//                        Log.d("REGISTERFIELDS", myRegisterViewModel.pass2Val.value)
                     })
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -141,8 +141,8 @@ fun RegisterScreen () {
 }
 
 
-@Preview
-@Composable
-fun DefaultPreviewOfRegisterScreen() {
-    RegisterScreen()
-}
+//@Preview
+//@Composable
+//fun DefaultPreviewOfRegisterScreen() {
+//    RegisterScreen()
+//}

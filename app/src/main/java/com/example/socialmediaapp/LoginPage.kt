@@ -85,7 +85,6 @@ class MainActivity : ComponentActivity() {
                             LoginSelectionScreen(
                                 state = state,
                                 onSignInClick1 = {
-                                    Log.d("abcdefghijk",  "Gets here")
                                     lifecycleScope.launch {
                                         val signInIntentSender = googleAuthUiClient.signIn()
                                         launcher.launch(
@@ -123,7 +122,7 @@ class MainActivity : ComponentActivity() {
                 composable(
                     route = "register",
                     content = {
-                        RegisterScreen()
+                        RegisterScreen(navController)
                     }
                 )
             }

@@ -248,3 +248,32 @@ fun postDivider() {
 
 }
 
+@Composable
+fun userNameDisplay(username: String? = "Test") {
+    Column (modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (username != null) {
+            Text(
+                textAlign = TextAlign.Start,
+                text = username,
+                fontFamily = myCustomFont,
+                style = TextStyle(
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        } else {
+            Text(
+                textAlign = TextAlign.Start,
+                text = "username",
+                fontFamily = myCustomFont,
+                style = TextStyle(
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+    }
+}
+

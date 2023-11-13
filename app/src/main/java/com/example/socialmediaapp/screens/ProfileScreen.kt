@@ -24,6 +24,7 @@ import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.bioSection
 import com.example.socialmediaapp.components.pfpCircle
 import com.example.socialmediaapp.components.postDivider
+import com.example.socialmediaapp.components.userNameDisplay
 import com.example.socialmediaapp.signIn.UserData
 
 @Composable
@@ -41,10 +42,12 @@ fun ProfileScreen(
                 .fillMaxWidth()
                 .background(LoginScreensColor)
         ) {
+            Spacer(modifier = Modifier.padding(5.dp))
+            userNameDisplay(userData?.username)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 28.dp, top = 28.dp, end = 28.dp)
+                    .padding(start = 28.dp, top = 14.dp, end = 28.dp)
                     .background(LoginScreensColor)
             ) {
                 pfpCircle(userData = userData)

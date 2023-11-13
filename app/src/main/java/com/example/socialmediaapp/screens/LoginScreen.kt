@@ -18,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.components.ClickableTextElement
 import com.example.socialmediaapp.components.EmailTextField
@@ -45,7 +45,9 @@ fun LoginScreen(signInButton: () -> Unit){
                 .background(LoginScreensColor)
         ) {
 
+
             // REMOVE THIS
+            val navController = rememberNavController()
             val myRegisterViewModel = registerViewModel()
 
             Column( modifier = Modifier

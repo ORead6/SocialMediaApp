@@ -68,6 +68,7 @@ class GoogleAuthUiClient(
         }
     }
 
+    // This is where we change stuff regarding userdata
     fun getSignedInUser(): UserData? = auth.currentUser?.run {
         UserData(
             userId = uid,
