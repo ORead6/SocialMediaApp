@@ -18,21 +18,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.components.ClickableTextElement
-import com.example.socialmediaapp.components.EmailTextField
 import com.example.socialmediaapp.components.HeadingTextComponent
+import com.example.socialmediaapp.components.LoginEmailTextField
+import com.example.socialmediaapp.components.LoginPasswordTextField
 import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.NormalTextComponent
-import com.example.socialmediaapp.components.PasswordTextField
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.darkBG
 import com.example.socialmediaapp.components.loginButtonComponent
-import com.example.socialmediaapp.viewModels.registerViewModel
+import com.example.socialmediaapp.viewModels.LoginViewModel
 
 @Composable
-fun LoginScreen(signInButton: () -> Unit){
+fun LoginScreen(navController: NavController){
 
     Surface(
         modifier = Modifier
@@ -45,15 +46,14 @@ fun LoginScreen(signInButton: () -> Unit){
                 .background(LoginScreensColor)
         ) {
 
-
-            // REMOVE THIS
-            val navController = rememberNavController()
-            val myRegisterViewModel = registerViewModel()
+            val myLoginViewModel = LoginViewModel()
 
             Column( modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 28.dp, top = 10.dp)) {
-                backButton(thisOnClick = {})
+                backButton(thisOnClick = {
+                    navController.navigate("loginSelection")
+                })
                 Spacer(modifier = Modifier.padding(10.dp))
                 HeadingTextComponent(value = "Sign in", thisColor = Color.White, alignment = TextAlign.Left)
             }
@@ -87,10 +87,10 @@ fun LoginScreen(signInButton: () -> Unit){
                         alignment = TextAlign.Left,
                         bold = true,
                     )
-                    EmailTextField(
+                    LoginEmailTextField(
                         labelValue = "Enter your username or email",
                         painterResource = painterResource(id = R.drawable.user),
-                        viewModel = myRegisterViewModel
+                        viewModel = myLoginViewModel
                     )
                     Spacer(modifier = Modifier.padding(8.dp))
                     NormalTextComponent(
@@ -99,10 +99,11 @@ fun LoginScreen(signInButton: () -> Unit){
                         alignment = TextAlign.Left,
                         bold = true,
                     )
-                    PasswordTextField(
+                    LoginPasswordTextField(
                         labelValue = "Enter your password", painterResource = painterResource(
                             id = R.drawable.lock
-                        ), viewModel = myRegisterViewModel, passwordType = 1
+                        ),
+                        viewModel = myLoginViewModel
                     )
 
                     Spacer(modifier = Modifier.padding(8.dp))
@@ -116,8 +117,13 @@ fun LoginScreen(signInButton: () -> Unit){
 
                         }
                     )
+
                     Spacer(modifier = Modifier.padding(12.dp))
-                    loginButtonComponent(value = "Sign in", thisOnClick = signInButton)
+                    loginButtonComponent(value = "Sign in",
+                    thisOnClick = {
+                        myLoginViewModel.login(myLoginViewModel.emailVal.value, myLoginViewModel.passVal.value, navController)
+                    })
+
                     Spacer(modifier = Modifier.weight(1f))
                     ClickableTextElement(
                         nonClickColor = Color.Gray,
@@ -125,7 +131,7 @@ fun LoginScreen(signInButton: () -> Unit){
                         fullText = "Don't have an account? Sign up",
                         clickableText = "Sign up",
                         onClick = {
-
+                            navController.navigate("register")
                         }
                     )
 
@@ -137,9 +143,9 @@ fun LoginScreen(signInButton: () -> Unit){
 
 }
 
-@Preview
-@Composable
-fun DefaultPreviewOfSignUpScreen() {
-    LoginScreen(signInButton = {})
-}
+//@Preview
+//@Composable
+//fun DefaultPreviewOfSignUpScreen() {
+//    LoginScreen()
+//}
 

@@ -36,7 +36,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +61,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.socialmediaapp.R
+import com.example.socialmediaapp.viewModels.LoginViewModel
 import com.example.socialmediaapp.viewModels.registerViewModel
 
 val myCustomFont = FontFamily(
@@ -152,6 +152,7 @@ fun EmailTextField(labelValue: String, painterResource: Painter, viewModel: regi
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsernameTextField(labelValue: String, painterResource: Painter, viewModel: registerViewModel) {
 
@@ -409,9 +410,9 @@ fun GoogleLoginButtonComponent(label: String, onSignInClick: () -> Unit) {
 }
 
 @Composable
-fun RegisterButtonComponent(label: String){
+fun RegisterButtonComponent(label: String, registerOnClick: () -> Unit){
     Button(
-        onClick = { /*TODO*/ },
+        onClick = registerOnClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp),
@@ -600,6 +601,120 @@ fun smallTextComponent(value: String, thisColor: Color, alignment: TextAlign = T
         textAlign = alignment,
 
         )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginPasswordTextField(
+    labelValue: String,
+    painterResource: Painter,
+    seePass: Boolean = true,
+    viewModel: LoginViewModel,
+) {
+
+    val password = remember {
+        mutableStateOf("")
+    }
+
+    val passwordVisibility = remember {
+        mutableStateOf(false)
+    }
+
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(20.dp),
+        value = password.value,
+        onValueChange = {
+            password.value = it
+            viewModel.setPassVal(it)
+
+        },
+        label = { Text(labelValue, fontFamily = myCustomFont) },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = textFieldOutline,
+            focusedLabelColor = textFieldOutline,
+            cursorColor = Primary,
+            containerColor = textFieldBG,
+            unfocusedBorderColor = textFieldOutline,
+            placeholderColor = Color.LightGray,
+            textColor = darkBG
+        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        shape = RoundedCornerShape(10.dp),
+        leadingIcon = {
+            Icon(
+                painter = painterResource,
+                contentDescription = "",
+                modifier = Modifier
+                    .size(24.dp)
+                    .fillMaxHeight()
+            )
+        },
+        trailingIcon = {
+            if (seePass) {
+                val iconImg = if (passwordVisibility.value) {
+                    Icons.Filled.Visibility
+                } else {
+                    Icons.Filled.VisibilityOff
+                }
+
+                var description = if (passwordVisibility.value) {
+                    "Hide Password"
+                } else {
+                    "Show Password"
+                }
+
+                IconButton(onClick = { passwordVisibility.value = !passwordVisibility.value }) {
+                    Icon(imageVector = iconImg, contentDescription = description)
+                }
+            }
+        },
+        visualTransformation = if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation('*'),
+        textStyle = TextStyle(fontSize = 18.sp, lineHeight = 20.sp, letterSpacing = 5.sp)
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginEmailTextField(labelValue: String, painterResource: Painter, viewModel: LoginViewModel) {
+
+    val textValue = remember {
+        mutableStateOf("")
+    }
+
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(20.dp),
+        value = textValue.value,
+        onValueChange = {
+            textValue.value = it
+            viewModel.setEmailVal(it)
+        },
+        label = { Text(labelValue, fontFamily = myCustomFont) },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = textFieldOutline,
+            focusedLabelColor = textFieldOutline,
+            cursorColor = Primary,
+            containerColor = textFieldBG,
+            unfocusedBorderColor = textFieldOutline,
+            placeholderColor = Color.LightGray,
+            textColor = darkBG
+        ),
+        keyboardOptions = KeyboardOptions.Default,
+        shape = RoundedCornerShape(10.dp),
+        leadingIcon = {
+            Icon(
+                painter = painterResource,
+                contentDescription = "",
+                modifier = Modifier
+                    .size(24.dp)
+                    .fillMaxHeight()
+            )
+        },
+        textStyle = TextStyle(fontSize = 18.sp, lineHeight = 20.sp)
+    )
 }
 
 

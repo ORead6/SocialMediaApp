@@ -45,7 +45,9 @@ fun RegisterScreen(navController: NavHostController) {
             Column( modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 28.dp, top = 10.dp)) {
-                backButton(thisOnClick = {})
+                backButton(thisOnClick = {
+                    navController.navigate("loginSelection")
+                })
                 Spacer(modifier = Modifier.padding(10.dp))
                 HeadingTextComponent(value = "Create an Account", thisColor = Color.White, alignment = TextAlign.Left)
             }
@@ -116,10 +118,6 @@ fun RegisterScreen(navController: NavHostController) {
                     Spacer(modifier = Modifier.padding(16.dp))
                     loginButtonComponent(value = "Create Account", thisOnClick = {
                         myRegisterViewModel.registerUser(myRegisterViewModel.emailVal.value, myRegisterViewModel.usernameVal.value, myRegisterViewModel.pass1Val.value, navController)
-//                        Log.d("REGISTERFIELDS", myRegisterViewModel.emailVal.value)
-//                        Log.d("REGISTERFIELDS", myRegisterViewModel.usernameVal.value)
-//                        Log.d("REGISTERFIELDS", myRegisterViewModel.pass1Val.value)
-//                        Log.d("REGISTERFIELDS", myRegisterViewModel.pass2Val.value)
                     })
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -129,7 +127,7 @@ fun RegisterScreen(navController: NavHostController) {
                         fullText = "Already have an account? Sign in",
                         clickableText = "Sign in",
                         onClick = {
-
+                            navController.navigate("login")
                         }
                     )
 

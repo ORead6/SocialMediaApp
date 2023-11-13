@@ -1,7 +1,6 @@
 package com.example.socialmediaapp
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.socialmediaapp.components.myNavBar
+import com.example.socialmediaapp.screens.LoginScreen
 import com.example.socialmediaapp.screens.LoginSelectionScreen
 import com.example.socialmediaapp.screens.RegisterScreen
 import com.example.socialmediaapp.signIn.GoogleAuthUiClient
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
-            val myNavGraph = navController.createGraph(startDestination = "register") {
+            val myNavGraph = navController.createGraph(startDestination = "loginSelection") {
                 composable(
                     route = "loginSelection",
                     content = {
@@ -93,7 +93,8 @@ class MainActivity : ComponentActivity() {
                                             ).build()
                                         )
                                     }
-                                }
+                                },
+                                navController = navController
                             )
                         }
                     }
@@ -123,6 +124,13 @@ class MainActivity : ComponentActivity() {
                     route = "register",
                     content = {
                         RegisterScreen(navController)
+                    }
+                )
+
+                composable(
+                    route = "login",
+                    content = {
+                        LoginScreen(navController)
                     }
                 )
             }

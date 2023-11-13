@@ -64,7 +64,7 @@ fun ProfileScreen(
             ) {
                 bioSection(thisBio = "This is a testing bio, I want to see if the text will wrap if it keeps going over the end of the screen")
                 Spacer(modifier = Modifier.padding(10.dp))
-                EditProfileButton()
+                EditProfileButton(thisOnClick = onSignOut)
             }
 
             Spacer(modifier = Modifier.padding(25.dp))

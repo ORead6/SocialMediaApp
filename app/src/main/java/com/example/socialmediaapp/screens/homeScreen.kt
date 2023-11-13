@@ -33,28 +33,12 @@ fun homeScreen(
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            
-            if(userData?.username != null) {
-                Text(text = userData.username)
-            }
 
-            if(userData?.profilePictureUrl != null) {
-                AsyncImage(
-                    model = userData.profilePictureUrl,
-                    contentDescription = "Profile Picture",
-                    modifier  = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-
-            }
 
         }
 
     }
 }
-
 
 
 @Preview
