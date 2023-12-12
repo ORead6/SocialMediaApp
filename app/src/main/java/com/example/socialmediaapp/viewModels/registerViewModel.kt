@@ -12,6 +12,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
+import com.google.firebase.database.FirebaseDatabase
 
 class registerViewModel() : ViewModel(){
     private val auth = Firebase.auth
@@ -30,7 +31,7 @@ class registerViewModel() : ViewModel(){
     private val _pass2 = mutableStateOf("")
     val pass2Val: State<String> = _pass2
 
-    private val _currentUser = mutableStateOf(UserData("", null, null))
+    private val _currentUser = mutableStateOf(UserData("", null, null, null))
     val currentUser: MutableState<UserData> = _currentUser
 
     fun setEmailVal(text: String) {
@@ -70,7 +71,10 @@ class registerViewModel() : ViewModel(){
 
                     auth.currentUser?.updateProfile(userProfileChangeRequest)
 
-                    Log.d("owen-read", "Successful")
+                    val dbReference = FirebaseDatabase.getInstance().getReference("Users/${auth.currentUser?.uid}")
+
+                    dbReference.child("username").setValue(username)
+                    /// WRITE TO DB
 
                     navController.navigate("home")
 
@@ -79,6 +83,8 @@ class registerViewModel() : ViewModel(){
                     task.exception?.message?.let { Log.d("owen", it) }
                 }
             }
+
+
     }
 }
 

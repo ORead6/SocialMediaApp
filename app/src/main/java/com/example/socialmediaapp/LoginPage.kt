@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.socialmediaapp.components.myNavBar
+import com.example.socialmediaapp.screens.EditProfileScreen
 import com.example.socialmediaapp.screens.LoginScreen
 import com.example.socialmediaapp.screens.LoginSelectionScreen
 import com.example.socialmediaapp.screens.RegisterScreen
@@ -42,6 +43,13 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             val myNavGraph = navController.createGraph(startDestination = "loginSelection") {
+                composable(
+                    route = "testingElement",
+                    content = {
+                        EditProfileScreen(userData = null)
+                    }
+                )
+                
                 composable(
                     route = "loginSelection",
                     content = {

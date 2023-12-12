@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.CancellationException
 
@@ -44,7 +45,8 @@ class GoogleAuthUiClient(
                     UserData(
                         userId  = uid,
                         username = displayName,
-                        profilePictureUrl = photoUrl?.toString()
+                        profilePictureUrl = photoUrl?.toString(),
+                        bio = ""
                     )
                 },
                 errorMessage = null
@@ -71,10 +73,15 @@ class GoogleAuthUiClient(
 
     // This is where we change stuff regarding userdata
     fun getSignedInUser(): UserData? = auth.currentUser?.run {
+
+        //val dbReference = FirebaseDatabase.getInstance().getReference("Users/$uid")
+
+
         UserData(
             userId = uid,
             username = displayName,
-            profilePictureUrl = photoUrl?.toString()
+            profilePictureUrl = photoUrl?.toString(),
+            bio = ""
         )
     }
 

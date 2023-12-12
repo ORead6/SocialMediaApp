@@ -44,6 +44,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import com.example.socialmediaapp.screens.EditProfileScreen
 import com.example.socialmediaapp.screens.GroupScreen
 import com.example.socialmediaapp.screens.InboxScreen
 import com.example.socialmediaapp.screens.ProfileScreen
@@ -147,6 +148,7 @@ fun myNavBar(
                 ProfileScreen(userData, onSignOut)
             }
         )
+
     }
 
     Scaffold(
