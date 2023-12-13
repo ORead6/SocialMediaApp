@@ -3,7 +3,6 @@ package com.example.socialmediaapp.signIn
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
-import android.util.Log
 import com.example.socialmediaapp.R
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
@@ -11,9 +10,11 @@ import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.CancellationException
+import java.util.concurrent.CompletableFuture
 
 class GoogleAuthUiClient(
     private val context: Context,
@@ -70,19 +71,61 @@ class GoogleAuthUiClient(
             if(e is CancellationException) throw e
         }
     }
+    fun getSignedInUser(): CompletableFuture<UserData?> {
 
-    // This is where we change stuff regarding userdata
-    fun getSignedInUser(): UserData? = auth.currentUser?.run {
+        // WILL RETURN USER DATA BASED ON THE DATA BASE
 
-        //val dbReference = FirebaseDatabase.getInstance().getReference("Users/$uid")
+        val completableFuture = CompletableFuture<UserData?>()
+        val uid = auth.currentUser?.uid ?: ""
+
+        if (uid == "") {
+            return completableFuture
+        }
+
+        val dbReference = Firebase.firestore
+        val docRef = dbReference.collection("Users").document(uid)
+
+        docRef.get().addOnSuccessListener { documentSnapshot ->
+            val thisUser: UserData
+
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+
+                // RETRIEVES GOOGLE USER DATA FROM THE DATABASE
+
+                val username = documentSnapshot.getString("username") ?: ""
+                val photoLink = documentSnapshot.getString("photoLink") ?: ""
+                val bio = documentSnapshot.getString("bio") ?: ""
+
+                thisUser = UserData(
+                    userId = uid,
+                    username = username,
+                    profilePictureUrl = photoLink,
+                    bio = bio
+                )
+                completableFuture.complete(thisUser)
+
+            } else {
+
+                // CREATES FIRST TIME GOOGLE USER IN DB
+
+                val googleUsername = auth.currentUser?.displayName ?: ""
+                val googlePhoto = auth.currentUser?.photoUrl.toString()
+
+                val thisUserMap = mapOf<String, String?>(
+                    "username" to googleUsername,
+                    "photoLink" to googlePhoto,
+                    "bio" to ""
+                )
+
+                dbReference.collection("Users")
+                    .document(uid)
+                    .set(thisUserMap)
 
 
-        UserData(
-            userId = uid,
-            username = displayName,
-            profilePictureUrl = photoUrl?.toString(),
-            bio = ""
-        )
+                completableFuture.complete(null)
+            }
+        }
+        return completableFuture
     }
 
     private fun buildSignInRequest(): BeginSignInRequest {

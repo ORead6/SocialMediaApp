@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.firestore
 
 class registerViewModel() : ViewModel(){
     private val auth = Firebase.auth
@@ -71,10 +72,21 @@ class registerViewModel() : ViewModel(){
 
                     auth.currentUser?.updateProfile(userProfileChangeRequest)
 
-                    val dbReference = FirebaseDatabase.getInstance().getReference("Users/${auth.currentUser?.uid}")
+                    // WRITES NEW EMAIL PASS USER TO DB
 
-                    dbReference.child("username").setValue(username)
-                    /// WRITE TO DB
+                    val dbReference = Firebase.firestore
+
+                    val thisUser = mapOf<String, String?>(
+                        "username" to username,
+                        "photoLink" to "",
+                        "bio" to ""
+                    )
+
+                    val uuid = auth.currentUser?.uid ?: ""
+
+                    dbReference.collection("Users")
+                        .document(uuid)
+                        .set(thisUser)
 
                     navController.navigate("home")
 

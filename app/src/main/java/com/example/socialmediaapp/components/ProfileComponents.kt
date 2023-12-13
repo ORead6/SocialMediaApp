@@ -41,7 +41,7 @@ import com.example.socialmediaapp.signIn.UserData
 fun pfpCircle(
     userData: UserData?
 ) {
-    if (userData?.profilePictureUrl != null) {
+    if (userData?.profilePictureUrl != null && userData.profilePictureUrl != "") {
         AsyncImage(
             model = userData?.profilePictureUrl,
             contentDescription = "Profile Picture",

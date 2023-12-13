@@ -9,6 +9,8 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,6 +25,7 @@ import com.example.socialmediaapp.screens.LoginSelectionScreen
 import com.example.socialmediaapp.screens.RegisterScreen
 import com.example.socialmediaapp.signIn.GoogleAuthUiClient
 import com.example.socialmediaapp.signIn.SignInViewModel
+import com.example.socialmediaapp.signIn.UserData
 import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
 
@@ -56,10 +59,16 @@ class MainActivity : ComponentActivity() {
                         val viewModel = viewModel<SignInViewModel>()
                         val state by viewModel.state.collectAsStateWithLifecycle()
 
+                        val userSignedIn = remember { mutableStateOf<UserData?>(null) }
+
                         LaunchedEffect(key1 = Unit) {
-                            if(googleAuthUiClient.getSignedInUser() != null)  {
-                                navController.navigate("home")
+                            googleAuthUiClient.getSignedInUser().thenAccept { userData ->
+                                userSignedIn.value = userData
                             }
+                        }
+
+                        if (userSignedIn.value != null) {
+                            navController.navigate("home")
                         }
 
                         val launcher = rememberLauncherForActivityResult(
@@ -89,7 +98,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        if (googleAuthUiClient.getSignedInUser() == null) {
+                        if (userSignedIn.value == null) {
                             LoginSelectionScreen(
                                 state = state,
                                 onSignInClick1 = {
@@ -111,7 +120,16 @@ class MainActivity : ComponentActivity() {
                 composable(
                     route = "home",
                     content = {
-                        myNavBar(userData = googleAuthUiClient.getSignedInUser(),
+
+                        val userSignedIn = remember { mutableStateOf<UserData?>(null) }
+
+
+                        googleAuthUiClient.getSignedInUser().thenAccept { userData ->
+                            userSignedIn.value = userData
+                        }
+
+
+                        myNavBar(userData = userSignedIn.value,
                             onSignOut = {
                                 lifecycleScope.launch {
                                     googleAuthUiClient.signOut()
