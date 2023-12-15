@@ -9,5 +9,6 @@ data class UserData(
     val userId: String,
     val username: String?,
     val profilePictureUrl: Any?,
-    val bio: Any?
+    val bio: Any?,
+    var userPosts: List<String>? = null
 )

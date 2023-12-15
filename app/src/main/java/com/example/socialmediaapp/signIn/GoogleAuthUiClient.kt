@@ -3,6 +3,7 @@ package com.example.socialmediaapp.signIn
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.util.Log
 import com.example.socialmediaapp.R
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
@@ -102,7 +103,26 @@ class GoogleAuthUiClient(
                     profilePictureUrl = photoLink,
                     bio = bio
                 )
-                completableFuture.complete(thisUser)
+
+                dbReference.collection("Users")
+                    .document(uid)
+                    .collection("posts")
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        val postIds = mutableListOf<String>()
+
+                        for (document in querySnapshot.documents) {
+                            postIds.add(document.id)
+                        }
+
+                        // Update UserData with postIds
+                        thisUser.userPosts = postIds
+                        completableFuture.complete(thisUser)
+                    }
+
+                    .addOnFailureListener {
+                        completableFuture.complete(thisUser)
+                    }
 
             } else {
 
@@ -125,6 +145,7 @@ class GoogleAuthUiClient(
                 completableFuture.complete(null)
             }
         }
+
         return completableFuture
     }
 

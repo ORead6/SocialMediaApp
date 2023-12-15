@@ -1,6 +1,7 @@
 package com.example.socialmediaapp
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -121,6 +122,8 @@ class MainActivity : ComponentActivity() {
                             userSignedIn.value = userData
                         }
 
+                        Log.d("USERDATA", userSignedIn.value?.userPosts.toString())
+
 
                         myNavBar(userData = userSignedIn.value,
                             onSignOut = {
@@ -132,7 +135,7 @@ class MainActivity : ComponentActivity() {
                                         Toast.LENGTH_LONG
                                     ).show()
 
-                                    navController.popBackStack()
+                                    navController.navigate("loginSelection")
                                 }
                             })
 

@@ -5,22 +5,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -28,18 +25,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +44,6 @@ import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.signIn.UserData
 import com.example.socialmediaapp.viewModels.editprofileViewModel
-import com.example.socialmediaapp.viewModels.registerViewModel
 
 @Composable
 fun Header(value: String, thisColor: Color = Color.White) {
@@ -213,28 +208,40 @@ fun bioField(labelValue: String, viewModel: editprofileViewModel = myViewModel) 
 }
 
 @Composable
-fun threeDots(thisOnClick: () -> Unit) {
-    Button(
-        onClick = thisOnClick,
+fun ThreeDotsMenu(onMenuItemClick: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box (
         modifier = Modifier
             .fillMaxWidth(0.1f)
             .fillMaxHeight(0.05f),
-        contentPadding = PaddingValues(top = 8.dp, end = 8.dp, bottom = 8.dp),
-        colors = ButtonDefaults.buttonColors(Color.Transparent),
-        shape = CircleShape
-    ) {
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+    ){
+        IconButton(
+            onClick = { expanded = !expanded }
         ) {
             Image(
                 painter = painterResource(id = R.drawable.more),
-                contentDescription = "back",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center)
+                contentDescription = "More Options"
             )
+        }
 
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.padding(end = 8.dp)
+        ) {
+            DropdownMenuItem(onClick = {
+                onMenuItemClick("DELETE")
+                expanded = false
+            }, text = { Text(text = "DELETE ACCOUNT",
+                fontFamily = myCustomFont,
+                color = Color.Red) })
+
+            DropdownMenuItem(onClick = {
+                onMenuItemClick("Logout")
+                expanded = false
+            }, text = { Text(text = "Logout",
+                fontFamily = myCustomFont) })
         }
     }
 }

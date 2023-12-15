@@ -186,7 +186,7 @@ fun myNavBar(
         composable(
             route = "EditProfile",
             content = {
-                EditProfileScreen(userData = userData, navController = navController)
+                EditProfileScreen(userData = userData, navController = navController, onSignOut = onSignOut)
             }
         )
 
