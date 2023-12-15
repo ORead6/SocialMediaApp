@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import com.example.socialmediaapp.components.EditProfileButton
 import com.example.socialmediaapp.components.FollowerCounter
 import com.example.socialmediaapp.components.FollowingCounter
+import com.example.socialmediaapp.components.GridScreen
 import com.example.socialmediaapp.components.GroupsCounter
 import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.bioSection
@@ -70,6 +71,8 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.padding(25.dp))
 
             postDivider()
+
+            GridScreen(userData)
         }
 
 
