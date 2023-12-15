@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,12 +17,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,7 +55,7 @@ fun Header(value: String, thisColor: Color = Color.White) {
     Text(
         text = value,
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.5f)
             .heightIn(),
         style = TextStyle(
             fontSize = 30.sp,
@@ -155,27 +159,37 @@ fun textField(labelValue: String, viewModel: editprofileViewModel = myViewModel)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun bioField(labelValue: String, viewModel: editprofileViewModel = myViewModel) {
-
     val textValue = remember {
         mutableStateOf(labelValue)
     }
+    val exceededLimit = remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier
-        .fillMaxWidth(),
+    var borderColor = textFieldOutline
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .heightIn(100.dp),
             value = textValue.value,
             onValueChange = {
-                textValue.value = it
-                viewModel.setUsername(it)
+                if (it.length <= 100) {
+                    textValue.value = it
+                    viewModel.setUsername(it)
+                    exceededLimit.value = false
+                } else {
+                    borderColor = Color.Red
+                    exceededLimit.value = true
+                }
             },
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = textFieldOutline,
-                focusedLabelColor = textFieldOutline,
+                focusedBorderColor = borderColor,
+                focusedLabelColor = borderColor,
                 cursorColor = Primary,
                 containerColor = textFieldBG,
                 unfocusedBorderColor = textFieldOutline,
@@ -186,8 +200,43 @@ fun bioField(labelValue: String, viewModel: editprofileViewModel = myViewModel) 
             shape = RoundedCornerShape(10.dp),
             textStyle = TextStyle(fontSize = 18.sp, lineHeight = 20.sp)
         )
-    }
 
+        // Character counter
+        Text(
+            text = "${textValue.value.length}/100",
+            modifier = Modifier
+                .padding(top = 4.dp, end = 8.dp)
+                .align(Alignment.End),
+            color = if (exceededLimit.value) Color.Red else Color.Gray
+        )
+    }
+}
+
+@Composable
+fun threeDots(thisOnClick: () -> Unit) {
+    Button(
+        onClick = thisOnClick,
+        modifier = Modifier
+            .fillMaxWidth(0.1f)
+            .fillMaxHeight(0.05f),
+        contentPadding = PaddingValues(top = 8.dp, end = 8.dp, bottom = 8.dp),
+        colors = ButtonDefaults.buttonColors(Color.Transparent),
+        shape = CircleShape
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.more),
+                contentDescription = "back",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+            )
+
+        }
+    }
 }
 
 @Preview

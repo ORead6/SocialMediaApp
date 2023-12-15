@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.components.Header
 import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.backButton
@@ -35,14 +37,15 @@ import com.example.socialmediaapp.components.editPfpCircle
 import com.example.socialmediaapp.components.myCustomFont
 import com.example.socialmediaapp.components.pfpCircle
 import com.example.socialmediaapp.components.textField
+import com.example.socialmediaapp.components.threeDots
 import com.example.socialmediaapp.signIn.UserData
 
 @Composable
 fun EditProfileScreen (
     userData: UserData?,
     onSignOut: () -> Unit = {},
-    navController: NavController? = null
-){
+    navController: NavController
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -56,12 +59,30 @@ fun EditProfileScreen (
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 28.dp, top = 28.dp, end = 28.dp),
+                    .padding(top = 28.dp, start = 28.dp, end = 28.dp)
             ) {
-                backButton (thisOnClick = {
-                    navController?.navigate("")
-                })
-                Header(value = "Profile")
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    backButton(thisOnClick = {
+                        navController.navigate("Profile")
+                    })
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    threeDots(thisOnClick = {})
+                }
+
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    Header(value = "Profile")
+                }
             }
 
             Spacer(modifier = Modifier.padding(30.dp))
@@ -75,23 +96,25 @@ fun EditProfileScreen (
                     ),
                 //contentAlignment = Alignment.TopCenter
             ) {
-                Box(modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset(y = (-40).dp)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .offset(y = (-40).dp)
 
                 ) {
                     editPfpCircle(userData = null)
                 }
-                Column (modifier = Modifier
-                    .fillMaxSize())
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
                 {
                     Spacer(modifier = Modifier.padding(30.dp))
                     textField(labelValue = userData?.username ?: "Username")
                     Spacer(modifier = Modifier.padding(10.dp))
-                    bioField(labelValue = "Bio")
+                    bioField(labelValue = userData?.bio.toString())
                 }
             }
-
 
 
         }
@@ -100,6 +123,6 @@ fun EditProfileScreen (
 
 @Preview
 @Composable
-fun DefaultPreviewOfEditProfileScreen() {
-    EditProfileScreen(null)
+fun defPrev() {
+    EditProfileScreen(navController = rememberNavController(), userData = null)
 }

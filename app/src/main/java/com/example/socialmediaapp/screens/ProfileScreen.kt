@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.socialmediaapp.components.EditProfileButton
 import com.example.socialmediaapp.components.FollowerCounter
 import com.example.socialmediaapp.components.FollowingCounter
@@ -26,7 +27,8 @@ import com.example.socialmediaapp.signIn.UserData
 @Composable
 fun ProfileScreen(
     userData: UserData?,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    navBarController: NavController
 ) {
     Surface(
         modifier = Modifier
@@ -58,9 +60,11 @@ fun ProfileScreen(
                     .padding(start = 28.dp, top = 10.dp, end = 28.dp)
                     .background(LoginScreensColor)
             ) {
-                bioSection(thisBio = "This is a testing bio, I want to see if the text will wrap if it keeps going over the end of the screen")
+                bioSection(thisBio = userData?.bio.toString())
                 Spacer(modifier = Modifier.padding(10.dp))
-                EditProfileButton(thisOnClick = onSignOut)
+                EditProfileButton(thisOnClick = {
+                    navBarController.navigate("EditProfile")
+                })
             }
 
             Spacer(modifier = Modifier.padding(25.dp))
@@ -72,9 +76,3 @@ fun ProfileScreen(
     }
 }
 
-@Preview
-@Composable
-fun DefaultPreviewOfProfileScreen() {
-    val userData = UserData(userId = "test", username = null, profilePictureUrl = null, bio = "")
-    ProfileScreen(userData, onSignOut = {})
-}

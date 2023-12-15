@@ -40,8 +40,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.socialmediaapp.screens.EditProfileScreen
@@ -65,7 +67,7 @@ data class BottomNavigationItem(
 @Composable
 fun myNavBar(
     userData: UserData?,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
 ) {
 
     val items = listOf(
@@ -111,7 +113,39 @@ fun myNavBar(
         mutableStateOf(0)
     }
 
+    var bottomViewable by rememberSaveable {
+        mutableStateOf(true)
+    }
+
     val navController = rememberNavController()
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    when (navBackStackEntry?.destination?.route) {
+        "Home" -> {
+            bottomViewable = true
+        }
+
+        "Groups" -> {
+            bottomViewable = true
+        }
+
+        "Upload" -> {
+            bottomViewable = true
+        }
+
+        "Inbox" -> {
+            bottomViewable = true
+        }
+
+        "Profile" -> {
+            bottomViewable = true
+        }
+
+        "EditProfile" -> {
+            bottomViewable = false
+        }
+    }
 
     val myNavGraph = navController.createGraph(startDestination = "Home") {
         composable(
@@ -145,7 +179,14 @@ fun myNavBar(
         composable(
             route = "Profile",
             content = {
-                ProfileScreen(userData, onSignOut)
+                ProfileScreen(userData, onSignOut = onSignOut, navBarController = navController)
+            }
+        )
+
+        composable(
+            route = "EditProfile",
+            content = {
+                EditProfileScreen(userData = userData, navController = navController)
             }
         )
 
@@ -156,77 +197,79 @@ fun myNavBar(
             .fillMaxWidth()
             .background(Color.Black),
         bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .background(Color.Black)
-                    .height(75.dp),
-                containerColor = Color.Black,
-                contentColor = Color.Black,
-            ) {
-                items.forEachIndexed { index, item ->
-                    NavigationBarItem(selected = selectedItemIndex == index,
-                        onClick = {
-                            selectedItemIndex = index
-                            navController.navigate(item.title) {
-                                launchSingleTop = true
-                            }
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            indicatorColor = Color.Black
-                        ),
-                        alwaysShowLabel = true,
-                        label = {
-                            val isVisible = (index == selectedItemIndex)
-
-                            AnimatedContent(
-                                targetState = isVisible, content = { isVisible ->
-                                    if (isVisible) {
-                                        Text(text = item.title, color = Color.White)
-                                    } else {
-                                        Text(text = item.title, color = myDarkGrey)
-                                    }
-                                },
-                                transitionSpec = { fadeIn() togetherWith fadeOut() },
-                                label = ""
-                            )
-                        },
-                        icon = {
-
-                            val isVisible = (index == selectedItemIndex)
-
-                            BadgedBox(
-                                badge = {
-                                    if (item.badgeCount != null) {
-                                        Badge {
-                                            Text(text = item.badgeCount.toString())
-                                        }
-                                    } else if (item.hasNews) {
-                                        Badge()
-                                    }
+            if (bottomViewable) {
+                NavigationBar(
+                    modifier = Modifier
+                        .background(Color.Black)
+                        .height(75.dp),
+                    containerColor = Color.Black,
+                    contentColor = Color.Black,
+                ) {
+                    items.forEachIndexed { index, item ->
+                        NavigationBarItem(selected = selectedItemIndex == index,
+                            onClick = {
+                                selectedItemIndex = index
+                                navController.navigate(item.title) {
+                                    launchSingleTop = true
                                 }
-                            ) {
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                indicatorColor = Color.Black
+                            ),
+                            alwaysShowLabel = true,
+                            label = {
+                                val isVisible = (index == selectedItemIndex)
 
                                 AnimatedContent(
                                     targetState = isVisible, content = { isVisible ->
                                         if (isVisible) {
-                                            Icon(
-                                                imageVector = item.selectedIcon,
-                                                contentDescription = item.title,
-                                                tint = Color.White
-                                            )
+                                            Text(text = item.title, color = Color.White)
                                         } else {
-                                            Icon(
-                                                imageVector = item.unselectedItem,
-                                                contentDescription = item.title,
-                                                tint = Color.White
-                                            )
+                                            Text(text = item.title, color = myDarkGrey)
                                         }
                                     },
+                                    transitionSpec = { fadeIn() togetherWith fadeOut() },
                                     label = ""
                                 )
+                            },
+                            icon = {
 
-                            }
-                        })
+                                val isVisible = (index == selectedItemIndex)
+
+                                BadgedBox(
+                                    badge = {
+                                        if (item.badgeCount != null) {
+                                            Badge {
+                                                Text(text = item.badgeCount.toString())
+                                            }
+                                        } else if (item.hasNews) {
+                                            Badge()
+                                        }
+                                    }
+                                ) {
+
+                                    AnimatedContent(
+                                        targetState = isVisible, content = { isVisible ->
+                                            if (isVisible) {
+                                                Icon(
+                                                    imageVector = item.selectedIcon,
+                                                    contentDescription = item.title,
+                                                    tint = Color.White
+                                                )
+                                            } else {
+                                                Icon(
+                                                    imageVector = item.unselectedItem,
+                                                    contentDescription = item.title,
+                                                    tint = Color.White
+                                                )
+                                            }
+                                        },
+                                        label = ""
+                                    )
+
+                                }
+                            })
+                    }
                 }
             }
         }
