@@ -117,6 +117,26 @@ class GoogleAuthUiClient(
 
                         // Update UserData with postIds
                         thisUser.userPosts = postIds
+
+                    }
+
+                    .addOnFailureListener {
+                        Log.d("DBERROR", it.toString())
+                    }
+
+                dbReference.collection("Users")
+                    .document(uid)
+                    .collection("groups")
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        val groupIds = mutableListOf<String>()
+
+                        for (document in querySnapshot.documents) {
+                            groupIds.add(document.id)
+                        }
+
+                        // Update UserData with postIds
+                        thisUser.userGroups = groupIds
                         completableFuture.complete(thisUser)
                     }
 

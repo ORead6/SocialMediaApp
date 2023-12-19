@@ -82,13 +82,13 @@ fun LoginScreen(navController: NavController){
                     )
                     Spacer(modifier = Modifier.padding(12.dp))
                     NormalTextComponent(
-                        value = "Username or email",
+                        value = "Email",
                         thisColor = Color.LightGray,
                         alignment = TextAlign.Left,
                         bold = true,
                     )
                     LoginEmailTextField(
-                        labelValue = "Enter your username or email",
+                        labelValue = "Enter your email",
                         painterResource = painterResource(id = R.drawable.user),
                         viewModel = myLoginViewModel
                     )

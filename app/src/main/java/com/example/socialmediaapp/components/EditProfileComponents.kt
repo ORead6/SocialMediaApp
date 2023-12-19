@@ -105,7 +105,9 @@ fun editPfpCircle(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.pencil),
+                // Change from email to new pencil
+                // old one corrupted and broke the whole app
+                painter = painterResource(id = R.drawable.email),
                 contentDescription = "Pencil",
             )
         }

@@ -74,6 +74,8 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
+                        Log.d("USERDATA", userSignedIn.value.toString())
+
                         if (userSignedIn.value != null) {
                             navController.navigate("home")
                         }

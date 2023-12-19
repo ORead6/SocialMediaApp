@@ -10,5 +10,6 @@ data class UserData(
     val username: String?,
     val profilePictureUrl: Any?,
     val bio: Any?,
-    var userPosts: List<String>? = null
+    var userPosts: List<String>? = null,
+    var userGroups: List<String>? = null
 )

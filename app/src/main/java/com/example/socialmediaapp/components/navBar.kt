@@ -3,6 +3,7 @@
 package com.example.socialmediaapp.components
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -186,7 +187,14 @@ fun myNavBar(
         composable(
             route = "EditProfile",
             content = {
-                EditProfileScreen(userData = userData, navController = navController, onSignOut = onSignOut)
+
+                EditProfileScreen(
+                    userData = userData,
+                    navController = navController,
+                    onSignOut = onSignOut
+                )
+
+
             }
         )
 
