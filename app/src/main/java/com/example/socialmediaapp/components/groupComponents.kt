@@ -38,21 +38,16 @@ import okhttp3.internal.wait
 import kotlin.random.Random
 
 @Composable
-fun groupGrid(theUser: UserData?) {
-    val userGroups = remember { theUser?.userGroups }
-    val listCount = remember {
-        (1..(userGroups?.size ?: 0)).toList()
-    }
-
+fun groupGrid(userGroups: MutableList<String>) {
     val spacing = 25.dp
 
     LazyColumn {
-        itemsIndexed(listCount) { index, item ->
+        itemsIndexed(userGroups) { index, group ->
             Box(
                 modifier = Modifier
                     .padding(top = spacing / 2)
             ) {
-                groupGridItem(userGroups?.get(index) ?: "")
+                groupGridItem(group)
             }
         }
 

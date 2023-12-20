@@ -11,24 +11,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.socialmediaapp.components.FollowerCounter
-import com.example.socialmediaapp.components.FollowingCounter
-import com.example.socialmediaapp.components.GroupsCounter
-import com.example.socialmediaapp.components.Header
 import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.SearchBar
-import com.example.socialmediaapp.components.ThreeDotsMenu
-import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.groupGrid
-import com.example.socialmediaapp.components.myNavBar
-import com.example.socialmediaapp.components.pfpCircle
-import com.example.socialmediaapp.components.userNameDisplay
+import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
 
 @Composable
@@ -46,6 +41,20 @@ fun GroupScreen(
                 .background(LoginScreensColor)
                 .padding(start = 28.dp, end = 28.dp, top = 14.dp)
         ) {
+
+            val dbCalls = databaseCalls(userData?.userId ?: "")
+
+            var userGroups by remember {
+                mutableStateOf(mutableListOf<String>())
+            }
+
+
+            LaunchedEffect(Unit) {
+                dbCalls.getGroups {theGroups ->
+                    userGroups = theGroups.toMutableList()
+                }
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -73,7 +82,7 @@ fun GroupScreen(
                 }
             }
 
-            groupGrid(theUser = userData)
+            groupGrid(userGroups)
         }
 
     }

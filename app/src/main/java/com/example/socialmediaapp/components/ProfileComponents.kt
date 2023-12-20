@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.components
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -282,17 +283,12 @@ fun userNameDisplay(username: String? = "Test") {
 }
 
 @Composable
-fun GridScreen(theUser: UserData?) {
-    val userPosts = remember { theUser?.userPosts }
-    val listCount = remember {
-        (1..(userPosts?.size ?: 0)).toList()
-    }
-
+fun GridScreen(userPosts: MutableList<String>) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3), // Number of columns in the grid
+        columns = GridCells.Fixed(3)
     ) {
-        itemsIndexed(listCount) { index, item ->
-            GridItem(userPosts?.get(index) ?: "")
+        itemsIndexed(userPosts) { index, post ->
+            GridItem(post)
         }
     }
 }

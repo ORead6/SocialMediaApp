@@ -103,46 +103,48 @@ class GoogleAuthUiClient(
                     profilePictureUrl = photoLink,
                     bio = bio
                 )
+                completableFuture.complete(thisUser)
 
-                dbReference.collection("Users")
-                    .document(uid)
-                    .collection("posts")
-                    .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        val postIds = mutableListOf<String>()
+//                dbReference.collection("Users")
+//                    .document(uid)
+//                    .collection("posts")
+//                    .get()
+//                    .addOnSuccessListener { querySnapshot ->
+//                        val postIds = mutableListOf<String>()
+//
+//                        for (document in querySnapshot.documents) {
+//                            postIds.add(document.id)
+//                        }
+//
+//                        // Update UserData with postIds
+//                        thisUser.userPosts = postIds
+//
+//                    }
+//
+//                    .addOnFailureListener {
+//                        Log.d("DBERROR", it.toString())
+//                    }
 
-                        for (document in querySnapshot.documents) {
-                            postIds.add(document.id)
-                        }
+//                dbReference.collection("Users")
+//                    .document(uid)
+//                    .collection("groups")
+//                    .get()
+//                    .addOnSuccessListener { querySnapshot ->
+//                        val groupIds = mutableListOf<String>()
+//
+//                        for (document in querySnapshot.documents) {
+//                            groupIds.add(document.id)
+//                        }
+//
+//                        // Update UserData with postIds
+//                        thisUser.userGroups = groupIds
+//                        completableFuture.complete(thisUser)
+//                    }
+//
+//                    .addOnFailureListener {
+//                        completableFuture.complete(thisUser)
+//                    }
 
-                        // Update UserData with postIds
-                        thisUser.userPosts = postIds
-
-                    }
-
-                    .addOnFailureListener {
-                        Log.d("DBERROR", it.toString())
-                    }
-
-                dbReference.collection("Users")
-                    .document(uid)
-                    .collection("groups")
-                    .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        val groupIds = mutableListOf<String>()
-
-                        for (document in querySnapshot.documents) {
-                            groupIds.add(document.id)
-                        }
-
-                        // Update UserData with postIds
-                        thisUser.userGroups = groupIds
-                        completableFuture.complete(thisUser)
-                    }
-
-                    .addOnFailureListener {
-                        completableFuture.complete(thisUser)
-                    }
 
             } else {
 
