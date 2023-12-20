@@ -48,10 +48,19 @@ fun GroupScreen(
                 mutableStateOf(mutableListOf<String>())
             }
 
+            var userGroupData by remember {
+                mutableStateOf<Map<String, Map<String, String>>>(emptyMap())
+            }
 
             LaunchedEffect(Unit) {
                 dbCalls.getGroups {theGroups ->
                     userGroups = theGroups.toMutableList()
+                }
+            }
+
+            LaunchedEffect(userGroups) {
+                dbCalls.getGroupsInfo(userGroups) { theGroupsData ->
+                    userGroupData = theGroupsData
                 }
             }
 
@@ -82,7 +91,8 @@ fun GroupScreen(
                 }
             }
 
-            groupGrid(userGroups)
+            groupGrid(userGroupData)
+
         }
 
     }
