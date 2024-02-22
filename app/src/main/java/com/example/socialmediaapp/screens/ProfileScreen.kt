@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -26,6 +27,8 @@ import com.example.socialmediaapp.components.GridScreen
 import com.example.socialmediaapp.components.GroupsCounter
 import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.bioSection
+import com.example.socialmediaapp.components.myDarkGrey
+import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.components.pfpCircle
 import com.example.socialmediaapp.components.postDivider
 import com.example.socialmediaapp.components.userNameDisplay
@@ -41,12 +44,18 @@ fun ProfileScreen(
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(LoginScreensColor)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(LoginScreensColor)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            myDarkGrey,
+                            myGradientGrey
+                        )
+                    )
+                )
         ) {
 
             val dbCalls = databaseCalls(userData?.userId ?: "")
@@ -68,7 +77,6 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 28.dp, top = 14.dp, end = 28.dp)
-                    .background(LoginScreensColor)
             ) {
                 pfpCircle(userData = userData)
                 GroupsCounter(modifier = Modifier.weight(1f))
@@ -80,7 +88,6 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 28.dp, top = 10.dp, end = 28.dp)
-                    .background(LoginScreensColor)
             ) {
                 bioSection(thisBio = userData?.bio.toString())
                 Spacer(modifier = Modifier.padding(10.dp))

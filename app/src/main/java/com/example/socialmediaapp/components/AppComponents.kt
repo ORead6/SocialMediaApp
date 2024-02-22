@@ -41,7 +41,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -94,6 +96,7 @@ fun NormalTextComponent(
 
 @Composable
 fun HeadingTextComponent(value: String, thisColor: Color, alignment: TextAlign) {
+
     Text(
         text = value,
         modifier = Modifier
@@ -103,8 +106,8 @@ fun HeadingTextComponent(value: String, thisColor: Color, alignment: TextAlign) 
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Normal,
-            color = thisColor,
-            fontFamily = myCustomFont
+            fontFamily = myCustomFont,
+            color = thisColor
         ),
         textAlign = alignment
     )
@@ -336,12 +339,19 @@ fun ClickableTextElement(
     onClick: () -> Unit,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
+    val gradBrush = Brush.horizontalGradient(
+        colors = listOf(
+            Color(0xff613bf7),
+            Color(0xff9178f5)
+        )
+    )
+
     val clickText = remember(fullText, clickableText) {
         buildAnnotatedString {
             withStyle(style = SpanStyle(fontSize = 14.sp, color = nonClickColor, fontFamily = myCustomFont)) {
                 append(fullText.substring(0, fullText.indexOf(clickableText)))
             }
-            withStyle(style = SpanStyle(fontSize = 14.sp, color = clickColor, fontWeight = FontWeight.Bold, fontFamily = myCustomFont)) {
+            withStyle(style = SpanStyle(fontSize = 14.sp, brush = gradBrush, fontWeight = FontWeight.Bold, fontFamily = myCustomFont)) {
                 append(clickableText)
                 addStringAnnotation(
                     tag = "Clickable",

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +31,8 @@ import com.example.socialmediaapp.components.NormalTextComponent
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.darkBG
 import com.example.socialmediaapp.components.loginButtonComponent
+import com.example.socialmediaapp.components.myDarkGrey
+import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.viewModels.LoginViewModel
 
 @Composable
@@ -38,12 +41,11 @@ fun LoginScreen(navController: NavController){
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(LoginScreensColor)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(LoginScreensColor)
+                .background(myGradientGrey)
         ) {
 
             val myLoginViewModel = LoginViewModel()
@@ -119,9 +121,12 @@ fun LoginScreen(navController: NavController){
                     )
 
                     Spacer(modifier = Modifier.padding(12.dp))
+
+                    val thisContext = LocalContext.current
+
                     loginButtonComponent(value = "Sign in",
                     thisOnClick = {
-                        myLoginViewModel.login(myLoginViewModel.emailVal.value, myLoginViewModel.passVal.value, navController)
+                        myLoginViewModel.login(myLoginViewModel.emailVal.value, myLoginViewModel.passVal.value, navController, thisContext)
                     })
 
                     Spacer(modifier = Modifier.weight(1f))

@@ -28,6 +28,7 @@ import com.example.socialmediaapp.components.UsernameTextField
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.darkBG
 import com.example.socialmediaapp.components.loginButtonComponent
+import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.viewModels.registerViewModel
 
 @Composable
@@ -35,12 +36,11 @@ fun RegisterScreen(navController: NavHostController) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(LoginScreensColor)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(LoginScreensColor)
+                .background(myGradientGrey)
         ){
             Column( modifier = Modifier
                 .fillMaxWidth()

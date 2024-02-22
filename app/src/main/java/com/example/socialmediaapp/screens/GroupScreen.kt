@@ -19,10 +19,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.SearchBar
+import com.example.socialmediaapp.components.addGroup
 import com.example.socialmediaapp.components.groupGrid
+import com.example.socialmediaapp.components.myDarkGrey
+import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
 
@@ -33,12 +37,18 @@ fun GroupScreen(
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(LoginScreensColor)
     ) {
         Column (
             modifier = Modifier
                 .fillMaxSize()
-                .background(LoginScreensColor)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            myDarkGrey,
+                            myGradientGrey
+                        )
+                    )
+                )
                 .padding(start = 28.dp, end = 28.dp, top = 14.dp)
         ) {
 
@@ -90,6 +100,8 @@ fun GroupScreen(
                     SearchBar()
                 }
             }
+
+            addGroup()
 
             groupGrid(userGroupData)
 

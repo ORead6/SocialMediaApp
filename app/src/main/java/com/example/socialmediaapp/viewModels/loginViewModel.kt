@@ -1,9 +1,12 @@
 package com.example.socialmediaapp.viewModels
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
@@ -31,12 +34,13 @@ class LoginViewModel() : ViewModel(){
         _pass.value = pass
     }
 
-    fun login(email: String, pass: String, navController: NavController) {
+    fun login(email: String, pass: String, navController: NavController, theContext: Context) {
         auth.signInWithEmailAndPassword(email, pass)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     navController.navigate("home")
                 } else {
+                    Toast.makeText(theContext, "INVALID LOGIN", Toast.LENGTH_SHORT).show()
                     Log.d("LOGINFAIL", task.exception?.message.toString())
                 }
             }

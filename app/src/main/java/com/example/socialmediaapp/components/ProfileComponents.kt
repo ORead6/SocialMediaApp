@@ -206,9 +206,9 @@ fun EditProfileButton(
                 .fillMaxWidth()
                 .height(40.dp),
             contentPadding = PaddingValues(),
-            colors = ButtonDefaults.buttonColors(LoginScreensColor),
+            colors = ButtonDefaults.buttonColors(buttonGrey),
             shape = RoundedCornerShape(15.dp),
-            border = BorderStroke(1.dp, Color.White)
+            border = BorderStroke(1.dp, Color.Gray)
         ) {
             Box(modifier = Modifier
                 .fillMaxWidth()
@@ -303,7 +303,7 @@ fun GridItem(item: String) {
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .background(color = randomColor)
-                .border(width = (0.25f).dp, color = LoginScreensColor),
+                .border(width = (0.25f).dp, color = Color.Black),
             contentAlignment = Alignment.Center
         ) {
             Text(text = item.toString())
