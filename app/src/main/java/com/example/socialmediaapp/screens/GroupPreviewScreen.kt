@@ -49,29 +49,26 @@ fun GroupPreviewScreen (
             .background(color = myGradientGrey)
         ) {
 
-            val thisViewModel = groupPreviewModel()
-
             var state by remember {
                 mutableStateOf("overview")
             }
 
 
-//            val dbCalls = databaseCalls("")
-//
-//            var groupName by remember {
-//                mutableStateOf("")
-//            }
-//
-//            LaunchedEffect(groupName) {
-//                dbCalls.getGroupName(groupID) {theGroupName ->
-//                    groupName = theGroupName
-//                }
-//            }
+            val dbCalls = databaseCalls("")
+
+            var groupName by remember {
+                mutableStateOf("")
+            }
+
+            LaunchedEffect(groupName) {
+                dbCalls.getGroupName(groupID) {theGroupName ->
+                    groupName = theGroupName
+                }
+            }
 
             Spacer(modifier = Modifier.padding(10.dp))
 
-            //groupNameDisplay(groupName)
-            groupNameDisplay("TEST")
+            groupNameDisplay(groupName)
 
             Row(
                 modifier = Modifier
