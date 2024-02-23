@@ -41,19 +41,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.socialmediaapp.screens.EditProfileScreen
+import com.example.socialmediaapp.screens.GroupPreviewScreen
 import com.example.socialmediaapp.screens.GroupScreen
 import com.example.socialmediaapp.screens.InboxScreen
 import com.example.socialmediaapp.screens.ProfileScreen
 import com.example.socialmediaapp.screens.UploadScreen
 import com.example.socialmediaapp.screens.homeScreen
 import com.example.socialmediaapp.signIn.UserData
+import com.example.socialmediaapp.viewModels.groupViewModel
 
 data class BottomNavigationItem(
     val title: String,
@@ -149,6 +150,7 @@ fun myNavBar(
     }
 
     val myNavGraph = navController.createGraph(startDestination = "Home") {
+
         composable(
             route = "Home",
             content = {
@@ -159,7 +161,7 @@ fun myNavBar(
         composable(
             route = "Groups",
             content = {
-                GroupScreen(userData)
+                GroupScreen(userData, navBarController = navController)
             }
         )
 
@@ -195,6 +197,18 @@ fun myNavBar(
                 )
 
 
+            }
+        )
+        
+        composable(
+            route = "GroupPreview/{groupID}",
+            content = {
+                val arguments = navBackStackEntry?.arguments
+                val parameter = arguments?.getString("groupID")
+
+                if (parameter != null) {
+                    GroupPreviewScreen(parameter)
+                }
             }
         )
 

@@ -7,6 +7,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.tasks.await
 
 class databaseCalls (
     private val userId: String
@@ -96,5 +97,18 @@ class databaseCalls (
             }
     }
 
+    fun getGroupName(groupID: String, completion: (String) -> Unit) {
+        val dbRef = Firebase.firestore
+        val groupCollection = dbRef.collection("Groups")
 
+        dbRef.collection("Groups").document(groupID).get()
+            .addOnSuccessListener { theGroup ->
+                val theGroupName = theGroup.get("name")
+                completion(theGroupName.toString())
+            }
+
+            .addOnFailureListener { exception ->
+                completion("FAILED")
+            }
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
-import com.example.socialmediaapp.components.LoginScreensColor
+import androidx.navigation.NavController
 import com.example.socialmediaapp.components.SearchBar
 import com.example.socialmediaapp.components.addGroup
 import com.example.socialmediaapp.components.groupGrid
@@ -29,10 +30,12 @@ import com.example.socialmediaapp.components.myDarkGrey
 import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
+import com.example.socialmediaapp.viewModels.groupViewModel
 
 @Composable
 fun GroupScreen(
-    userData: UserData?
+    userData: UserData?,
+    navBarController: NavController
 ) {
     Surface(
         modifier = Modifier
@@ -61,6 +64,8 @@ fun GroupScreen(
             var userGroupData by remember {
                 mutableStateOf<Map<String, Map<String, String>>>(emptyMap())
             }
+
+            val myViewModel = groupViewModel()
 
             LaunchedEffect(Unit) {
                 dbCalls.getGroups {theGroups ->
@@ -103,7 +108,9 @@ fun GroupScreen(
 
             addGroup()
 
-            groupGrid(userGroupData)
+            groupGrid(userGroupData, thisOnClick = { groupID ->
+                navBarController.navigate("GroupPreview/${groupID.toString()}")
+            })
 
         }
 

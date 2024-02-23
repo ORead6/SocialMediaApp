@@ -3,6 +3,7 @@ package com.example.socialmediaapp.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,9 +41,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.socialmediaapp.R
+import com.example.socialmediaapp.viewModels.groupViewModel
 
 @Composable
-fun groupGrid(userGroups: Map<String, Map<String, String>>) {
+fun groupGrid(
+    userGroups: Map<String, Map<String, String>>,
+    thisOnClick: (Any?) -> Unit,
+) {
     val spacing = 25.dp
 
     val entries = userGroups.entries.toList()
@@ -57,7 +62,7 @@ fun groupGrid(userGroups: Map<String, Map<String, String>>) {
                     .padding(top = spacing / 2)
             ) {
                 // Use groupId and groupData as needed in groupGridItem
-                groupGridItem(groupId, groupData)
+                groupGridItem(groupId, groupData, thisOnClick)
             }
         }
     }
@@ -81,13 +86,20 @@ fun HorizontalLine() {
 }
 
 @Composable
-fun groupGridItem(item: String, groupData: Map<String, String>) {
+fun groupGridItem(
+    item: String,
+    groupData: Map<String, String>,
+    thisOnClick: (Any?) -> Unit
+) {
     if (item != "") {
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(75.dp)
+                .clickable{
+                    thisOnClick(item)
+                  }
             ,
             shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(
