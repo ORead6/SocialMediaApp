@@ -3,7 +3,6 @@
 package com.example.socialmediaapp.components
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -46,6 +45,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import com.example.socialmediaapp.screens.CreateGroupScreen
 import com.example.socialmediaapp.screens.EditProfileScreen
 import com.example.socialmediaapp.screens.GroupPreviewScreen
 import com.example.socialmediaapp.screens.GroupScreen
@@ -54,7 +54,6 @@ import com.example.socialmediaapp.screens.ProfileScreen
 import com.example.socialmediaapp.screens.UploadScreen
 import com.example.socialmediaapp.screens.homeScreen
 import com.example.socialmediaapp.signIn.UserData
-import com.example.socialmediaapp.viewModels.groupViewModel
 
 data class BottomNavigationItem(
     val title: String,
@@ -195,8 +194,6 @@ fun myNavBar(
                     navController = navController,
                     onSignOut = onSignOut
                 )
-
-
             }
         )
         
@@ -207,11 +204,17 @@ fun myNavBar(
                 val parameter = arguments?.getString("groupID")
 
                 if (parameter != null) {
-                    GroupPreviewScreen(parameter)
+                    GroupPreviewScreen(parameter, navController =  navController)
                 }
             }
         )
 
+        composable(
+            route = "CreateGroup",
+            content = {
+                CreateGroupScreen()
+            }
+        )
     }
 
     Scaffold(

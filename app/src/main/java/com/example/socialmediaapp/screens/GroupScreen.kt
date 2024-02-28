@@ -106,7 +106,9 @@ fun GroupScreen(
                 }
             }
 
-            addGroup()
+            addGroup(thisOnClick = {
+                navBarController.navigate("CreateGroup")
+            })
 
             groupGrid(userGroupData, thisOnClick = { groupID ->
                 navBarController.navigate("GroupPreview/${groupID.toString()}")
