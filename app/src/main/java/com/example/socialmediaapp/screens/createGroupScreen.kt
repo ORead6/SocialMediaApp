@@ -1,12 +1,17 @@
 package com.example.socialmediaapp.screens
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,58 +19,51 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Nightlight
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.socialmediaapp.components.FollowerCounter
-import com.example.socialmediaapp.components.FollowingCounter
-import com.example.socialmediaapp.components.GroupsCounter
+import androidx.navigation.NavHostController
 import com.example.socialmediaapp.components.backButton
+import com.example.socialmediaapp.components.createGroupButton
 import com.example.socialmediaapp.components.editGroupPhoto
-import com.example.socialmediaapp.components.groupNameDisplay
 import com.example.socialmediaapp.components.groupPrivacyButton
 import com.example.socialmediaapp.components.header
-import com.example.socialmediaapp.components.leaderboardButton
-import com.example.socialmediaapp.components.mediaButton
 import com.example.socialmediaapp.components.myGradientGrey
-import com.example.socialmediaapp.components.myViewModel
 import com.example.socialmediaapp.components.newGroupName
 import com.example.socialmediaapp.components.offWhiteBack
-import com.example.socialmediaapp.components.overviewButton
-import com.example.socialmediaapp.components.pfpCircle
-import com.example.socialmediaapp.databaseCalls.databaseCalls
+import com.example.socialmediaapp.components.privacyText
 import com.example.socialmediaapp.viewModels.createGroupViewModel
-import com.example.socialmediaapp.viewModels.groupPreviewModel
 import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storage
 
 @Composable
-fun CreateGroupScreen () {
+fun CreateGroupScreen(navController: NavHostController) {
 
-    //val createViewModel = createGroupViewModel()
+    val createViewModel = createGroupViewModel()
+
+    val context = LocalContext.current
+
+    var selectedImageUri = remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            selectedImageUri.value = uri
+        }
+    )
 
     Surface(
         modifier = Modifier
@@ -88,7 +86,7 @@ fun CreateGroupScreen () {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     backButton(thisOnClick = {
-                        //navController.navigate("Groups")
+                        navController.navigate("Groups")
                     })
                 }
 
@@ -119,15 +117,69 @@ fun CreateGroupScreen () {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = 10.dp, top = 10.dp, end = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        editGroupPhoto()
-                        newGroupName()
+                        editGroupPhoto(selectedImageUri) {
+                            singlePhotoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                        newGroupName(createViewModel)
                     }
 
-                    groupPrivacyButton()
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, end = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        groupPrivacyButton(createViewModel)
+                        privacyText()
+                    }
+
+                    // Will have to change this depending on whats built above
+                    Spacer(modifier = Modifier.padding(200.dp))
+
+                    Column (
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 10.dp, end = 10.dp),
+                    ) {
+                        createGroupButton(thisOnClick = {
+                            createViewModel.createNewGroup {groupID ->
+
+                                val storage = FirebaseStorage.getInstance().getReference()
+
+                                // Specify the path to the file in Firebase Storage
+                                val path = "Groups/${groupID}/groupPhoto.jpg"
+
+                                Log.d("IMGUPLOAD", path)
+
+                                // Create a Storage reference to the specified path
+                                val storageRef = storage.child(path)
+
+                                Log.d("IMGUPLOAD", "Path: ${storageRef.path}")
+
+                                // Upload the file to Firebase Storage
+                                storageRef.putFile(selectedImageUri.value!!)
+                                    .addOnSuccessListener {
+                                        // Handle successful upload
+                                        Log.d("IMGUPLOAD", "Image uploaded successfully")
+                                    }
+                                    .addOnFailureListener { exception ->
+                                        // Handle failed upload
+                                        Log.d("IMGUPLOAD", "Failed to upload image: ${exception.printStackTrace()}")
+                                        exception.printStackTrace()
+                                    }
+                                    .addOnProgressListener { taskSnapshot ->
+                                        // You can use this listener to track upload progress if needed
+                                        val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
+                                        Log.d("IMGUPLOAD", "Upload is $progress% done")
+                                    }
+                            }
+                        })
+                    }
                 }
-
-
             }
         }
     }

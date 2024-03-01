@@ -212,7 +212,7 @@ fun myNavBar(
         composable(
             route = "CreateGroup",
             content = {
-                CreateGroupScreen()
+                CreateGroupScreen(navController =  navController)
             }
         )
     }
