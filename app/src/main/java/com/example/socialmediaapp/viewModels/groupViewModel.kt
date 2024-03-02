@@ -23,8 +23,15 @@ class groupViewModel() : ViewModel(){
     private val _groupID = mutableStateOf("")
     val groupID: State<String> = _groupID
 
+    private val _searchInv = mutableStateOf("")
+    val searchInv: State<String> = _searchInv
+
     fun setGroupID(ID: String) {
         _groupID.value = ID
+    }
+
+    fun setSearchInv(inv: String) {
+        _searchInv.value = inv
     }
 
 }

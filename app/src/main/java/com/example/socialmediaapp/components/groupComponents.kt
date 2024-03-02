@@ -31,10 +31,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.databaseCalls.databaseCalls
+import com.example.socialmediaapp.viewModels.groupViewModel
 
 @Composable
 fun groupGrid(
@@ -204,10 +203,8 @@ fun groupGridItem(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
-fun SearchBar(
-) {
+fun SearchBar(myViewModel: groupViewModel) {
 
     val textvalue = remember {
         mutableStateOf("")
@@ -215,12 +212,15 @@ fun SearchBar(
 
     OutlinedTextField(
         value = textvalue.value,
-        onValueChange = { textvalue.value = it },
+        onValueChange = {
+            textvalue.value = it
+            myViewModel.setSearchInv(it)
+            },
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.75f)
             .height(50.dp),
         singleLine = true,
-        placeholder = { Text(text = "Search Your Groups...") },
+        placeholder = { Text(text = "Enter Group Join Code...") },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = textFieldOutline,
             focusedLabelColor = textFieldOutline,
@@ -280,3 +280,33 @@ fun addGroup(
         }
     }
 }
+
+@Composable
+fun joinButton(
+    thisOnClick: () -> Unit = {},
+) {
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Button(
+            onClick = thisOnClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            contentPadding = PaddingValues(),
+            colors = ButtonDefaults.buttonColors(buttonGrey),
+            shape = RoundedCornerShape(5.dp),
+            border = BorderStroke(1.dp, Color.Gray)
+        )
+        {
+            Text(text = "Join group",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                fontFamily = myCustomFont)
+        }
+
+
+        }
+    }

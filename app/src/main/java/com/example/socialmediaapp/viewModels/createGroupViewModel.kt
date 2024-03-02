@@ -42,7 +42,7 @@ class createGroupViewModel() : ViewModel(){
         val secureRandom = SecureRandom()
         val randomBytes = ByteArray(length / 2)
         secureRandom.nextBytes(randomBytes)
-        return BigInteger(1, randomBytes).toString(16).padStart(length, '0')
+        return (BigInteger(1, randomBytes).toString(16).padStart(length, '0')).lowercase()
     }
 
     fun createNewGroup(completion: (String) -> Unit) {

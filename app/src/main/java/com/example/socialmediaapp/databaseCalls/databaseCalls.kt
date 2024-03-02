@@ -1,7 +1,10 @@
 package com.example.socialmediaapp.databaseCalls
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import androidx.navigation.NavController
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
@@ -10,7 +13,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.tasks.await
 
 class databaseCalls (
     private val userId: String
@@ -128,5 +130,59 @@ class databaseCalls (
                 Log.d("Image Retreival Error", e.toString())
                 completion(null)
             }
+    }
+
+    fun joinGroup(invCode: String, context: Context, navBarController: NavController) {
+        val inviteCode = invCode.lowercase()
+        val db = Firebase.firestore
+        val groupsCollection = db.collection("Groups")
+        val currentUserUUID = auth.currentUser?.uid
+
+        if (currentUserUUID != null) {
+            groupsCollection
+                .whereEqualTo("inviteCode", inviteCode)
+                .get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        val groupID = document.id
+                        val usersCollection = groupsCollection.document(groupID).collection("Users")
+
+                        // Check if the user already exists in the "Users" collection
+                        usersCollection
+                            .whereEqualTo("uuid", currentUserUUID)
+                            .get()
+                            .addOnSuccessListener { userDocuments ->
+                                if (userDocuments.isEmpty) {
+                                    // User does not exist, add the user
+                                    val userData = hashMapOf(
+                                        "uuid" to currentUserUUID
+                                        // Add other fields as needed
+                                    )
+
+                                    usersCollection
+                                        .add(userData)
+                                        .addOnSuccessListener {
+                                            Toast.makeText(context, "Joined Group", Toast.LENGTH_SHORT).show()
+                                            navBarController.navigate("Groups")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            // Handle failure
+                                        }
+                                } else {
+                                    // User already exists in the group
+                                    Toast.makeText(context, "Already a member of this group", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .addOnFailureListener { exception ->
+                                // Handle any errors during the user query
+                            }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(context, "Group Code does not Exist", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            // Handle the case where currentUserUUID is null
+        }
     }
 }
