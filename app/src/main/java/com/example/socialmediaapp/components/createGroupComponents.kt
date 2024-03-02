@@ -229,3 +229,39 @@ fun createGroupButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun newGroupBio(viewModel: createGroupViewModel) {
+    val textValue = remember {
+        mutableStateOf("")
+    }
+
+
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(20.dp)
+            .padding(start = 8.dp),
+        value = textValue.value,
+        onValueChange = {
+            textValue.value = it
+            viewModel.setBio(it)
+        },
+        label = {
+            Text(text = "Group Bio", fontFamily = myCustomFont)
+        },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = textFieldOutline,
+            focusedLabelColor = myGradientGrey,
+            cursorColor = Primary,
+            containerColor = textFieldBG,
+            unfocusedBorderColor = textFieldOutline,
+            placeholderColor = Color.LightGray,
+            textColor = darkBG
+        ),
+        keyboardOptions = KeyboardOptions.Default,
+        shape = RoundedCornerShape(10.dp),
+        textStyle = TextStyle(fontSize = 18.sp, lineHeight = 20.sp)
+    )
+}
+

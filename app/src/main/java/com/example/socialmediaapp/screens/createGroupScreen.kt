@@ -39,6 +39,7 @@ import com.example.socialmediaapp.components.editGroupPhoto
 import com.example.socialmediaapp.components.groupPrivacyButton
 import com.example.socialmediaapp.components.header
 import com.example.socialmediaapp.components.myGradientGrey
+import com.example.socialmediaapp.components.newGroupBio
 import com.example.socialmediaapp.components.newGroupName
 import com.example.socialmediaapp.components.offWhiteBack
 import com.example.socialmediaapp.components.privacyText
@@ -127,6 +128,8 @@ fun CreateGroupScreen(navController: NavHostController) {
                         newGroupName(createViewModel)
                     }
 
+                    newGroupBio(createViewModel)
+
                     Row (
                         modifier = Modifier
                             .fillMaxWidth()
@@ -148,35 +151,44 @@ fun CreateGroupScreen(navController: NavHostController) {
                         createGroupButton(thisOnClick = {
                             createViewModel.createNewGroup {groupID ->
 
-                                val storage = FirebaseStorage.getInstance().getReference()
+                                if (selectedImageUri.value != null) {
 
-                                // Specify the path to the file in Firebase Storage
-                                val path = "Groups/${groupID}/groupPhoto.jpg"
+                                    val storage = FirebaseStorage.getInstance().getReference()
 
-                                Log.d("IMGUPLOAD", path)
+                                    // Specify the path to the file in Firebase Storage
+                                    val path = "Groups/${groupID}/groupPhoto.jpg"
 
-                                // Create a Storage reference to the specified path
-                                val storageRef = storage.child(path)
+                                    Log.d("IMGUPLOAD", path)
 
-                                Log.d("IMGUPLOAD", "Path: ${storageRef.path}")
+                                    // Create a Storage reference to the specified path
+                                    val storageRef = storage.child(path)
 
-                                // Upload the file to Firebase Storage
-                                storageRef.putFile(selectedImageUri.value!!)
-                                    .addOnSuccessListener {
-                                        // Handle successful upload
-                                        Log.d("IMGUPLOAD", "Image uploaded successfully")
-                                    }
-                                    .addOnFailureListener { exception ->
-                                        // Handle failed upload
-                                        Log.d("IMGUPLOAD", "Failed to upload image: ${exception.printStackTrace()}")
-                                        exception.printStackTrace()
-                                    }
-                                    .addOnProgressListener { taskSnapshot ->
-                                        // You can use this listener to track upload progress if needed
-                                        val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
-                                        Log.d("IMGUPLOAD", "Upload is $progress% done")
-                                    }
+                                    Log.d("IMGUPLOAD", "Path: ${storageRef.path}")
+
+                                    // Upload the file to Firebase Storage
+                                    storageRef.putFile(selectedImageUri.value!!)
+                                        .addOnSuccessListener {
+                                            // Handle successful upload
+                                            Log.d("IMGUPLOAD", "Image uploaded successfully")
+                                        }
+                                        .addOnFailureListener { exception ->
+                                            // Handle failed upload
+                                            Log.d(
+                                                "IMGUPLOAD",
+                                                "Failed to upload image: ${exception.printStackTrace()}"
+                                            )
+                                            exception.printStackTrace()
+                                        }
+                                        .addOnProgressListener { taskSnapshot ->
+                                            // You can use this listener to track upload progress if needed
+                                            val progress =
+                                                (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
+                                            Log.d("IMGUPLOAD", "Upload is $progress% done")
+                                        }
+                                }
                             }
+
+                            navController.navigate("Groups")
                         })
                     }
                 }

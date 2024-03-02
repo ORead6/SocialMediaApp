@@ -12,6 +12,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
+import java.math.BigInteger
+import java.security.SecureRandom
 
 class createGroupViewModel() : ViewModel(){
 
@@ -20,6 +22,9 @@ class createGroupViewModel() : ViewModel(){
 
     private val _groupName = mutableStateOf("")
     val groupName: State<String> = _groupName
+
+    private val _groupBio = mutableStateOf("")
+    val groupBio: State<String> = _groupBio
 
     private val _privacyState = mutableStateOf(false)
     val privacyState: State<Boolean> = _privacyState
@@ -32,11 +37,21 @@ class createGroupViewModel() : ViewModel(){
         _privacyState.value = state
     }
 
+    // 36^6 = 2.176.782.336 possibilities -> For scope there wont be 2 of the same codes
+    private fun generateRandomCode(length: Int): String {
+        val secureRandom = SecureRandom()
+        val randomBytes = ByteArray(length / 2)
+        secureRandom.nextBytes(randomBytes)
+        return BigInteger(1, randomBytes).toString(16).padStart(length, '0')
+    }
+
     fun createNewGroup(completion: (String) -> Unit) {
         val thisGroup = mapOf<String, String?>(
             "groupName" to groupName.value,
             "groupPhoto" to "",
-            "privacyStatus" to privacyState.value.toString()
+            "groupBio" to groupBio.value,
+            "privacyStatus" to privacyState.value.toString(),
+            "inviteCode" to generateRandomCode(6)
         )
 
         firestore.collection("Groups")
@@ -62,13 +77,25 @@ class createGroupViewModel() : ViewModel(){
                             Log.d("FIREBASEGROUPS", e.toString())
                         }
                 }
+
+
+                if (currentUserUUID != null) {
+
+                    val thisUser = mapOf<String, String?>(
+                        "guuid" to groupUUID,
+                    )
+
+                    firestore.collection("Users").document(currentUserUUID).collection("Groups")
+                        .add(thisUser)
+                }
+
             }
 
             .addOnFailureListener { e ->
                 Log.d("FIREBASEGROUPS", "DIDNT WORK")
             }
 
-    }
+        }
 
     fun uploadImage(groupUUID: String, value: Uri?) {
         if (value == null) {
@@ -103,5 +130,10 @@ class createGroupViewModel() : ViewModel(){
                 Log.d("IMGUPLOAD", "Upload is $progress% done")
             }
     }
+
+    fun setBio(it: String) {
+        _groupBio.value = it
+    }
 }
+
 

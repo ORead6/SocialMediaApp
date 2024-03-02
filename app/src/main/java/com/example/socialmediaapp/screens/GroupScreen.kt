@@ -1,6 +1,5 @@
 package com.example.socialmediaapp.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -110,9 +109,9 @@ fun GroupScreen(
                 navBarController.navigate("CreateGroup")
             })
 
-            groupGrid(userGroupData, thisOnClick = { groupID ->
+            groupGrid(userGroupData, dbCalls) { groupID ->
                 navBarController.navigate("GroupPreview/${groupID.toString()}")
-            })
+            }
 
         }
 

@@ -1,5 +1,7 @@
 package com.example.socialmediaapp.databaseCalls
 
+import android.net.Uri
+import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
@@ -7,6 +9,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 class databaseCalls (
@@ -103,12 +106,27 @@ class databaseCalls (
 
         dbRef.collection("Groups").document(groupID).get()
             .addOnSuccessListener { theGroup ->
-                val theGroupName = theGroup.get("name")
+                val theGroupName = theGroup.get("groupName")
                 completion(theGroupName.toString())
             }
 
             .addOnFailureListener { exception ->
                 completion("FAILED")
+            }
+    }
+
+    fun getGroupPhoto(id: String, completion: (Uri?) -> Unit) {
+        val storage = FirebaseStorage.getInstance()
+        val fileRef = storage.reference.child("Groups/${id}/groupPhoto.jpg")
+
+        fileRef.downloadUrl
+            .addOnSuccessListener {
+                completion(it)
+            }
+
+            .addOnFailureListener {e ->
+                Log.d("Image Retreival Error", e.toString())
+                completion(null)
             }
     }
 }

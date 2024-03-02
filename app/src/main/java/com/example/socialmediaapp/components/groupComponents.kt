@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.components
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -7,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,11 +30,17 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -40,12 +48,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
-import com.example.socialmediaapp.viewModels.groupViewModel
+import com.example.socialmediaapp.databaseCalls.databaseCalls
 
 @Composable
 fun groupGrid(
     userGroups: Map<String, Map<String, String>>,
+    dbCalls: databaseCalls,
     thisOnClick: (Any?) -> Unit,
 ) {
     val spacing = 25.dp
@@ -62,7 +72,7 @@ fun groupGrid(
                     .padding(top = spacing / 2)
             ) {
                 // Use groupId and groupData as needed in groupGridItem
-                groupGridItem(groupId, groupData, thisOnClick)
+                groupGridItem(groupId, groupData, thisOnClick, dbCalls)
             }
         }
     }
@@ -87,19 +97,32 @@ fun HorizontalLine() {
 
 @Composable
 fun groupGridItem(
-    item: String,
+    id: String,
     groupData: Map<String, String>,
-    thisOnClick: (Any?) -> Unit
+    thisOnClick: (Any?) -> Unit,
+    dbCalls: databaseCalls
 ) {
-    if (item != "") {
+    if (id != "") {
+
+        var groupPhotoUri = remember {
+            mutableStateOf<Uri?>(null)
+        }
+
+        LaunchedEffect(true) {
+            dbCalls.getGroupPhoto(id) {theUri ->
+                if (theUri != null) {
+                    groupPhotoUri.value = theUri
+                }
+            }
+        }
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(75.dp)
-                .clickable{
-                    thisOnClick(item)
-                  }
+                .clickable {
+                    thisOnClick(id)
+                }
             ,
             shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(
@@ -111,26 +134,58 @@ fun groupGridItem(
             ),
         )
         {
-            Column  (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(5.dp)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top
             ) {
-                groupData["name"]?.let {
-                    Text(text = it,
-                        style = TextStyle(
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontStyle = FontStyle.Normal,
-                            fontFamily = myCustomFont,
-                            color = Color.White
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 0.dp, start = 4.dp),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    groupData["groupName"]?.let {
+                        Text(
+                            text = it,
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontStyle = FontStyle.Normal,
+                                fontFamily = myCustomFont,
+                                color = Color.White
+                            )
                         )
-                    )
+                    }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.TopEnd
+                ) {
 
-                groupData["bio"]?.let {
+                    if (groupPhotoUri == null) {
+
+                    } else {
+                        AsyncImage(
+                            model = groupPhotoUri.value,
+                            contentDescription = "Group Photo",
+                            modifier = Modifier
+                                .size(45.dp)
+                                .clip(RectangleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Column (modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 10.dp, start = 4.dp))
+            {
+                groupData["groupBio"]?.let {
                     Text(text = it,
                         style = TextStyle(
                             fontSize = 14.sp,
@@ -141,6 +196,9 @@ fun groupGridItem(
                     )
                 }
             }
+
+
+
         }
     }
 }
@@ -180,7 +238,8 @@ fun addGroup(
     thisOnClick: () -> Unit = {},
 )  {
     Column (
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(top = (12.5f).dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
