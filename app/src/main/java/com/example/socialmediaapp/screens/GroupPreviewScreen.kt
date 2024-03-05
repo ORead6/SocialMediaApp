@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.screens
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,11 +22,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.groupNameDisplay
+import com.example.socialmediaapp.components.groupPhoto
 import com.example.socialmediaapp.components.leaderboardButton
 import com.example.socialmediaapp.components.mediaButton
 import com.example.socialmediaapp.components.myGradientGrey
@@ -38,6 +39,7 @@ fun GroupPreviewScreen (
     groupID: String,
     navController: NavHostController
 ) {
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,6 +58,16 @@ fun GroupPreviewScreen (
 
             var groupName by remember {
                 mutableStateOf("")
+            }
+
+            var groupPhoto by remember {
+                mutableStateOf<Uri?>(null)
+            }
+
+            LaunchedEffect(groupPhoto) {
+                dbCalls.getGroupPhoto(groupID) {  thePhoto ->
+                    groupPhoto = thePhoto
+                }
             }
 
             LaunchedEffect(groupName) {
@@ -121,7 +133,21 @@ fun GroupPreviewScreen (
                             shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
                         )
                 ) {
-                    Text(text = "Overview")
+                    Column (
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp, top = 10.dp, end = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            groupPhoto(groupPhoto)
+
+                        }
+                    }
                 }
             }
 

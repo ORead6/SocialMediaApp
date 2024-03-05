@@ -64,13 +64,11 @@ fun GroupScreen(
 
             val myViewModel = groupViewModel()
 
-            LaunchedEffect(Unit) {
+            LaunchedEffect(userGroups) {
                 dbCalls.getGroups {theGroups ->
                     userGroups = theGroups.toMutableList()
                 }
-            }
 
-            LaunchedEffect(userGroups) {
                 dbCalls.getGroupsInfo(userGroups) { theGroupsData ->
                     userGroupData = theGroupsData
                 }

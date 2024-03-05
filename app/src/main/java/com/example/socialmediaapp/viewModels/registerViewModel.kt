@@ -1,6 +1,7 @@
 package com.example.socialmediaapp.viewModels
 
-import android.util.Log
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -12,10 +13,9 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.firestore
 
-class registerViewModel() : ViewModel(){
+class registerViewModel(theContext: Context) : ViewModel(){
     private val auth = Firebase.auth
 
     val createUserResult: MutableLiveData<FirebaseAuthResult> = MutableLiveData()
@@ -34,6 +34,8 @@ class registerViewModel() : ViewModel(){
 
     private val _currentUser = mutableStateOf(UserData("", null, null, null))
     val currentUser: MutableState<UserData> = _currentUser
+
+    public val context = theContext
 
     fun setEmailVal(text: String) {
         _email.value = text
@@ -59,42 +61,49 @@ class registerViewModel() : ViewModel(){
         email: String,
         username: String,
         password: String,
+        password2: String,
         navController: NavHostController
     ) {
-        auth.createUserWithEmailAndPassword(email,password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    createUserResult.value = FirebaseAuthResult.Success(auth.currentUser)
 
-                    val userProfileChangeRequest = UserProfileChangeRequest.Builder()
-                        .setDisplayName(username)
-                        .build()
+        if (password == password2) {
 
-                    auth.currentUser?.updateProfile(userProfileChangeRequest)
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        createUserResult.value = FirebaseAuthResult.Success(auth.currentUser)
 
-                    // WRITES NEW EMAIL PASS USER TO DB
+                        val userProfileChangeRequest = UserProfileChangeRequest.Builder()
+                            .setDisplayName(username)
+                            .build()
 
-                    val dbReference = Firebase.firestore
+                        auth.currentUser?.updateProfile(userProfileChangeRequest)
 
-                    val thisUser = mapOf<String, String?>(
-                        "username" to username,
-                        "photoLink" to "",
-                        "bio" to ""
-                    )
+                        // WRITES NEW EMAIL PASS USER TO DB
 
-                    val uuid = auth.currentUser?.uid ?: ""
+                        val dbReference = Firebase.firestore
 
-                    dbReference.collection("Users")
-                        .document(uuid)
-                        .set(thisUser)
+                        val thisUser = mapOf<String, String?>(
+                            "username" to username,
+                            "photoLink" to "",
+                            "bio" to ""
+                        )
 
-                    navController.navigate("home")
+                        val uuid = auth.currentUser?.uid ?: ""
 
-                } else {
-                    createUserResult.value = FirebaseAuthResult.Error(task.exception)
-                    task.exception?.message?.let { Log.d("owen", it) }
+                        dbReference.collection("Users")
+                            .document(uuid)
+                            .set(thisUser)
+
+                        navController.navigate("home")
+
+                    } else {
+                        val errorMessage = task.exception?.message ?: "Unknown error occurred"
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
+        } else {
+            Toast.makeText(context, "Passwords Do Not Match", Toast.LENGTH_SHORT).show()
+        }
 
 
     }

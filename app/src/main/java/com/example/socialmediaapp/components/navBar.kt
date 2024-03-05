@@ -51,8 +51,8 @@ import com.example.socialmediaapp.screens.GroupPreviewScreen
 import com.example.socialmediaapp.screens.GroupScreen
 import com.example.socialmediaapp.screens.InboxScreen
 import com.example.socialmediaapp.screens.ProfileScreen
-import com.example.socialmediaapp.screens.UploadScreen
 import com.example.socialmediaapp.screens.homeScreen
+import com.example.socialmediaapp.screens.uploadMediaScreen
 import com.example.socialmediaapp.signIn.UserData
 
 data class BottomNavigationItem(
@@ -167,7 +167,7 @@ fun myNavBar(
         composable(
             route = "Upload",
             content = {
-                UploadScreen(userData)
+                uploadMediaScreen(userData, navController = navController)
             }
         )
 

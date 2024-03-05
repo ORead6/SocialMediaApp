@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -64,7 +65,9 @@ fun RegisterScreen(navController: NavHostController) {
                     )
             ) {
 
-                val myRegisterViewModel = registerViewModel()
+                val theContext = LocalContext.current
+
+                val myRegisterViewModel = registerViewModel(theContext)
 
                 Column(modifier = Modifier
                     .fillMaxSize()
@@ -117,7 +120,7 @@ fun RegisterScreen(navController: NavHostController) {
                     )
                     Spacer(modifier = Modifier.padding(16.dp))
                     loginButtonComponent(value = "Create Account", thisOnClick = {
-                        myRegisterViewModel.registerUser(myRegisterViewModel.emailVal.value, myRegisterViewModel.usernameVal.value, myRegisterViewModel.pass1Val.value, navController)
+                        myRegisterViewModel.registerUser(myRegisterViewModel.emailVal.value, myRegisterViewModel.usernameVal.value, myRegisterViewModel.pass1Val.value, myRegisterViewModel.pass2Val.value, navController)
                     })
 
                     Spacer(modifier = Modifier.weight(1f))
