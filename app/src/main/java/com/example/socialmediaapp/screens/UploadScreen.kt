@@ -69,13 +69,18 @@ fun uploadMediaScreen(
 
     var isExpanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Select Option") }
+    var newGroupName by remember { mutableStateOf("Public") }
 
     LaunchedEffect(true) {
 
         dbCalls.getGroupNames { theGroupNames ->
             groupNames = theGroupNames as MutableList<String>
             Log.d("getGroupNames", "Final group names list: $groupNames")
+            groupNames = groupNames.toMutableList().apply {
+                add(newGroupName)
+            }
         }
+
 
     }
 
@@ -89,16 +94,15 @@ fun uploadMediaScreen(
                 .fillMaxSize()
                 .background(color = myGradientGrey)
                 .padding(20.dp)
-        )
-        {
+        ) {
             uploadHeader()
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
-            )
-            {
+            ) {
                 mediaPicker {
                     mediaPickerLauncher.launch(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
@@ -106,9 +110,36 @@ fun uploadMediaScreen(
                 }
 
                 mediaDescription(myViewModel)
-
             }
 
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .background(color = Color.White)
+                    .clickable { isExpanded = !isExpanded }
+            ) {
+                Text(text = selectedOption, modifier = Modifier.padding(16.dp))
+
+                DropdownMenu(
+                    modifier = Modifier
+                        .background(color = Color.White)
+                        .padding(16.dp),
+                    expanded = isExpanded,
+                    onDismissRequest = { isExpanded = false },
+                ) {
+
+                    groupNames.forEach { groupName ->
+                        DropdownMenuItem(
+                            onClick = {
+                                isExpanded = false
+                                selectedOption = groupName
+                            },
+                            text = { Text(text = groupName) }
+                        )
+                    }
+                }
+            }
         }
     }
 }
