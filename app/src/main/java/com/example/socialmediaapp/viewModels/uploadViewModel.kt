@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -33,7 +34,8 @@ class uploadViewModel() : ViewModel() {
         value: Uri?,
         selectedOption: String,
         myViewModel: uploadViewModel,
-        dbCalls: databaseCalls
+        dbCalls: databaseCalls,
+        navController: NavController
     ) {
         if (value == null) {
             Log.d("POSTUPLOAD", "Uri is null. Cannot upload Media.")
@@ -66,6 +68,8 @@ class uploadViewModel() : ViewModel() {
                             .addOnSuccessListener {
                                 // Handle successful upload
                                 Log.d("POSTUPLOAD", "Media uploaded successfully")
+
+                                navController.navigate("Home")
                             }
 
                             .addOnFailureListener { exception ->

@@ -159,7 +159,7 @@ fun uploadMediaScreen(
                     if (selectedMediaUri.value != null && selectedOption != "Select Option") {
                         uploadingMedia = true
                         myViewModel.setProgress(0.0)
-                        myViewModel.createPost(selectedMediaUri.value, selectedOption, myViewModel,  dbCalls)
+                        myViewModel.createPost(selectedMediaUri.value, selectedOption, myViewModel, dbCalls, navController)
                     } else {
                         Toast.makeText(
                             context,
