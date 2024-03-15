@@ -2,6 +2,7 @@ package com.example.socialmediaapp.screens
 
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,20 +11,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,17 +29,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.socialmediaapp.components.mediaDescription
 import com.example.socialmediaapp.components.mediaPicker
 import com.example.socialmediaapp.components.myGradientGrey
-import com.example.socialmediaapp.components.offWhiteBack
+import com.example.socialmediaapp.components.postButton
+import com.example.socialmediaapp.components.progressDisplay
 import com.example.socialmediaapp.components.uploadHeader
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
 import com.example.socialmediaapp.viewModels.uploadViewModel
-import okhttp3.internal.wait
 
 @Composable
 fun uploadMediaScreen(
@@ -67,12 +65,15 @@ fun uploadMediaScreen(
         }
     )
 
+    var uploadingMedia by remember { mutableStateOf(false) }
+
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("Select Option") }
+    var selectedOption by remember { mutableStateOf("Select Option*") }
     var newGroupName by remember { mutableStateOf("Public") }
 
-    LaunchedEffect(true) {
+    val context = LocalContext.current
 
+    LaunchedEffect(true) {
         dbCalls.getGroupNames { theGroupNames ->
             groupNames = theGroupNames as MutableList<String>
             Log.d("getGroupNames", "Final group names list: $groupNames")
@@ -80,8 +81,6 @@ fun uploadMediaScreen(
                 add(newGroupName)
             }
         }
-
-
     }
 
     Surface(
@@ -140,6 +139,38 @@ fun uploadMediaScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.padding(25.dp))
+
+            if (uploadingMedia) {
+                progressDisplay(myViewModel.progressVal.value, "UPLOADING...")
+            }
+
+            val height = if (uploadingMedia) { 40.dp } else { 225.dp }
+
+            Spacer(modifier = Modifier.padding(height))
+            //   225 - top pad no bar
+            // 50  bar
+
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                ) {
+
+                postButton {
+                    if (selectedMediaUri.value != null && selectedOption != "Select Option") {
+                        uploadingMedia = true
+                        myViewModel.createPost(selectedMediaUri.value, selectedOption, myViewModel)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Some Required Fields are Blank",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                }
+            }
+
         }
     }
 }
