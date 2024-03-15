@@ -257,4 +257,41 @@ class databaseCalls (
 
     }
 
+    fun getGroupIdWithName(groupNameSelection: String, completion: (String) -> Unit) {
+        val currentUserUUID = auth.currentUser?.uid
+
+        val db = Firebase.firestore
+        val groupCollection = db.collection("Groups")
+
+        val groupsCollectionForUser = db.collection("Users").document(currentUserUUID!!).collection("Groups")
+
+        if (groupNameSelection == "Public"){
+            completion("Public")
+        }
+
+        groupsCollectionForUser.get()
+            .addOnSuccessListener {
+                val uuidList = mutableListOf<String?>()
+
+                for (document in it) {
+                    val uuid = document.getString("guuid")
+                    uuidList.add(uuid)
+                }
+
+                for (guuid in uuidList) {
+                    if (guuid != null) {
+                        groupCollection.document(guuid).get()
+                            .addOnSuccessListener {group ->
+                                val groupName = group.getString("groupName")
+
+                                if (groupName == groupNameSelection) {
+                                    completion(guuid)
+                                }
+                            }
+                    }
+                }
+
+            }
+
+        }
 }
