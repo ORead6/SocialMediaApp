@@ -294,4 +294,28 @@ class databaseCalls (
             }
 
         }
+
+    fun getPostMedia(post: String, completion: (Uri, String) -> Unit) {
+
+        val storage = FirebaseStorage.getInstance()
+        val fileRef = storage.reference.child("Posts/${post}/postMedia")
+
+        fileRef.downloadUrl
+            .addOnSuccessListener {theUri ->
+
+                fileRef.metadata
+                    .addOnSuccessListener {
+                        Log.d("FILEMETADATA", it.contentType.toString())
+                        completion(theUri, it.contentType.toString())
+                    }
+
+            }
+
+            .addOnFailureListener {e ->
+                Log.d("Image Retreival Error", e.toString())
+            }
+
+    }
+
+
 }

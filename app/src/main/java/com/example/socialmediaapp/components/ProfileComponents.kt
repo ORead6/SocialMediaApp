@@ -1,16 +1,17 @@
 package com.example.socialmediaapp.components
 
-import android.util.Log
+import android.content.Context
+import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -18,7 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,12 +30,17 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -44,8 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
+import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
-import kotlin.random.Random
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -283,30 +292,94 @@ fun userNameDisplay(username: String? = "Test") {
 }
 
 @Composable
-fun GridScreen(userPosts: MutableList<String>) {
+fun GridScreen(userPosts: MutableList<String>, dbCalls: databaseCalls) {
+    val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
+    val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
+
+    LaunchedEffect(userPosts) {
+        userPosts.forEach { post ->
+            dbCalls.getPostMedia(post) { uri, postType ->
+                mediaMap[post] = uri
+                typeMap[post] = postType
+            }
+        }
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(3)
     ) {
-        itemsIndexed(userPosts) { index, post ->
-            GridItem(post)
+        items(userPosts) { post ->
+            val uri = mediaMap[post]
+            val type = typeMap[post]
+            if (uri != null) {
+                if (type != null) {
+                    GridItem(post, uri, type)
+                }
+            }
         }
     }
 }
 
 @Composable
-fun GridItem(item: String) {
+fun GridItem(item: String, uri: Uri, type: String) {
     if (item != "") {
-        val random = Random
-        val randomColor = Color(random.nextInt(256), random.nextInt(256), random.nextInt(256))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .background(color = randomColor)
                 .border(width = (0.25f).dp, color = Color.Black),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = item.toString())
+            val image = isImage(type)
+
+            if (image) {
+                AsyncImage(
+                    model = uri,
+                    contentDescription = "PostMedia",
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                val thumbnail = remember(uri) {
+                    mutableStateOf<Bitmap?>(null)
+                }
+
+                LaunchedEffect(uri) {
+                    val loadedThumbnail = loadVideoThumbnail(uri)
+                    thumbnail.value = loadedThumbnail
+                }
+
+                thumbnail.value?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = "PostMedia",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+        }
+    }
+}
+
+fun isImage(type: String): Boolean {
+    val lowerCaseType = type.lowercase()
+
+    // Check if the type contains the word "image"
+    return lowerCaseType.contains("image")
+}
+
+private suspend fun loadVideoThumbnail(uri: Uri): Bitmap? {
+    return withContext(Dispatchers.IO) {
+        val retriever = MediaMetadataRetriever()
+        try {
+            retriever.setDataSource(uri.toString())
+            retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        } finally {
+            retriever.release()
         }
     }
 }
