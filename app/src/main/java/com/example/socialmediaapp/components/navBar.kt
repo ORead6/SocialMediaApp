@@ -3,6 +3,7 @@
 package com.example.socialmediaapp.components
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -40,11 +41,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import androidx.navigation.navArgument
 import com.example.socialmediaapp.screens.CreateGroupScreen
 import com.example.socialmediaapp.screens.EditProfileScreen
 import com.example.socialmediaapp.screens.GroupPreviewScreen
@@ -52,6 +55,7 @@ import com.example.socialmediaapp.screens.GroupScreen
 import com.example.socialmediaapp.screens.InboxScreen
 import com.example.socialmediaapp.screens.ProfileScreen
 import com.example.socialmediaapp.screens.homeScreen
+import com.example.socialmediaapp.screens.postViewerScreen
 import com.example.socialmediaapp.screens.uploadMediaScreen
 import com.example.socialmediaapp.signIn.UserData
 
@@ -205,6 +209,18 @@ fun myNavBar(
 
                 if (parameter != null) {
                     GroupPreviewScreen(parameter, navController =  navController)
+                }
+            }
+        )
+
+        composable(
+            route = "PostViewer/{uri}",
+            content = {
+                val arguments = navBackStackEntry?.arguments
+                val parameter = arguments?.getString("uri")
+
+                if (parameter != null) {
+                    postViewerScreen(parameter, navController =  navController)
                 }
             }
         )

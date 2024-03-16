@@ -1,12 +1,13 @@
 package com.example.socialmediaapp.components
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,12 +35,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -48,12 +47,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
@@ -292,7 +291,11 @@ fun userNameDisplay(username: String? = "Test") {
 }
 
 @Composable
-fun GridScreen(userPosts: MutableList<String>, dbCalls: databaseCalls) {
+fun GridScreen(
+    userPosts: MutableList<String>,
+    dbCalls: databaseCalls,
+    navBarController: NavController
+) {
     val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
     val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
 
@@ -313,7 +316,7 @@ fun GridScreen(userPosts: MutableList<String>, dbCalls: databaseCalls) {
             val type = typeMap[post]
             if (uri != null) {
                 if (type != null) {
-                    GridItem(post, uri, type)
+                    GridItem(post, uri, type, navBarController)
                 }
             }
         }
@@ -321,7 +324,7 @@ fun GridScreen(userPosts: MutableList<String>, dbCalls: databaseCalls) {
 }
 
 @Composable
-fun GridItem(item: String, uri: Uri, type: String) {
+fun GridItem(item: String, uri: Uri, type: String, navBarController: NavController) {
     if (item != "") {
         Box(
             modifier = Modifier
@@ -336,7 +339,17 @@ fun GridItem(item: String, uri: Uri, type: String) {
                 AsyncImage(
                     model = uri,
                     contentDescription = "PostMedia",
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.clickable {
+                        val uriToSend = uri.toString()
+                        val encodedUri = Uri.encode(uriToSend)
+
+                        try {
+                            navBarController.navigate("PostViewer/${encodedUri}")
+                        } catch (e: IllegalArgumentException) {
+                            Log.d("NAVERROR", e.toString())
+                        }
+                    }
                 )
             } else {
                 val thumbnail = remember(uri) {
@@ -353,7 +366,12 @@ fun GridItem(item: String, uri: Uri, type: String) {
                         bitmap = it.asImageBitmap(),
                         contentDescription = "PostMedia",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val uriToSend = uri.toString()
+                                navBarController.navigate("PostViewer")
+                            }
                     )
                 }
             }

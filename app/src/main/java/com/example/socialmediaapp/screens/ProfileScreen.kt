@@ -100,7 +100,7 @@ fun ProfileScreen(
 
             postDivider()
 
-            GridScreen(userPosts, dbCalls)
+            GridScreen(userPosts, dbCalls, navBarController)
         }
 
 
