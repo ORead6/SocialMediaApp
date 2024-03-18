@@ -343,9 +343,10 @@ fun GridItem(item: String, uri: Uri, type: String, navBarController: NavControll
                     modifier = Modifier.clickable {
                         val uriToSend = uri.toString()
                         val encodedUri = Uri.encode(uriToSend)
+                        val postType = "img"
 
                         try {
-                            navBarController.navigate("PostViewer/${encodedUri}")
+                            navBarController.navigate("PostViewer/${encodedUri}/${postType}")
                         } catch (e: IllegalArgumentException) {
                             Log.d("NAVERROR", e.toString())
                         }
@@ -370,7 +371,14 @@ fun GridItem(item: String, uri: Uri, type: String, navBarController: NavControll
                             .fillMaxWidth()
                             .clickable {
                                 val uriToSend = uri.toString()
-                                navBarController.navigate("PostViewer")
+                                val encodedUri = Uri.encode(uriToSend)
+                                val postType = "vid"
+
+                                try {
+                                    navBarController.navigate("PostViewer/${encodedUri}/${postType}")
+                                } catch (e: IllegalArgumentException) {
+                                    Log.d("NAVERROR", e.toString())
+                                }
                             }
                     )
                 }
