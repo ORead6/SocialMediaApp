@@ -346,7 +346,7 @@ fun GridItem(item: String, uri: Uri, type: String, navBarController: NavControll
                         val postType = "img"
 
                         try {
-                            navBarController.navigate("PostViewer/${encodedUri}/${postType}")
+                            navBarController.navigate("PostViewer/${encodedUri}/${postType}/${item}")
                         } catch (e: IllegalArgumentException) {
                             Log.d("NAVERROR", e.toString())
                         }
@@ -375,7 +375,7 @@ fun GridItem(item: String, uri: Uri, type: String, navBarController: NavControll
                                 val postType = "vid"
 
                                 try {
-                                    navBarController.navigate("PostViewer/${encodedUri}/${postType}")
+                                    navBarController.navigate("PostViewer/${encodedUri}/${postType}/${item}")
                                 } catch (e: IllegalArgumentException) {
                                     Log.d("NAVERROR", e.toString())
                                 }

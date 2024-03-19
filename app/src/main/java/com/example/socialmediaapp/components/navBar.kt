@@ -211,14 +211,15 @@ fun myNavBar(
         )
 
         composable(
-            route = "PostViewer/{uri}/{postType}",
+            route = "PostViewer/{uri}/{postType}/{postID}",
             content = {
                 val arguments = navBackStackEntry?.arguments
                 val parameter1 = arguments?.getString("uri")
                 val parameter2 = arguments?.getString("postType")
+                val parameter3 = arguments?.getString("postID")
 
-                if (parameter1 != null && parameter2 != null) {
-                    postViewerScreen(parameter1, navController =  navController, parameter2)
+                if (parameter1 != null && parameter2 != null && parameter3 != null) {
+                    postViewerScreen(parameter1, navController =  navController, parameter2, parameter3)
                 }
             }
         )

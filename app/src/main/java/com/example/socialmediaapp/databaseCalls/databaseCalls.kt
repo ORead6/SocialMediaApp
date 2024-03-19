@@ -317,5 +317,122 @@ class databaseCalls (
 
     }
 
+    fun getUserWithPost(postID: String, completion: (String) -> Unit) {
+        val db = Firebase.firestore
+        val postCollection = db.collection("Posts")
+        val userCollection = db.collection("Users")
+
+        postCollection.document(postID)
+            .get()
+            .addOnSuccessListener { postDoc ->
+                val createdBy = postDoc.getString("createdBy")
+
+                if (createdBy != null) {
+                    userCollection.document(createdBy)
+                        .get()
+                        .addOnSuccessListener { userDoc ->
+                            val userName = userDoc.getString("username")
+
+                            if (userName != null) {
+                                completion(userName)
+                            }
+                        }
+                }
+
+            }
+
+    }
+
+    fun getLikesWithPost(postID: String, completion: (Int) -> Unit) {
+        val db = Firebase.firestore
+        val postCollection = db.collection("Posts")
+        val userCollection = db.collection("Users")
+
+        postCollection.document(postID).collection("Likes")
+            .get()
+            .addOnSuccessListener {
+                completion(it.size())
+            }
+
+            .addOnFailureListener {
+                completion(0)
+            }
+    }
+
+    fun getLikeStatusOfUser(postID: String, completion: (Boolean) -> Unit) {
+        val db = Firebase.firestore
+        val postCollection = db.collection("Posts")
+        val userCollection = db.collection("Users")
+
+        val currUser = auth.currentUser?.uid
+
+        if (currUser != null) {
+            postCollection.document(postID).collection("Likes").document(currUser)
+                .get()
+                .addOnSuccessListener {
+                    if (it.exists()) {
+                        completion(true)
+                    } else {
+                        completion(false)
+                    }
+                }
+
+                .addOnFailureListener {
+                    completion(false)
+                }
+        }
+    }
+
+    fun addLikeToPost(postID: String, completion: (Boolean) -> Unit) {
+        val db = Firebase.firestore
+        val postCollection = db.collection("Posts")
+
+        val currUser = auth.currentUser?.uid
+
+        val likeData = hashMapOf(
+            "likes" to "yes"
+        )
+
+        if (currUser != null) {
+            postCollection.document(postID).collection("Likes").document(currUser)
+                .set(likeData)
+                .addOnSuccessListener {
+                    completion(true)
+                }
+        }
+
+    }
+
+    fun removeLikeFromPost(postID: String, completion: () -> Unit) {
+        val db = Firebase.firestore
+        val postCollection = db.collection("Posts")
+
+        val currUser = auth.currentUser?.uid
+
+        if (currUser != null) {
+            postCollection.document(postID).collection("Likes").document(currUser)
+                .delete()
+                .addOnSuccessListener {
+                    completion()
+                }
+        }
+    }
+
+    fun getPostCaption(postID: String, completion: (String) -> Unit) {
+        val db = Firebase.firestore
+        val postCollection = db.collection("Posts")
+
+        postCollection.document(postID)
+            .get()
+            .addOnSuccessListener {
+                val theCap = it.get("caption")
+                completion(theCap.toString())
+            }
+
+            .addOnFailureListener {
+                completion("")
+            }
+    }
+
 
 }
