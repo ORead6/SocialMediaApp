@@ -1,6 +1,7 @@
 package com.example.socialmediaapp.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.components.backButton
+import com.example.socialmediaapp.components.groupGridScreen
 import com.example.socialmediaapp.components.groupNameDisplay
 import com.example.socialmediaapp.components.groupPhoto
 import com.example.socialmediaapp.components.leaderboardButton
@@ -50,7 +52,7 @@ fun GroupPreviewScreen (
         ) {
 
             var state by remember {
-                mutableStateOf("overview")
+                mutableStateOf("media")
             }
 
 
@@ -64,6 +66,11 @@ fun GroupPreviewScreen (
                 mutableStateOf<Uri?>(null)
             }
 
+            var groupPosts by remember {
+                mutableStateOf(mutableListOf<String>())
+            }
+
+
             LaunchedEffect(groupPhoto) {
                 dbCalls.getGroupPhoto(groupID) {  thePhoto ->
                     groupPhoto = thePhoto
@@ -73,6 +80,12 @@ fun GroupPreviewScreen (
             LaunchedEffect(groupName) {
                 dbCalls.getGroupName(groupID) {theGroupName ->
                     groupName = theGroupName
+                }
+            }
+
+            LaunchedEffect(groupPosts) {
+                dbCalls.getGroupPosts(groupID) {theIds ->
+                    groupPosts = theIds.toMutableList()
                 }
             }
 
@@ -111,14 +124,14 @@ fun GroupPreviewScreen (
                     .fillMaxWidth()
                     .padding(start = 4.dp, top = 14.dp, end = 4.dp)
             ) {
-                overviewButton(modifier = Modifier.weight(1f), thisOnClick = {
-                    state = "overview"
+                mediaButton(modifier = Modifier.weight(1f), thisOnClick = {
+                    state = "media"
                 })
                 leaderboardButton(modifier = Modifier.weight(1f), thisOnClick = {
                     state = "leaderboard"
                 })
-                mediaButton(modifier = Modifier.weight(1f), thisOnClick = {
-                    state = "media"
+                overviewButton(modifier = Modifier.weight(1f), thisOnClick = {
+                    state = "overview"
                 })
             }
 
@@ -173,7 +186,7 @@ fun GroupPreviewScreen (
                             shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
                         )
                 ) {
-                    Text(text = "Media")
+                    groupGridScreen(groupPosts, navController, dbCalls)
                 }
             }
 

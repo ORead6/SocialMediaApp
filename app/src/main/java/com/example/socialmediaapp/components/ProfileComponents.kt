@@ -395,7 +395,7 @@ fun isImage(type: String): Boolean {
     return lowerCaseType.contains("image")
 }
 
-private suspend fun loadVideoThumbnail(uri: Uri): Bitmap? {
+suspend fun loadVideoThumbnail(uri: Uri): Bitmap? {
     return withContext(Dispatchers.IO) {
         val retriever = MediaMetadataRetriever()
         try {

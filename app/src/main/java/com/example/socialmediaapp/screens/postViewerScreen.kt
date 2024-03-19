@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -197,7 +198,7 @@ fun postViewerScreen(
                     .padding(start = 14.dp, end = 14.dp)
             ) {
                 // Content of the bottom column
-                //
+
                 likeButton(numberOfLikes.value, userHasLiked.value) {
                     // What to do when user presses the like button
                     if (userHasLiked.value) {
@@ -219,6 +220,8 @@ fun postViewerScreen(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.padding(10.dp))
 
                 postCaption(thePostCaption.value)
             }

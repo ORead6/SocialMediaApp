@@ -41,6 +41,25 @@ class databaseCalls (
             }
     }
 
+    fun getGroupPosts(groupID: String, completion: (List<String>) -> Unit) {
+        val dbReference = Firebase.firestore
+        val docRef = dbReference.collection("Posts")
+        val postIds = mutableListOf<String>()
+
+        docRef.whereEqualTo("postedTo", groupID)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val documentId = document.id
+                    postIds.add(documentId)
+                }
+                completion(postIds) // Invoke the completion block with the collected postIds
+            }
+            .addOnFailureListener {
+                // Handle failure
+            }
+    }
+
     fun getGroups(completion: (List<String>) -> Unit) {
         val dbReference = Firebase.firestore
         val groupIds = mutableListOf<String>()
@@ -298,7 +317,7 @@ class databaseCalls (
     fun getPostMedia(post: String, completion: (Uri, String) -> Unit) {
 
         val storage = FirebaseStorage.getInstance()
-        val fileRef = storage.reference.child("Posts/${post}/postMedia")
+        val fileRef = storage.reference.child("/Posts/${post}/postMedia")
 
         fileRef.downloadUrl
             .addOnSuccessListener {theUri ->
@@ -312,7 +331,7 @@ class databaseCalls (
             }
 
             .addOnFailureListener {e ->
-                Log.d("Image Retreival Error", e.toString())
+                Log.d("Image Retreival Error", e.printStackTrace().toString())
             }
 
     }
