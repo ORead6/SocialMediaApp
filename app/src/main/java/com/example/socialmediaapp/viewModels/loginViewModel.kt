@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.signIn.UserData
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
@@ -44,5 +45,22 @@ class LoginViewModel() : ViewModel(){
                     Log.d("LOGINFAIL", task.exception?.message.toString())
                 }
             }
+    }
+
+    fun forgotPassword(email: String, theContext: Context){
+        if (email.isNotEmpty()) {
+            // Send Forget Request
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                .addOnFailureListener {
+                    Toast.makeText(theContext, "Password Reset Email Sent", Toast.LENGTH_SHORT).show()
+                }
+
+                .addOnFailureListener {
+                    Toast.makeText(theContext, "Account with Email Not Found", Toast.LENGTH_SHORT).show()
+                }
+
+        } else {
+            Toast.makeText(theContext, "Please Enter a Valid Email", Toast.LENGTH_SHORT).show()
+        }
     }
 }

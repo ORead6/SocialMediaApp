@@ -70,6 +70,9 @@ fun LoginScreen(navController: NavController){
                         shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
                     )
             ) {
+
+                val context = LocalContext.current
+
                 Column(modifier = Modifier
                     .fillMaxSize()
                     .padding(28.dp)
@@ -116,7 +119,7 @@ fun LoginScreen(navController: NavController){
                         clickableText = "Forgot Password?",
                         alignment = Alignment.Start,
                         onClick = {
-
+                            myLoginViewModel.forgotPassword(myLoginViewModel.emailVal.value, context)
                         }
                     )
 

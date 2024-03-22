@@ -24,10 +24,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
-import com.example.socialmediaapp.databaseCalls.databaseCalls
 
 @Composable
 fun groupNameDisplay(groupName: String) {
@@ -196,33 +193,17 @@ fun groupPhoto(selectedImageUri: Uri?){
 fun groupGridScreen(
     groupPosts: MutableList<String>,
     navController: NavHostController,
-    dbCalls: databaseCalls
+    mediaMap: MutableMap<String, Uri?>,
+    typeMap: MutableMap<String, String>,
+    thumbNailMap: MutableMap<Any, Bitmap?>,
+    loading: Boolean
 ) {
-    val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
-    val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
-    var loading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(groupPosts) {
-        groupPosts.forEach { post ->
-            dbCalls.getPostMedia(post) { uri, postType ->
-                mediaMap[post] = uri
-                typeMap[post] = postType
-
-                Log.d("Types: ", uri.toString())
-                Log.d("Types: ", postType.toString())
-
-                // Check if all media has been retrieved
-                if (mediaMap.size == groupPosts.size && typeMap.size == groupPosts.size) {
-                    loading = false
-                }
-            }
-        }
-    }
 
     if (loading) {
         // Show loading indicator or placeholder
 
     } else {
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(3)
         ) {
@@ -230,7 +211,7 @@ fun groupGridScreen(
                 val uri = mediaMap[post]
                 val type = typeMap[post]
                 if (uri != null && type != null) {
-                    groupMediaItem(post, uri, type, navController)
+                    groupMediaItem(post, uri, type, navController, thumbNailMap[post])
                 }
             }
         }
@@ -238,7 +219,13 @@ fun groupGridScreen(
 }
 
 @Composable
-fun groupMediaItem(post: String, uri: Uri, type: String, navController: NavHostController) {
+fun groupMediaItem(
+    post: String,
+    uri: Uri,
+    type: String,
+    navController: NavHostController,
+    bitmap: Bitmap?
+) {
     if (post != "") {
         Box(
             modifier = Modifier
@@ -271,14 +258,9 @@ fun groupMediaItem(post: String, uri: Uri, type: String, navController: NavHostC
                     mutableStateOf<Bitmap?>(null)
                 }
 
-                LaunchedEffect(uri) {
-                    val loadedThumbnail = loadVideoThumbnail(uri)
-                    thumbnail.value = loadedThumbnail
-                }
-
-                thumbnail.value?.let {
+                if (bitmap != null) {
                     Image(
-                        bitmap = it.asImageBitmap(),
+                        bitmap = bitmap.asImageBitmap(),
                         contentDescription = "PostMedia",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -296,6 +278,7 @@ fun groupMediaItem(post: String, uri: Uri, type: String, navController: NavHostC
                             }
                     )
                 }
+
             }
 
         }
