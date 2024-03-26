@@ -453,5 +453,23 @@ class databaseCalls (
             }
     }
 
+    fun getTotalWeightLifted(groupID: String, completion: (Int) -> Unit) {
+        val db = Firebase.firestore
+        val groupBoardRef = db.collection("Groups")
+            .document(groupID)
+            .collection("Leaderboards")
+            .document("TotalWeightLifted")
+
+        groupBoardRef.get()
+            .addOnSuccessListener {
+                val theTotal = it.get("totalWeight")
+                completion(theTotal.toString().toIntOrNull() ?: 0)
+            }
+
+            .addOnFailureListener {
+                completion(0)
+            }
+    }
+
 
 }

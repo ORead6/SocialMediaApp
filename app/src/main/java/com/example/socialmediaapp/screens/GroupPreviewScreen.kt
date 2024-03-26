@@ -3,7 +3,9 @@ package com.example.socialmediaapp.screens
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,32 +13,36 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.LifecycleOwner
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.groupGridScreen
-import com.example.socialmediaapp.components.groupMediaItem
 import com.example.socialmediaapp.components.groupNameDisplay
 import com.example.socialmediaapp.components.groupPhoto
-import com.example.socialmediaapp.components.isImage
 import com.example.socialmediaapp.components.leaderboardButton
 import com.example.socialmediaapp.components.loadVideoThumbnail
 import com.example.socialmediaapp.components.mediaButton
@@ -44,8 +50,11 @@ import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.components.offWhiteBack
 import com.example.socialmediaapp.components.overviewButton
 import com.example.socialmediaapp.databaseCalls.databaseCalls
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.GlobalScope
+import com.example.socialmediaapp.R
+import com.example.socialmediaapp.components.AnimatedNumberDisplay
+import com.example.socialmediaapp.components.CustomPopupMenu
+import com.example.socialmediaapp.components.myCustomFont
+import com.example.socialmediaapp.viewModels.groupPreviewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -67,6 +76,13 @@ fun GroupPreviewScreen (
                 mutableStateOf("overview")
             }
 
+            val leaderBoards = listOf("Weight Lifted", "Weight Loss", "Weight Gain")
+            var isExpanded by remember { mutableStateOf(false) }
+            var selectedOption by remember { mutableStateOf("Weight Lifted") }
+
+            val groupPrevViewModel = groupPreviewModel()
+            groupPrevViewModel.setGroupID(groupID)
+            val theContext = LocalContext.current
 
             val dbCalls = databaseCalls("")
 
@@ -98,6 +114,18 @@ fun GroupPreviewScreen (
                 mutableStateOf(mutableMapOf<Any, Bitmap?>())
             }
 
+            var totalWeightLifted by remember {
+                mutableIntStateOf(0)
+            }
+
+            var addWeightExpanded by remember { mutableStateOf(false) }
+            var weightToBeAdded by remember { mutableStateOf("") }
+
+            LaunchedEffect(totalWeightLifted) {
+                dbCalls.getTotalWeightLifted(groupID) {
+                    totalWeightLifted = it
+                }
+            }
 
             LaunchedEffect(groupPhoto) {
                 dbCalls.getGroupPhoto(groupID) {  thePhoto ->
@@ -224,7 +252,121 @@ fun GroupPreviewScreen (
                             shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
                         )
                 ) {
-                    Text(text = "Leaderboard")
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp)
+                                .background(color = Color.White, shape = RoundedCornerShape(5.dp))
+                                .clickable { isExpanded = !isExpanded },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = selectedOption,
+                                modifier = Modifier.padding(16.dp),
+                                style = TextStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = myCustomFont,
+                                    fontSize = 16.sp
+                                )
+                            )
+
+                            DropdownMenu(
+                                modifier = Modifier
+                                    .background(color = Color.White)
+                                    .padding(16.dp),
+                                expanded = isExpanded,
+                                onDismissRequest = { isExpanded = false },
+                            ) {
+
+                                leaderBoards.forEach { groupName ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            isExpanded = false
+                                            selectedOption = groupName
+                                        },
+                                        text = { Text(text = groupName) }
+                                    )
+                                }
+                            }
+                        }
+
+                        when (selectedOption) {
+                            "Weight Lifted" -> {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(top = 10.dp)
+                                            .align(Alignment.TopEnd)
+                                            .padding(end = 16.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "Total Weight Lifted",
+                                                style = TextStyle(
+                                                    fontSize = 25.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontFamily = myCustomFont
+                                                )
+                                            )
+
+                                            Spacer(modifier = Modifier.weight(1f))
+
+                                            Image(
+                                                modifier = Modifier
+                                                    .height(20.dp)
+                                                    .clickable {
+                                                        addWeightExpanded = !addWeightExpanded
+                                                    },
+                                                painter = painterResource(id = R.drawable.plus),
+                                                contentDescription = "Plus",
+                                                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(color = myGradientGrey)
+                                            )
+                                        }
+
+                                        AnimatedNumberDisplay(totalWeightLifted)
+
+                                    }
+
+                                    if (addWeightExpanded) {
+                                        CustomPopupMenu(
+                                            onDismiss = {
+                                                addWeightExpanded = false
+                                                weightToBeAdded = ""
+                                                },
+                                            textField1Value = weightToBeAdded,
+                                            onTextField1ValueChanged = { weightToBeAdded = it },
+                                            addWeightFunc = {
+                                                groupPrevViewModel.addWeightToDB(weightToBeAdded, theContext) {
+                                                    dbCalls.getTotalWeightLifted(groupID) {
+                                                        totalWeightLifted = it
+                                                    }
+                                                }
+                                                addWeightExpanded = false
+                                                weightToBeAdded = ""
+
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            "Weight Gain" -> {
+                                
+                                
+                            }
+                            "Weight Loss" -> {
+                                
+                                
+                            }
+                        }
+                    }
+
                 }
             }
 
