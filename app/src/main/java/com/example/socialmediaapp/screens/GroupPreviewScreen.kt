@@ -1,8 +1,13 @@
 package com.example.socialmediaapp.screens
 
+import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,10 +58,12 @@ import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.components.AnimatedNumberDisplay
 import com.example.socialmediaapp.components.CustomPopupMenu
+import com.example.socialmediaapp.components.GroupThreeDotsMenu
 import com.example.socialmediaapp.components.myCustomFont
 import com.example.socialmediaapp.viewModels.groupPreviewModel
 import kotlinx.coroutines.launch
 
+@SuppressLint("ServiceCast")
 @Composable
 fun GroupPreviewScreen (
     groupID: String,
@@ -206,8 +213,32 @@ fun GroupPreviewScreen (
                     backButton(thisOnClick = {
                         navController.navigate("Groups")
                     })
-                }
 
+                    // Spacer to push GroupThreeDotsMenu to the right
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    GroupThreeDotsMenu(onMenuItemClick = {
+                        if (it == "Invite") {
+                            dbCalls.getGroupInvite(groupID) { inviteCode ->
+                                val clipboard =
+                                    theContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clipData = ClipData.newPlainText("Invite Code", inviteCode)
+
+                                clipboard.setPrimaryClip(clipData)
+
+                                Toast.makeText(theContext, "Invite Code Copied!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        if (it == "Leave") {
+                            dbCalls.leaveGroup(groupID) {
+                                Toast.makeText(theContext, "Group Successfuly Left", Toast.LENGTH_SHORT).show()
+                                navController.navigate("Groups")
+                            }
+                        }
+
+                    })
+                }
 
                 Box(
                     modifier = Modifier

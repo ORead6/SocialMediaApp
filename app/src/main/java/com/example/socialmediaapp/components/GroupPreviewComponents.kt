@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +35,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -409,5 +411,66 @@ fun AnimatedNumberDisplay(numberVal: Int) {
             fontFamily = myCustomFont
         )
     )
+}
+
+@Composable
+fun GroupThreeDotsMenu(onMenuItemClick: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box (
+        modifier = Modifier
+            .fillMaxWidth(0.1f)
+            .fillMaxHeight(0.05f),
+    ){
+        IconButton(
+            onClick = { expanded = !expanded }
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.more),
+                contentDescription = "More Options"
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.padding(end = 8.dp)
+        ) {
+            DropdownMenuItem(onClick = {
+                onMenuItemClick("Invite")
+                expanded = false
+            }, text = { Text(text = "Copy Invite Code",
+                fontFamily = myCustomFont
+            ) })
+
+            // Add some logic here to show this only if the group was created by the user logged in
+            if (false) {
+                DropdownMenuItem(onClick = {
+                    onMenuItemClick("GroupOptions")
+                    expanded = false
+                }, text = {
+                    Text(
+                        text = "Group Options",
+                        fontFamily = myCustomFont
+                    )
+                })
+            }
+            // This is to be able to leave the group. If the owner they cant leave they can only delete
+            else {
+                DropdownMenuItem(onClick = {
+                    onMenuItemClick("Leave")
+                    expanded = false
+                }, text = {
+                    Text(
+                        text = "Leave Group",
+                        fontFamily = myCustomFont,
+                        style = TextStyle(
+                            color = Color.Red
+                        )
+                    )
+                })
+            }
+        }
+    }
 }
 

@@ -10,7 +10,6 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
@@ -506,6 +505,64 @@ class databaseCalls (
                 completion(0)
             }
     }
+
+    fun getGroupInvite(groupID: String, completion: (String) -> Unit,) {
+        val db = Firebase.firestore
+        val groupRef = db.collection("Groups").document(groupID)
+
+        groupRef.get()
+            .addOnSuccessListener {
+                val theInviteCode = it.get("inviteCode")
+
+                completion(theInviteCode.toString())
+            }
+
+            .addOnFailureListener {
+
+            }
+    }
+
+    fun leaveGroup(groupID: String, completion: () -> Unit) {
+        val db = Firebase.firestore
+        val groupUserRef = db.collection("Groups").document(groupID).collection("Users")
+
+        val currUser = auth.currentUser?.uid
+
+        val userGroupsRef = currUser?.let { db.collection("Users").document(it).collection("Groups") }
+
+        groupUserRef.whereEqualTo("uuid", currUser)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    // Delete the document
+                    groupUserRef.document(document.id).delete()
+                        .addOnSuccessListener {
+
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle any errors
+                            println("Error deleting document: $exception")
+                        }
+                }
+
+                userGroupsRef?.whereEqualTo("guuid", groupID)?.get()
+                    ?.addOnSuccessListener { documents ->
+                        for (document in documents) {
+                            userGroupsRef.document(document.id).delete()
+                                .addOnSuccessListener {
+                                    completion()
+                                }
+                        }
+                    }
+
+
+
+            }
+            .addOnFailureListener { exception ->
+                // Handle any errors
+                println("Error getting documents: $exception")
+            }
+        }
 
 
 }
