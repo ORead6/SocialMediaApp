@@ -118,12 +118,32 @@ fun GroupPreviewScreen (
                 mutableIntStateOf(0)
             }
 
+            var totalWeightGained by remember {
+                mutableIntStateOf(0)
+            }
+
+            var totalWeightLost by remember {
+                mutableIntStateOf(0)
+            }
+
             var addWeightExpanded by remember { mutableStateOf(false) }
             var weightToBeAdded by remember { mutableStateOf("") }
 
             LaunchedEffect(totalWeightLifted) {
                 dbCalls.getTotalWeightLifted(groupID) {
                     totalWeightLifted = it
+                }
+            }
+
+            LaunchedEffect(totalWeightGained) {
+                dbCalls.getTotalWeightGained(groupID) {
+                    totalWeightGained = it
+                }
+            }
+
+            LaunchedEffect(totalWeightLost) {
+                dbCalls.getTotalWeightLost(groupID) {
+                    totalWeightLost = it
                 }
             }
 
@@ -343,7 +363,7 @@ fun GroupPreviewScreen (
                                             textField1Value = weightToBeAdded,
                                             onTextField1ValueChanged = { weightToBeAdded = it },
                                             addWeightFunc = {
-                                                groupPrevViewModel.addWeightToDB(weightToBeAdded, theContext) {
+                                                groupPrevViewModel.addWeightToDBLifted(weightToBeAdded, theContext) {
                                                     dbCalls.getTotalWeightLifted(groupID) {
                                                         totalWeightLifted = it
                                                     }
@@ -357,11 +377,127 @@ fun GroupPreviewScreen (
                                 }
                             }
                             "Weight Gain" -> {
-                                
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(top = 10.dp)
+                                            .align(Alignment.TopEnd)
+                                            .padding(end = 16.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "Total Weight Gained",
+                                                style = TextStyle(
+                                                    fontSize = 25.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontFamily = myCustomFont
+                                                )
+                                            )
+
+                                            Spacer(modifier = Modifier.weight(1f))
+
+                                            Image(
+                                                modifier = Modifier
+                                                    .height(20.dp)
+                                                    .clickable {
+                                                        addWeightExpanded = !addWeightExpanded
+                                                    },
+                                                painter = painterResource(id = R.drawable.plus),
+                                                contentDescription = "Plus",
+                                                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(color = myGradientGrey)
+                                            )
+                                        }
+
+                                        AnimatedNumberDisplay(totalWeightGained)
+
+                                    }
+
+                                    if (addWeightExpanded) {
+                                        CustomPopupMenu(
+                                            onDismiss = {
+                                                addWeightExpanded = false
+                                                weightToBeAdded = ""
+                                            },
+                                            textField1Value = weightToBeAdded,
+                                            onTextField1ValueChanged = { weightToBeAdded = it },
+                                            addWeightFunc = {
+                                                groupPrevViewModel.addWeightToDBGained(weightToBeAdded, theContext) {
+                                                    dbCalls.getTotalWeightGained(groupID) {
+                                                        totalWeightGained = it
+                                                    }
+                                                }
+                                                addWeightExpanded = false
+                                                weightToBeAdded = ""
+
+                                            }
+                                        )
+                                    }
+                                }
                                 
                             }
                             "Weight Loss" -> {
-                                
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(top = 10.dp)
+                                            .align(Alignment.TopEnd)
+                                            .padding(end = 16.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "Total Weight Lost",
+                                                style = TextStyle(
+                                                    fontSize = 25.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontFamily = myCustomFont
+                                                )
+                                            )
+
+                                            Spacer(modifier = Modifier.weight(1f))
+
+                                            Image(
+                                                modifier = Modifier
+                                                    .height(20.dp)
+                                                    .clickable {
+                                                        addWeightExpanded = !addWeightExpanded
+                                                    },
+                                                painter = painterResource(id = R.drawable.plus),
+                                                contentDescription = "Plus",
+                                                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(color = myGradientGrey)
+                                            )
+                                        }
+
+                                        AnimatedNumberDisplay(totalWeightLost)
+
+                                    }
+
+                                    if (addWeightExpanded) {
+                                        CustomPopupMenu(
+                                            onDismiss = {
+                                                addWeightExpanded = false
+                                                weightToBeAdded = ""
+                                            },
+                                            textField1Value = weightToBeAdded,
+                                            onTextField1ValueChanged = { weightToBeAdded = it },
+                                            addWeightFunc = {
+                                                groupPrevViewModel.addWeightToDBLost(weightToBeAdded, theContext) {
+                                                    dbCalls.getTotalWeightLost(groupID) {
+                                                        totalWeightLost = it
+                                                    }
+                                                }
+                                                addWeightExpanded = false
+                                                weightToBeAdded = ""
+
+                                            }
+                                        )
+                                    }
+                                }
                                 
                             }
                         }

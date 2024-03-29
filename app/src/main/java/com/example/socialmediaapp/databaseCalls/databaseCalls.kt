@@ -471,5 +471,41 @@ class databaseCalls (
             }
     }
 
+    fun getTotalWeightLost(groupID: String, completion: (Int) -> Unit) {
+        val db = Firebase.firestore
+        val groupBoardRef = db.collection("Groups")
+            .document(groupID)
+            .collection("Leaderboards")
+            .document("TotalWeightLost")
+
+        groupBoardRef.get()
+            .addOnSuccessListener {
+                val theTotal = it.get("totalWeight")
+                completion(theTotal.toString().toIntOrNull() ?: 0)
+            }
+
+            .addOnFailureListener {
+                completion(0)
+            }
+    }
+
+    fun getTotalWeightGained(groupID: String, completion: (Int) -> Unit) {
+        val db = Firebase.firestore
+        val groupBoardRef = db.collection("Groups")
+            .document(groupID)
+            .collection("Leaderboards")
+            .document("TotalWeightGained")
+
+        groupBoardRef.get()
+            .addOnSuccessListener {
+                val theTotal = it.get("totalWeight")
+                completion(theTotal.toString().toIntOrNull() ?: 0)
+            }
+
+            .addOnFailureListener {
+                completion(0)
+            }
+    }
+
 
 }
