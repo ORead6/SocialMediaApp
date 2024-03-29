@@ -209,72 +209,56 @@ class databaseCalls (
         }
     }
 
-    fun getGroupNames(completion: (List<String?>) -> Unit) {
-        val currentUserUUID = auth.currentUser?.uid
-        val db = Firebase.firestore
+    fun getGroupNames(completion: (List<String>) -> Unit) {
+        val dbReference = Firebase.firestore
+        val groupIds = mutableListOf<String>()
 
-        val groupsCollectionForUser = db.collection("Users").document(currentUserUUID!!).collection("Groups")
-        val groupsCollection = db.collection("Groups")
+        val groupNames = mutableListOf<String>()
 
-        groupsCollectionForUser.get()
-            .addOnSuccessListener {
-                val uuidList = mutableListOf<String?>()
+        dbReference.collection("Groups").get()
+            .addOnSuccessListener { groups ->
+                val tasks = mutableListOf<Task<QuerySnapshot>>()
+                val groupList = groups.documents.toList()
 
-                for (document in it) {
-                    val uuid = document.getString("guuid")
-                    uuidList.add(uuid)
+
+                for (group in groupList) {
+                    val groupId = group.id
+                    val usersRef =
+                        dbReference.collection("Groups").document(groupId).collection("Users")
+                    val userQuery = usersRef.whereEqualTo("uuid", userId).get()
+
+                    tasks.add(userQuery)
                 }
 
-                Log.d("getGroupNames", uuidList.toString())
+                Tasks.whenAllSuccess<QuerySnapshot>(tasks)
+                    .addOnSuccessListener { userDocsList ->
+                        userDocsList.forEachIndexed { index, userDocs ->
+                            if (!userDocs.isEmpty) {
+                                groupIds.add(groupList[index].id)
+                            }
+                        }
 
-                val groupNamesList = mutableListOf<String?>()
-                val groupsCollection = db.collection("Groups")
 
-                var completedCount = 0
+                        for (id in groupIds) {
+                            getGroupName(id) {name ->
+                                groupNames.add(name)
 
-                for (uuid in uuidList) {
-                    if (uuid != null) {
-                        groupsCollection.document(uuid).get()
-                            .addOnSuccessListener { groupDocument ->
-                                val groupName = groupDocument.getString("groupName")
-                                groupNamesList.add(groupName)
-                                Log.d("getGroupNames", "Group name added: $groupName")
-
-                                // Increment the counter
-                                completedCount++
-
-                                // Check if all documents have been processed
-                                if (completedCount == uuidList.size) {
-                                    // This means the for loop is over
-                                    Log.d("getGroupNames", "For loop is over. All documents processed.")
-                                    completion(groupNamesList)
+                                if (groupNames.size == groupIds.size) {
+                                    completion(groupNames)
                                 }
                             }
-                            .addOnFailureListener { exception ->
-                                // Handle the failure, e.g., log an error or provide a default value
-                                groupNamesList.add(null)
-                                Log.e("getGroupNames", "Error getting groupName: $exception")
+                        }
 
-                                // Increment the counter
-                                completedCount++
 
-                                // Check if all documents have been processed
-                                if (completedCount == uuidList.size) {
-                                    // This means the for loop is over
-                                    Log.d("getGroupNames", "For loop is over. All documents processed.")
-                                    completion(groupNamesList)
-                                }
-                            }
+
                     }
-                }
+                    .addOnFailureListener {
+                        // Handle failure
+                    }
             }
-
-            .addOnFailureListener { exception ->
-                // Handle the failure, e.g., log an error or provide a default value
-                completion(emptyList())
-                Log.e("getGroupNames", "Error getting UUIDs: $exception")
+            .addOnFailureListener {
+                // Handle failure
             }
-
     }
 
     fun getGroupIdWithName(groupNameSelection: String, completion: (String) -> Unit) {
