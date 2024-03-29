@@ -8,6 +8,8 @@ import androidx.navigation.NavController
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
@@ -563,6 +565,43 @@ class databaseCalls (
                 println("Error getting documents: $exception")
             }
         }
+
+    fun getOwnerStatus(groupID: String, completion: (Boolean) -> Unit) {
+        val db = Firebase.firestore
+        val groupRef = db.collection("Groups").document(groupID)
+
+        val currUser = auth.currentUser?.uid ?: ""
+
+        groupRef.get()
+            .addOnSuccessListener {
+                val theOwner = it.get("owner")
+
+                if (theOwner.toString() == currUser) {
+                    // The user Logged in is Owner
+                    completion(true)
+                } else {
+                    // User is just a member
+                    completion(false)
+                }
+            }
+    }
+
+    fun deleteAccount(currUser: FirebaseUser?, completion: () -> Unit) {
+        val auth = FirebaseAuth.getInstance()
+
+        currUser?.delete()
+            ?.addOnSuccessListener {
+                completion()
+            }
+    }
+
+    fun getCurrUser(completion: (FirebaseUser?) -> Unit) {
+        val auth = FirebaseAuth.getInstance()
+        val user = auth.currentUser
+
+        completion(user)
+
+    }
 
 
 }

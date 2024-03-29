@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -27,7 +29,9 @@ import com.example.socialmediaapp.components.ThreeDotsMenu
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.bioField
 import com.example.socialmediaapp.components.editPfpCircle
+import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.components.textField
+import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
 
 @Composable
@@ -39,13 +43,18 @@ fun EditProfileScreen (
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(LoginScreensColor)
+            .background(myGradientGrey)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(LoginScreensColor)
+                .background(myGradientGrey)
         ) {
+
+            val dbCalls = databaseCalls("")
+
+            val theContext = LocalContext.current
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -65,6 +74,16 @@ fun EditProfileScreen (
                     ThreeDotsMenu(onMenuItemClick = {
                         if (it == "Logout") {
                             onSignOut()
+                        }
+
+                        if (it == "DELETE") {
+
+                            dbCalls.getCurrUser {
+                                onSignOut()
+                                dbCalls.deleteAccount(it) {
+                                    Toast.makeText(theContext, "Account Deleted!", Toast.LENGTH_LONG).show()
+                                }
+                            }
                         }
                     })
                 }

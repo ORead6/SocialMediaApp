@@ -133,12 +133,23 @@ fun GroupPreviewScreen (
                 mutableIntStateOf(0)
             }
 
+            var isCurrUserOwner by remember {
+                mutableStateOf(false)
+            }
+
+
             var addWeightExpanded by remember { mutableStateOf(false) }
             var weightToBeAdded by remember { mutableStateOf("") }
 
             LaunchedEffect(totalWeightLifted) {
                 dbCalls.getTotalWeightLifted(groupID) {
                     totalWeightLifted = it
+                }
+            }
+
+            LaunchedEffect(isCurrUserOwner) {
+                dbCalls.getOwnerStatus(groupID) {
+                    isCurrUserOwner = it
                 }
             }
 
@@ -217,7 +228,7 @@ fun GroupPreviewScreen (
                     // Spacer to push GroupThreeDotsMenu to the right
                     Spacer(modifier = Modifier.weight(1f))
 
-                    GroupThreeDotsMenu(onMenuItemClick = {
+                    GroupThreeDotsMenu(isCurrUserOwner, onMenuItemClick = {
                         if (it == "Invite") {
                             dbCalls.getGroupInvite(groupID) { inviteCode ->
                                 val clipboard =

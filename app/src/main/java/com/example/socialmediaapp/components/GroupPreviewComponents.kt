@@ -414,7 +414,7 @@ fun AnimatedNumberDisplay(numberVal: Int) {
 }
 
 @Composable
-fun GroupThreeDotsMenu(onMenuItemClick: (String) -> Unit) {
+fun GroupThreeDotsMenu(ownerStatus: Boolean, onMenuItemClick: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
     Box (
@@ -440,18 +440,24 @@ fun GroupThreeDotsMenu(onMenuItemClick: (String) -> Unit) {
                 onMenuItemClick("Invite")
                 expanded = false
             }, text = { Text(text = "Copy Invite Code",
-                fontFamily = myCustomFont
+                fontFamily = myCustomFont,
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold
+                )
             ) })
 
             // Add some logic here to show this only if the group was created by the user logged in
-            if (false) {
+            if (ownerStatus) {
                 DropdownMenuItem(onClick = {
                     onMenuItemClick("GroupOptions")
                     expanded = false
                 }, text = {
                     Text(
                         text = "Group Options",
-                        fontFamily = myCustomFont
+                        fontFamily = myCustomFont,
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold
+                        )
                     )
                 })
             }
@@ -465,7 +471,8 @@ fun GroupThreeDotsMenu(onMenuItemClick: (String) -> Unit) {
                         text = "Leave Group",
                         fontFamily = myCustomFont,
                         style = TextStyle(
-                            color = Color.Red
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold
                         )
                     )
                 })

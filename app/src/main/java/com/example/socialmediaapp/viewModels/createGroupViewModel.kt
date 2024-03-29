@@ -46,12 +46,16 @@ class createGroupViewModel() : ViewModel(){
     }
 
     fun createNewGroup(completion: (String) -> Unit) {
+
+        val currUser = auth.currentUser?.uid ?: ""
+
         val thisGroup = mapOf<String, String?>(
             "groupName" to groupName.value,
             "groupPhoto" to "",
             "groupBio" to groupBio.value,
             "privacyStatus" to privacyState.value.toString(),
-            "inviteCode" to generateRandomCode(6)
+            "inviteCode" to generateRandomCode(6),
+            "owner" to currUser
         )
 
         firestore.collection("Groups")

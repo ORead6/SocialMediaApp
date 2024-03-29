@@ -232,18 +232,19 @@ fun ThreeDotsMenu(onMenuItemClick: (String) -> Unit) {
             onDismissRequest = { expanded = false },
             modifier = Modifier.padding(end = 8.dp)
         ) {
-            DropdownMenuItem(onClick = {
-                onMenuItemClick("DELETE")
-                expanded = false
-            }, text = { Text(text = "DELETE ACCOUNT",
-                fontFamily = myCustomFont,
-                color = Color.Red) })
 
             DropdownMenuItem(onClick = {
                 onMenuItemClick("Logout")
                 expanded = false
             }, text = { Text(text = "Logout",
                 fontFamily = myCustomFont) })
+
+            DropdownMenuItem(onClick = {
+                onMenuItemClick("DELETE")
+                expanded = false
+            }, text = { Text(text = "DELETE ACCOUNT",
+                fontFamily = myCustomFont,
+                color = Color.Red) })
         }
     }
 }
