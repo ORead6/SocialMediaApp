@@ -9,6 +9,7 @@ import androidx.navigation.NavController
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
 
@@ -52,7 +53,8 @@ class uploadViewModel() : ViewModel() {
                 val postData = hashMapOf(
                     "createdBy" to userID,
                     "caption" to _caption.value,
-                    "postedTo" to groupID
+                    "postedTo" to groupID,
+                    "uploadedAt" to FieldValue.serverTimestamp()
                 )
 
                 postsCollection.add(postData)
@@ -69,7 +71,7 @@ class uploadViewModel() : ViewModel() {
                                 // Handle successful upload
                                 Log.d("POSTUPLOAD", "Media uploaded successfully")
 
-                                navController.navigate("Upload")
+                                navController.navigate("Profile")
                             }
 
                             .addOnFailureListener { exception ->

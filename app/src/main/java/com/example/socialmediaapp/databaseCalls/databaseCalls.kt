@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
@@ -27,17 +28,18 @@ class databaseCalls (
 
     fun getPosts(completion: (List<String>) -> Unit) {
         val dbReference = Firebase.firestore
+        val currentUserUUID = auth.currentUser?.uid
         val docRef = dbReference.collection("Posts")
         val postIds = mutableListOf<String>()
 
-        docRef.whereEqualTo("createdBy", userId)
+        docRef.whereEqualTo("createdBy", currentUserUUID)
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
                     val documentId = document.id
                     postIds.add(documentId)
                 }
-                completion(postIds) // Invoke the completion block with the collected postIds
+                completion(postIds)
             }
             .addOnFailureListener {
                 // Handle failure
@@ -50,6 +52,7 @@ class databaseCalls (
         val postIds = mutableListOf<String>()
 
         docRef.whereEqualTo("postedTo", groupID)
+            .orderBy("uploadedAt", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
