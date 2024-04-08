@@ -68,6 +68,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.databaseCalls.databaseCalls
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -270,6 +271,7 @@ fun groupMediaItem(
             contentAlignment = Alignment.Center
         ) {
             val image = isImage(type)
+            val coroutine = rememberCoroutineScope()
 
             if (image) {
                 AsyncImage(
@@ -310,7 +312,37 @@ fun groupMediaItem(
                             }
                     )
                 } else {
-                    CircularProgressIndicator(color = myGradientGrey)
+                    // Retry getting that thumbnail
+                    var theBitmap by remember { mutableStateOf<Bitmap?>(null) }
+                    coroutine.launch {
+                         theBitmap = loadVideoThumbnail(uri)
+                    }
+
+                    if (theBitmap != null) {
+                        Image(
+                            bitmap = theBitmap!!.asImageBitmap(),
+                            contentDescription = "PostMedia",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val uriToSend = uri.toString()
+                                    val encodedUri = Uri.encode(uriToSend)
+                                    val postType = "vid"
+
+                                    try {
+                                        navController.navigate("PostViewer/${encodedUri}/${postType}/${post}/${groupID}")
+                                    } catch (e: IllegalArgumentException) {
+                                        Log.d("NAVERROR", e.toString())
+                                    }
+                                }
+                        )
+                    } else {
+                        CircularProgressIndicator(color = myGradientGrey)
+                    }
+
+
+
                 }
 
             }

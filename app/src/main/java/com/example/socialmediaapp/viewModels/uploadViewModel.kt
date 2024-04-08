@@ -69,7 +69,7 @@ class uploadViewModel() : ViewModel() {
                                 // Handle successful upload
                                 Log.d("POSTUPLOAD", "Media uploaded successfully")
 
-                                navController.navigate("Home")
+                                navController.navigate("Upload")
                             }
 
                             .addOnFailureListener { exception ->
