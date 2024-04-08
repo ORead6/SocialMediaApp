@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -27,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -35,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -299,6 +303,10 @@ fun GridScreen(
     val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
     val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
 
+    var dataReady by remember { mutableStateOf(false) }
+
+    Log.d("USERPOSTS", userPosts.toString())
+
     LaunchedEffect(userPosts) {
         userPosts.forEach { post ->
             dbCalls.getPostMedia(post) { uri, postType ->
@@ -306,19 +314,32 @@ fun GridScreen(
                 typeMap[post] = postType
             }
         }
+
+        dataReady = true
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3)
-    ) {
-        items(userPosts) { post ->
-            val uri = mediaMap[post]
-            val type = typeMap[post]
-            if (uri != null) {
-                if (type != null) {
-                    GridItem(post, uri, type, navBarController)
+    if (dataReady){
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3)
+        ) {
+            items(userPosts) { post ->
+                val uri = mediaMap[post]
+                val type = typeMap[post]
+                if (uri != null) {
+                    if (type != null) {
+                        GridItem(post, uri, type, navBarController)
+                    }
                 }
             }
+        }
+    } else {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .fillMaxHeight(0.5f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.padding(75.dp))
+            CircularProgressIndicator(color = offWhiteBack)
         }
     }
 }
@@ -335,6 +356,7 @@ fun GridItem(item: String, uri: Uri, type: String, navBarController: NavControll
         ) {
             val image = isImage(type)
 
+
             if (image) {
                 AsyncImage(
                     model = uri,
@@ -346,11 +368,11 @@ fun GridItem(item: String, uri: Uri, type: String, navBarController: NavControll
                         val postType = "img"
 
                         try {
-                            navBarController.navigate("PostViewer/${encodedUri}/${postType}/${item}")
+                            navBarController.navigate("PostViewer/${encodedUri}/${postType}/${item}/abc")
                         } catch (e: IllegalArgumentException) {
                             Log.d("NAVERROR", e.toString())
                         }
-                    }
+                    },
                 )
             } else {
                 val thumbnail = remember(uri) {
@@ -362,9 +384,9 @@ fun GridItem(item: String, uri: Uri, type: String, navBarController: NavControll
                     thumbnail.value = loadedThumbnail
                 }
 
-                thumbnail.value?.let {
+                if (thumbnail.value != null) {
                     Image(
-                        bitmap = it.asImageBitmap(),
+                        bitmap = thumbnail.value!!.asImageBitmap(),
                         contentDescription = "PostMedia",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -375,12 +397,15 @@ fun GridItem(item: String, uri: Uri, type: String, navBarController: NavControll
                                 val postType = "vid"
 
                                 try {
-                                    navBarController.navigate("PostViewer/${encodedUri}/${postType}/${item}")
+                                    navBarController.navigate("PostViewer/${encodedUri}/${postType}/${item}/abc")
                                 } catch (e: IllegalArgumentException) {
                                     Log.d("NAVERROR", e.toString())
                                 }
                             }
                     )
+
+                } else {
+                    CircularProgressIndicator(color = offWhiteBack)
                 }
             }
 

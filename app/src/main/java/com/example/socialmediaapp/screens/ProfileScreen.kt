@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -63,7 +64,6 @@ fun ProfileScreen(
             }
 
             val context = LocalContext.current
-
 
             LaunchedEffect(Unit) {
                 dbCalls.getPosts {theIds ->

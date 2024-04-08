@@ -78,23 +78,6 @@ fun groupGrid(
 }
 
 @Composable
-fun HorizontalLine() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp) // Adjust vertical padding as needed
-    ) {
-        Divider(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth(0.95f)
-                .height(1.dp)
-                .background(Color.Gray) // You can customize the color
-        )
-    }
-}
-
-@Composable
 fun groupGridItem(
     id: String,
     groupData: Map<String, String>,

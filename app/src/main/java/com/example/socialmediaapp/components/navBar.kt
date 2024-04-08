@@ -199,27 +199,35 @@ fun myNavBar(
         )
         
         composable(
-            route = "GroupPreview/{groupID}",
+            route = "GroupPreview/{groupID}/{page}",
             content = {
                 val arguments = navBackStackEntry?.arguments
                 val parameter = arguments?.getString("groupID")
+                val parameter2 = arguments?.getString("page")
 
                 if (parameter != null) {
-                    GroupPreviewScreen(parameter, navController =  navController)
+                    GroupPreviewScreen(parameter, navController =  navController, page = parameter2)
                 }
             }
         )
 
         composable(
-            route = "PostViewer/{uri}/{postType}/{postID}",
+            route = "PostViewer/{uri}/{postType}/{postID}/{groupID}",
             content = {
                 val arguments = navBackStackEntry?.arguments
                 val parameter1 = arguments?.getString("uri")
                 val parameter2 = arguments?.getString("postType")
                 val parameter3 = arguments?.getString("postID")
+                val parameter4 = arguments?.getString("groupID")
+
+
 
                 if (parameter1 != null && parameter2 != null && parameter3 != null) {
-                    postViewerScreen(parameter1, navController =  navController, parameter2, parameter3)
+                    if (parameter4 == "abc") {
+                        postViewerScreen(parameter1, navController =  navController, parameter2, parameter3)
+                    }  else {
+                        postViewerScreen(parameter1, navController =  navController, parameter2, parameter3, groupID = parameter4)
+                    }
                 }
             }
         )

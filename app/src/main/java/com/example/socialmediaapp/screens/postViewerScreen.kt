@@ -34,10 +34,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.components.likeButton
 import com.example.socialmediaapp.components.myGradientGrey
@@ -50,7 +52,8 @@ fun postViewerScreen(
     uri: String,
     navController: NavHostController,
     postType: String,
-    postID: String
+    postID: String,
+    groupID: String? = ""
 ) {
 
     var numberOfLikes = remember {
@@ -116,8 +119,21 @@ fun postViewerScreen(
                     .padding(start = 14.dp, end = 14.dp)
             ) {
 
+                val backStackEntry = navController.previousBackStackEntry
+
                 postBackButton {
-                    navController.popBackStack()
+
+                    Log.d("BACKSTACKENTRY", backStackEntry?.destination?.route.toString())
+
+                    if (backStackEntry?.destination?.route == "Profile"){
+                        navController.popBackStack()
+                    }
+
+                    if (backStackEntry?.destination?.route == "GroupPreview/{groupID}/{page}") {
+                        navController.navigate("GroupPreview/${groupID}/media")
+                    }
+
+
                 }
 
                 Text(text = userPost.value, color = Color.White,

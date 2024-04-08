@@ -1,11 +1,10 @@
 package com.example.socialmediaapp.components
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -25,13 +24,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,10 +47,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
@@ -61,8 +67,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
-import com.example.socialmediaapp.viewModels.groupPreviewModel
+import com.example.socialmediaapp.databaseCalls.databaseCalls
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.max
@@ -220,7 +227,8 @@ fun groupGridScreen(
     mediaMap: MutableMap<String, Uri?>,
     typeMap: MutableMap<String, String>,
     thumbNailMap: MutableMap<Any, Bitmap?>,
-    loading: Boolean
+    loading: Boolean,
+    groupID: String
 ) {
 
     if (loading) {
@@ -235,21 +243,24 @@ fun groupGridScreen(
                 val uri = mediaMap[post]
                 val type = typeMap[post]
                 if (uri != null && type != null) {
-                    groupMediaItem(post, uri, type, navController, thumbNailMap[post])
+                    groupMediaItem(post, uri, type, navController, thumbNailMap[post], groupID)
                 }
             }
         }
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun groupMediaItem(
     post: String,
     uri: Uri,
     type: String,
     navController: NavHostController,
-    bitmap: Bitmap?
+    bitmap: Bitmap?,
+    groupID: String
 ) {
+
     if (post != "") {
         Box(
             modifier = Modifier
@@ -271,16 +282,13 @@ fun groupMediaItem(
                         val postType = "img"
 
                         try {
-                            navController.navigate("PostViewer/${encodedUri}/${postType}/${post}")
+                            navController.navigate("PostViewer/${encodedUri}/${postType}/${post}/${groupID}")
                         } catch (e: IllegalArgumentException) {
                             Log.d("NAVERROR", e.toString())
                         }
                     }
                 )
             } else {
-                val thumbnail = remember(uri) {
-                    mutableStateOf<Bitmap?>(null)
-                }
 
                 if (bitmap != null) {
                     Image(
@@ -295,12 +303,14 @@ fun groupMediaItem(
                                 val postType = "vid"
 
                                 try {
-                                    navController.navigate("PostViewer/${encodedUri}/${postType}/${post}")
+                                    navController.navigate("PostViewer/${encodedUri}/${postType}/${post}/${groupID}")
                                 } catch (e: IllegalArgumentException) {
                                     Log.d("NAVERROR", e.toString())
                                 }
                             }
                     )
+                } else {
+                    CircularProgressIndicator(color = myGradientGrey)
                 }
 
             }
@@ -339,7 +349,8 @@ fun CustomPopupMenu(
                 val filteredValue = newValue.replace("\n", "")
                 onTextField1ValueChanged(filteredValue)
             },
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier
+                .padding(vertical = 8.dp)
                 .fillMaxWidth(),
             textStyle = TextStyle(
                 color = Color.Black,
@@ -480,4 +491,159 @@ fun GroupThreeDotsMenu(ownerStatus: Boolean, onMenuItemClick: (String) -> Unit) 
         }
     }
 }
+
+@Composable
+fun userGrid(
+    userIDs: List<String>,
+    userNames: Map<String, String>,
+    metric: String,
+    groupID: String
+) {
+    val spacing = 25.dp
+
+    val dbCalls = databaseCalls("")
+
+    var dataReady by remember {
+        mutableStateOf(false)
+    }
+
+    var userValues by remember {
+        mutableStateOf(mutableMapOf<String, String>())
+    }
+
+    dbCalls.getMetricValuesWithUserIds(metric, groupID, userIDs) {
+        userValues = it as MutableMap<String, String>
+        dataReady = true
+    }
+
+    if (dataReady) {
+
+        val list = userValues.toList()
+
+        val sortedList = list.sortedBy { it.second.toDoubleOrNull() }
+
+        val sortedMap = sortedList.toMap().toMutableMap()
+
+        val entries = sortedMap.entries.toList()
+
+            // Iterate through values
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                itemsIndexed(entries.reversed()) { index, entry ->
+                    val userID = entry.key
+                    val username = userNames[userID]
+                    val metricVal = userValues[userID]
+
+                    if (username != null && metricVal != null) {
+                        userGridItem(username = username, metricValue = metricVal, placement = (index + 1).toString())
+                    }
+                }
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.5f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.padding(75.dp))
+            CircularProgressIndicator(color = myGradientGrey)
+
+        }
+    }
+}
+
+@Composable
+fun userGridItem(
+    username: String,
+    metricValue: String,
+    placement: String
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+//        Text(text = username)
+//        Spacer(modifier = Modifier.padding(4.dp))
+//        Text(text = metricValue)
+//        Spacer(modifier = Modifier.padding(4.dp))
+//        Text(text = placement)
+
+        var circleColor = Color(0xffeb9834)
+
+        if (placement == "1") {
+            circleColor = Color(0xffFFD700)
+        }
+        if (placement == "2") {
+            circleColor = Color(0xffC0C0C0)
+        }
+        if (placement == "3") {
+            circleColor = Color(0xffCD7F32)
+        }
+
+        Card (modifier = Modifier
+            .fillMaxWidth()
+            .height(75.dp)
+            .border(width = 1.dp, color = myGradientGrey, shape = RoundedCornerShape(20.dp)),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 5.dp
+            ),
+            colors = CardDefaults.cardColors(
+                //containerColor = textFieldBG
+                containerColor = Color.White
+            ),
+        )
+        {
+            Row (modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 8.dp, bottom = 8.dp, start = 32.dp, end = 32.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    modifier = Modifier
+                        .drawBehind {
+                            drawCircle(
+                                color = circleColor,
+                                radius = this.size.maxDimension
+                            )
+                        },
+                    text = placement,
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = myCustomFont,
+                        fontSize = 18.sp,
+                        color = Color.White)
+                )
+
+                Spacer(Modifier.padding(20.dp))
+
+                Text(
+                    text = username,
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = myCustomFont,
+                        fontSize = 15.sp,
+                        color = Color.Black))
+
+                Spacer(Modifier.weight(1f))
+
+                Text(
+                    text = "${NumberFormat.getNumberInstance(Locale.US).format(metricValue.toInt())} kg",
+                    style = TextStyle(
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = myCustomFont,
+                        fontSize = 15.sp,
+                        color = Color.Black)
+                )
+            }
+        }
+    }
+}
+
+
+
 

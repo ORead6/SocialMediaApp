@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
@@ -60,6 +61,7 @@ import com.example.socialmediaapp.components.AnimatedNumberDisplay
 import com.example.socialmediaapp.components.CustomPopupMenu
 import com.example.socialmediaapp.components.GroupThreeDotsMenu
 import com.example.socialmediaapp.components.myCustomFont
+import com.example.socialmediaapp.components.userGrid
 import com.example.socialmediaapp.viewModels.groupPreviewModel
 import kotlinx.coroutines.launch
 
@@ -67,7 +69,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun GroupPreviewScreen (
     groupID: String,
-    navController: NavHostController
+    navController: NavHostController,
+    page: String? = "overview"
 ) {
 
     Surface(
@@ -80,7 +83,12 @@ fun GroupPreviewScreen (
         ) {
 
             var state by remember {
-                mutableStateOf("overview")
+                if (page != null) {
+                    mutableStateOf(page)
+                } else {
+                    mutableStateOf("overview")
+                }
+
             }
 
             val leaderBoards = listOf("Weight Lifted", "Weight Loss", "Weight Gain")
@@ -137,6 +145,18 @@ fun GroupPreviewScreen (
                 mutableStateOf(false)
             }
 
+            var userIds by remember {
+                mutableStateOf(mutableListOf<String>())
+            }
+
+            var usernames by remember {
+                mutableStateOf(mutableMapOf<String, String>())
+            }
+
+            var mediaDataReady by remember {
+                mutableStateOf(false)
+            }
+
 
             var addWeightExpanded by remember { mutableStateOf(false) }
             var weightToBeAdded by remember { mutableStateOf("") }
@@ -176,6 +196,20 @@ fun GroupPreviewScreen (
                     groupName = theGroupName
                 }
             }
+
+            LaunchedEffect(userIds) {
+                dbCalls.getGroupUsers(groupID) {
+                    userIds = it.toMutableList()
+
+                    dbCalls.getUsernamesWithIDS(userIds) {
+                        usernames = it as MutableMap<String, String>
+
+                    }
+
+                }
+            }
+
+
 
             val coroutineScope = rememberCoroutineScope()
 
@@ -394,6 +428,9 @@ fun GroupPreviewScreen (
 
                                         AnimatedNumberDisplay(totalWeightLifted)
 
+                                        // LISTVIEW
+                                        userGrid(userIDs = userIds, userNames = usernames, metric = "TotalWeightLifted", groupID = groupID)
+
                                     }
 
                                     if (addWeightExpanded) {
@@ -454,6 +491,9 @@ fun GroupPreviewScreen (
                                         }
 
                                         AnimatedNumberDisplay(totalWeightGained)
+
+                                        // LISTVIEW
+                                        userGrid(userIDs = userIds, userNames = usernames, metric = "TotalWeightGained", groupID = groupID)
 
                                     }
 
@@ -517,6 +557,9 @@ fun GroupPreviewScreen (
 
                                         AnimatedNumberDisplay(totalWeightLost)
 
+                                        // LISTVIEW
+                                        userGrid(userIDs = userIds, userNames = usernames, metric = "TotalWeightLost", groupID = groupID)
+
                                     }
 
                                     if (addWeightExpanded) {
@@ -557,7 +600,9 @@ fun GroupPreviewScreen (
                             shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
                         )
                 ) {
-                    groupGridScreen(groupPosts, navController, mediaMap, typeMap, thumbNailMap, loading)
+
+                    groupGridScreen(groupPosts, navController, mediaMap, typeMap, thumbNailMap, loading, groupID)
+
                 }
             }
 
