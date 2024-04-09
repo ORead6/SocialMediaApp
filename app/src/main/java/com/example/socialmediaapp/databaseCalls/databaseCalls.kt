@@ -4,6 +4,10 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -731,6 +735,123 @@ class databaseCalls (
 
                         }
 
+                }
+        }
+    }
+
+    fun getVideos(completion: (List<String>) -> Unit) {
+        val db = Firebase.firestore
+        val postColl = db.collection("Posts")
+        val userID = auth.currentUser?.uid
+
+        val postIDs = mutableListOf<String>()
+
+        // Query to get documents with the specified condition
+        postColl
+            .whereEqualTo("mediaType", "video")
+            //.whereEqualTo("postedTo", "")
+            //.whereNotEqualTo("createdBy", userID)
+            //.orderBy("uploadedAt")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                for (document in snapshot.documents) {
+                    // Handle each document here
+                    var theID = document.id
+                    postIDs.add(theID)
+                }
+                completion(postIDs)
+            }
+            .addOnFailureListener { exception ->
+                println("Failed to fetch documents: $exception")
+                completion(postIDs)
+            }
+    }
+
+    fun getAllUris(postIds: MutableList<String>, completion: (Map<String, Uri>) -> Unit) {
+        val uriMap = mutableMapOf<String, Uri>()
+        val storage = FirebaseStorage.getInstance()
+        var downloadCount = 0
+
+        for (id in postIds) {
+            val fileRef = storage.reference.child("Posts/${id}/postMedia")
+
+            fileRef.downloadUrl
+                .addOnSuccessListener { uri ->
+                    uriMap[id] = uri
+                    downloadCount++
+                    if (downloadCount == postIds.size) {
+                        // All videos have been downloaded
+                        completion(uriMap)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.d("Image Retreival Error", e.toString())
+                    downloadCount++
+                    if (downloadCount == postIds.size) {
+                        // All videos have been downloaded (even if some failed)
+                        completion(uriMap)
+                    }
+                }
+        }
+    }
+
+    fun getVideoCaptions(postIds: MutableList<String>, completion: (Map<String, String>) -> Unit) {
+        val db = Firebase.firestore
+        val postColl = db.collection("Posts")
+
+        val captionMap = mutableMapOf<String, String>()
+
+        var progressCounter = 0
+
+        for (id in postIds) {
+            postColl.document(id)
+                .get()
+                .addOnSuccessListener {
+                    val caption = it.get("caption")
+                    captionMap[id] = caption.toString()
+                    progressCounter++
+                    if (progressCounter == postIds.size) {
+                        completion(captionMap)
+                    }
+                }
+                .addOnFailureListener {
+                    progressCounter++
+                    if (progressCounter == postIds.size) {
+                        completion(captionMap)
+                    }
+                }
+        }
+
+    }
+
+    fun getUserWeights(completion: (Map<String, Any>) -> Unit) {
+        val db = Firebase.firestore
+        val weightMap = mutableMapOf<String, Any>()
+        val currUser = auth.currentUser?.uid
+
+        if (currUser != null) {
+            val userWeightRef = db.collection("Users")
+                .document(currUser)
+                .collection("Weights")
+                .document("userWeights")
+
+            userWeightRef.get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val data = documentSnapshot.data
+                        if (data != null) {
+                            weightMap.putAll(data)
+                            completion(weightMap)
+                        } else {
+                            completion(weightMap)
+                        }
+                    } else {
+                        // Handle case where document does not exist
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    // Handle failure
+                    completion(weightMap)
                 }
         }
     }

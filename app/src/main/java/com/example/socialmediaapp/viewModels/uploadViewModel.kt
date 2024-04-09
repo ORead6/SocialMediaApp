@@ -1,5 +1,7 @@
 package com.example.socialmediaapp.viewModels
 
+import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.State
@@ -12,6 +14,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
+
 
 class uploadViewModel() : ViewModel() {
 
@@ -30,18 +33,21 @@ class uploadViewModel() : ViewModel() {
     fun setProgress(value: Double) {
         _progressVal.value = value.toFloat()
     }
-
     fun createPost(
         value: Uri?,
         selectedOption: String,
         myViewModel: uploadViewModel,
         dbCalls: databaseCalls,
-        navController: NavController
+        navController: NavController,
+        context: Context
     ) {
         if (value == null) {
             Log.d("POSTUPLOAD", "Uri is null. Cannot upload Media.")
             return
         }
+
+        var cR: ContentResolver = context.contentResolver
+        var type = cR.getType(value)
 
         val db = Firebase.firestore
         val postsCollection = db.collection("Posts")
@@ -50,11 +56,19 @@ class uploadViewModel() : ViewModel() {
 
         dbCalls.getGroupIdWithName(selectedOption) {groupID ->
             currentUser?.let {userID ->
+
+                val mediaType = if (type != null && type.contains("image")) {
+                    "image"
+                } else {
+                    "video"
+                }
+
                 val postData = hashMapOf(
                     "createdBy" to userID,
                     "caption" to _caption.value,
                     "postedTo" to groupID,
-                    "uploadedAt" to FieldValue.serverTimestamp()
+                    "uploadedAt" to FieldValue.serverTimestamp(),
+                    "mediaType" to mediaType
                 )
 
                 postsCollection.add(postData)
