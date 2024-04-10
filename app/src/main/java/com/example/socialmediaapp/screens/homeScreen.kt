@@ -1,20 +1,15 @@
 package com.example.socialmediaapp.screens
 
 import android.net.Uri
+import android.util.Log
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -24,9 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,13 +27,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.MediaItem
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
+import com.example.socialmediaapp.viewModels.homeViewModel
 
 @OptIn(UnstableApi::class) @Composable
 fun homeScreen(
@@ -62,6 +55,16 @@ fun homeScreen(
 
     var isGestureInProgress by remember { mutableStateOf(false) }
 
+    var currPostIndex by remember { mutableStateOf(0) }
+
+    var homeModel = homeViewModel()
+
+    var mediaItem by remember { mutableStateOf(MediaItem.fromUri(Uri.EMPTY)) }
+
+    val context = LocalContext.current
+
+    val exoPlayer = remember { ExoPlayer.Builder(context).build() }
+
     LaunchedEffect(true) {
         // Get Videos
         dbCalls.getVideos {ids ->
@@ -76,13 +79,30 @@ fun homeScreen(
                     dbCalls.getUserWeights {weightMap ->
                         userWeights = weightMap.toMutableMap()
 
-                        currentPost = postIds[0]
+                        Log.d("VIDEOID", postIds.toString())
+
+                        currentPost = postIds[currPostIndex]
 
                         dataReady = true
                     }
                 }
 
             }
+
+        }
+    }
+
+    LaunchedEffect(currentPost) {
+        if (videoUris[currentPost] != null) {
+
+            Log.d("VIDEOURI", videoUris[currentPost].toString())
+
+            mediaItem = MediaItem.fromUri(videoUris[currentPost]!!)
+
+            exoPlayer.setMediaItem(mediaItem)
+            exoPlayer.prepare()
+            exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ALL
+            exoPlayer.playWhenReady = true
 
         }
     }
@@ -102,10 +122,18 @@ fun homeScreen(
                         if (!isGestureInProgress) {
                             if (delta > 0) {
                                 // User swiped down
-                                Log.d("SCROLLINGACTIVITY", "DOWN")
+                                homeModel.swipe("DOWN", context, currPostIndex, postIds) {
+                                    currPostIndex = it
+                                    currentPost = postIds[currPostIndex]
+
+                                }
                             } else {
                                 // User swiped up
-                                Log.d("SCROLLINGACTIVITY", "UP")
+                                homeModel.swipe("UP", context, currPostIndex, postIds) {
+                                    currPostIndex = it
+                                    currentPost = postIds[currPostIndex]
+
+                                }
                             }
 
                             isGestureInProgress = true
@@ -117,7 +145,6 @@ fun homeScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            val context = LocalContext.current
 
             if (!dataReady) {
                 CircularProgressIndicator(color = myGradientGrey,)
@@ -127,16 +154,6 @@ fun homeScreen(
                 }
 
                 if (videoUris[currentPost] != null) {
-                    val mediaItem = MediaItem.fromUri(videoUris[currentPost]!!)
-
-                    val exoPlayer = remember {
-                        ExoPlayer.Builder(context).build().apply {
-                            setMediaItem(mediaItem)
-                            prepare()
-                            repeatMode = ExoPlayer.REPEAT_MODE_ALL
-                            playWhenReady = true
-                        }
-                    }
 
                     val lifecycleOwner = LocalLifecycleOwner.current
                     DisposableEffect(key1 = lifecycleOwner) {
@@ -170,12 +187,4 @@ fun homeScreen(
             }
         }
     }
-}
-
-
-@Preview
-@Composable
-fun DefaultPreviewOfhomeScreen() {
-    val userData = UserData(userId = "test", username = null, profilePictureUrl = null, bio = null)
-    homeScreen(userData)
 }
