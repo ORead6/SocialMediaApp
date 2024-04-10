@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -132,6 +131,32 @@ fun homeScreen(
                                 homeModel.swipe("UP", context, currPostIndex, postIds) {
                                     currPostIndex = it
                                     currentPost = postIds[currPostIndex]
+
+                                    // Logic for retrieving additional videos
+                                    // Penultimate Post
+                                    if (currPostIndex == (postIds.size - 1)) {  // change to 2
+                                        dbCalls.getAdditionalVideo(postIds) { additionalVid ->
+                                            postIds.add(additionalVid)
+
+                                            Log.d("VIDEODATA: ", "ID: $additionalVid")
+
+                                            dbCalls.getPostMedia(additionalVid) { theUri, _ ->
+                                                videoUris[additionalVid] = theUri
+
+                                                Log.d("VIDEODATA: ", "URI: $theUri")
+
+                                                dbCalls.getPostCaption(additionalVid) {capt ->
+                                                    videoCapt[additionalVid] = capt
+
+                                                    // NOW NEED TO ORDER THE LIST BASED ON USER WEIGHTS
+                                                    dbCalls.orderOnWeights(postIds, videoCapt, userWeights, currPostIndex)
+
+                                                }
+                                            }
+
+                                        }
+
+                                    }
 
                                 }
                             }

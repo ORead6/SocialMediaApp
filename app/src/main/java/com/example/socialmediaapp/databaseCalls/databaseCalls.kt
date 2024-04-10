@@ -4,10 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.media3.common.util.Util.split
 import androidx.navigation.NavController
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -20,7 +17,6 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.tasks.await
 import java.util.UUID
 import kotlin.random.Random
 
@@ -739,6 +735,8 @@ class databaseCalls (
         }
     }
 
+    //NEED TO ADD
+    // MAKING SURE THE USERS HAVE NOT SEEN THE VIDEOS ALREADY
     fun getVideos(completion: (List<String>) -> Unit) {
         val db = Firebase.firestore
         val postColl = db.collection("Posts")
@@ -749,8 +747,9 @@ class databaseCalls (
         // Query to get documents with the specified condition
         postColl
             .whereEqualTo("mediaType", "video")
-            //.whereEqualTo("postedTo", "")
-            //.whereNotEqualTo("createdBy", userID)
+            .whereEqualTo("postedTo", "")
+            .whereNotEqualTo("createdBy", userID)
+            .limit(2)
             //.orderBy("uploadedAt")
             .get()
             .addOnSuccessListener { snapshot ->
@@ -854,6 +853,152 @@ class databaseCalls (
                     completion(weightMap)
                 }
         }
+    }
+
+    fun getAdditionalVideo(postIds: MutableList<String>, completion: (String) -> Unit) {
+        val db = Firebase.firestore
+        val postColl = db.collection("Posts")
+
+        // Query for documents not in postIds list
+        postColl.get()
+            .addOnSuccessListener { querySnapshot: QuerySnapshot ->
+                // Get all document IDs from the query result
+                val allDocumentIds = querySnapshot.documents.map { it.id }
+
+                // Filter out IDs that are not in postIds list
+                val filteredIds = allDocumentIds.filterNot { postId -> postIds.contains(postId) }
+
+                // Choose a random ID from filteredIds list
+                val randomId = filteredIds.randomOrNull()
+
+                if (randomId != null) {
+                    completion(randomId)
+                }
+            }
+    }
+
+    fun orderOnWeights(
+        postIds: MutableList<String>,
+        videoCapt: MutableMap<String, String>,
+        userWeights: MutableMap<String, Any>,
+        currPostIndex: Int,
+        //completion: (List<String>) -> Unit
+    ) {
+
+        val wordMap  = mutableMapOf<String, List<String>>()
+
+        // TMP
+        var mylist = mutableListOf("A",
+            "B",
+            "C",
+            "D",
+            "E"
+        )
+
+        var weightMap = mutableMapOf(
+            "seven" to 1,
+            "ten" to 2,
+            "twelve" to 3,
+            "fourteen" to 1,
+            "fifteen" to 1,
+        )
+
+        var captMap = mutableMapOf<String, String>(
+            "A" to "One Two Three",
+            "B" to "Four Five Six",
+            "C" to "Seven Eight Nine",
+            "D" to "#Ten Eleven twelve#",
+            "E" to "Thirteen Fourteen #Fifteen"
+        )
+
+        var captWeightMap = mutableMapOf<String, Double>(
+            "A" to 0.0,
+            "B" to 0.0,
+            "C" to 0.0,
+            "D" to 0.0,
+            "E" to 0.0
+        )
+
+
+        val watchedVids = mutableListOf<String>()
+        val newVids = mutableListOf<String>()
+
+
+
+        //TMP
+        val currIndex = 1
+
+        // Watched Vids
+        for (i in 0..currIndex) {
+            if (i < mylist.size) {
+                watchedVids.add(mylist[i])
+            }
+        }
+
+        // Split into unwatch videos (NEED TO SPLIT IT IN HALF)
+        for (i in (currIndex + 1) until mylist.size) {
+            newVids.add(mylist[i])
+        }
+
+        // Go through capt
+        for (id in newVids) {
+
+            val capt = captMap[id]
+
+            val words = capt
+                ?.lowercase()
+                ?.replace("[^a-zA-Z0-9#\\s]".toRegex(), "")
+                ?.split("\\s+".toRegex())
+
+            val updatedWords = words?.map { word ->
+                if (word.endsWith("#")) {
+                    word.substring(0, word.length - 1) // Remove the hashtag at the end of the word
+                } else {
+                    word
+                }
+            }
+
+            val nonNullableUpdatedWords = updatedWords ?: listOf()
+            wordMap[id] = nonNullableUpdatedWords
+        }
+
+        // Loop through to find avg weight of each
+        for ((key, value) in wordMap) {
+            var totalWeight = 0
+            var thisWeight = 0
+            var multiplier = 1
+
+            for (i in value) {
+
+                var currWord = i
+
+                if (currWord.contains("#")) {
+                    multiplier = 2
+                    currWord = currWord.replace("#", "")
+                }
+
+                if (weightMap[currWord] !=  null) {
+                    thisWeight = (weightMap[currWord]!! * multiplier)
+                } else {
+                    thisWeight = 0
+                }
+
+                totalWeight += thisWeight
+
+                multiplier = 0
+            }
+
+
+
+            captWeightMap[key] = ((totalWeight.toDouble() / value.size.toDouble()))
+        }
+
+        // Order newVids based on their key value in captWeightMap
+        newVids.sortByDescending { captWeightMap[it] }
+
+        Log.d("WEIGHTCALC", captWeightMap.toString())
+        Log.d("WEIGHTCALC", newVids.toString())
+
     }
 
 
