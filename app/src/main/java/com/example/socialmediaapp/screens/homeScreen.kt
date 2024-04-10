@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -23,6 +24,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.consumeAllChanges
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,6 +60,8 @@ fun homeScreen(
 
     var currentPost by remember { mutableStateOf("") }
 
+    var isGestureInProgress by remember { mutableStateOf(false) }
+
     LaunchedEffect(true) {
         // Get Videos
         dbCalls.getVideos {ids ->
@@ -85,6 +91,28 @@ fun homeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black) // Set the background color of the entire surface to black
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = {},
+                    onDragEnd = {
+                        isGestureInProgress = false
+                    },
+                    onVerticalDrag = { change, dragAmount ->
+                        val delta = dragAmount
+                        if (!isGestureInProgress) {
+                            if (delta > 0) {
+                                // User swiped down
+                                Log.d("SCROLLINGACTIVITY", "DOWN")
+                            } else {
+                                // User swiped up
+                                Log.d("SCROLLINGACTIVITY", "UP")
+                            }
+
+                            isGestureInProgress = true
+                        }
+                    }
+                )
+            }
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -122,8 +150,6 @@ fun homeScreen(
                             lifecycleOwner.lifecycle.removeObserver(observer)
                         }
                     }
-
-                    var isPlaying by remember { mutableStateOf(true) }
 
                     AndroidView(
                         modifier = Modifier
