@@ -232,8 +232,10 @@ fun groupGridScreen(
     groupID: String
 ) {
 
+    Log.d("GROUP MEDIA", groupPosts.toString())
+
     if (loading) {
-        // Show loading indicator or placeholder
+        CircularProgressIndicator(color = myGradientGrey)
 
     } else {
 

@@ -63,6 +63,7 @@ class databaseCalls (
             }
             .addOnFailureListener {
                 // Handle failure
+                Log.d("GROUP MEDIA", it.toString())
             }
     }
 
@@ -737,29 +738,35 @@ class databaseCalls (
 
     //NEED TO ADD
     // MAKING SURE THE USERS HAVE NOT SEEN THE VIDEOS ALREADY
-    fun getVideos(completion: (List<String>) -> Unit) {
+    fun getVideos(videoCount: Int, completion: (List<String>) -> Unit) {
         val db = Firebase.firestore
         val postColl = db.collection("Posts")
         val userID = auth.currentUser?.uid
 
         val postIDs = mutableListOf<String>()
 
-        // Query to get documents with the specified condition
-        postColl
+        val query = postColl
             .whereEqualTo("mediaType", "video")
             .whereEqualTo("postedTo", "")
-            .whereNotEqualTo("createdBy", userID)
-            .limit(2)
-            //.orderBy("uploadedAt")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                for (document in snapshot.documents) {
-                    // Handle each document here
-                    var theID = document.id
-                    postIDs.add(theID)
+            .limit(videoCount.toLong())
+            .orderBy("uploadedAt", Query.Direction.DESCENDING)
+
+        query.get()
+            .addOnSuccessListener {documents ->
+                for (document in documents) {
+                    // Extract the values of the fields needed for additional filtering
+                    val mediaType = document.getString("mediaType")
+                    val createdBy = document.getString("createdBy")
+
+                    // Perform additional filtering client-side
+                    if (mediaType == "video" && createdBy != userID) {
+                        var theID = document.id
+                        postIDs.add(theID)
+                    }
                 }
                 completion(postIDs)
             }
+
             .addOnFailureListener { exception ->
                 println("Failed to fetch documents: $exception")
                 completion(postIDs)
@@ -880,70 +887,66 @@ class databaseCalls (
     fun orderOnWeights(
         postIds: MutableList<String>,
         videoCapt: MutableMap<String, String>,
-        userWeights: MutableMap<String, Any>,
+        userWeights: MutableMap<String, Long>,
         currPostIndex: Int,
-        //completion: (List<String>) -> Unit
+        completion: (List<String>) -> Unit
     ) {
 
         val wordMap  = mutableMapOf<String, List<String>>()
 
-        // TMP
-        var mylist = mutableListOf("A",
-            "B",
-            "C",
-            "D",
-            "E"
-        )
+//        // TMP
+//        var mylist = mutableListOf("A",
+//            "B",
+//            "C",
+//            "D",
+//            "E"
+//        )
+//
+//        var weightMap = mutableMapOf(
+//            "seven" to 1,
+//            "ten" to 2,
+//            "twelve" to 3,
+//            "fourteen" to 1,
+//            "fifteen" to 1,
+//        )
+//
+//        var captMap = mutableMapOf<String, String>(
+//            "A" to "One Two Three",
+//            "B" to "Four Five Six",
+//            "C" to "Seven Eight Nine",
+//            "D" to "#Ten Eleven twelve#",
+//            "E" to "Thirteen Fourteen #Fifteen"
+//        )
+//        TMP
+//        val currIndex = 1
 
-        var weightMap = mutableMapOf(
-            "seven" to 1,
-            "ten" to 2,
-            "twelve" to 3,
-            "fourteen" to 1,
-            "fifteen" to 1,
-        )
 
-        var captMap = mutableMapOf<String, String>(
-            "A" to "One Two Three",
-            "B" to "Four Five Six",
-            "C" to "Seven Eight Nine",
-            "D" to "#Ten Eleven twelve#",
-            "E" to "Thirteen Fourteen #Fifteen"
-        )
-
-        var captWeightMap = mutableMapOf<String, Double>(
-            "A" to 0.0,
-            "B" to 0.0,
-            "C" to 0.0,
-            "D" to 0.0,
-            "E" to 0.0
-        )
+        val captWeightMap = mutableMapOf<String, Double>()
+        for (key in postIds) {
+            captWeightMap[key] = 0.0
+        }
 
 
         val watchedVids = mutableListOf<String>()
         val newVids = mutableListOf<String>()
 
 
-
-        //TMP
-        val currIndex = 1
-
         // Watched Vids
-        for (i in 0..currIndex) {
-            if (i < mylist.size) {
-                watchedVids.add(mylist[i])
+        for (i in 0..currPostIndex) {
+            if (i < postIds.size) {
+                watchedVids.add(postIds[i])
             }
         }
 
-        // Split into unwatch videos (NEED TO SPLIT IT IN HALF)
-        for (i in (currIndex + 1) until mylist.size) {
-            newVids.add(mylist[i])
+        // Split into unwatch videos
+        for (i in (currPostIndex + 1) until postIds.size) {
+            newVids.add(postIds[i])
         }
 
         // Go through capt
         for (id in newVids) {
 
-            val capt = captMap[id]
+            val capt = videoCapt[id]
 
             val words = capt
                 ?.lowercase()
@@ -977,8 +980,8 @@ class databaseCalls (
                     currWord = currWord.replace("#", "")
                 }
 
-                if (weightMap[currWord] !=  null) {
-                    thisWeight = (weightMap[currWord]!! * multiplier)
+                if (userWeights[currWord] !=  null) {
+                    thisWeight = ((userWeights[currWord]!! * multiplier).toInt())
                 } else {
                     thisWeight = 0
                 }
@@ -996,8 +999,14 @@ class databaseCalls (
         // Order newVids based on their key value in captWeightMap
         newVids.sortByDescending { captWeightMap[it] }
 
-        Log.d("WEIGHTCALC", captWeightMap.toString())
+        Log.d("WEIGHTCALC", watchedVids.toString())
         Log.d("WEIGHTCALC", newVids.toString())
+
+        Log.d("WEIGHTCALC", videoCapt.toString())
+
+        watchedVids.addAll(newVids)
+
+        completion(watchedVids)
 
     }
 

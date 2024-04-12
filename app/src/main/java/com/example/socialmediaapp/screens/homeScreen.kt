@@ -33,6 +33,8 @@ import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
 import com.example.socialmediaapp.viewModels.homeViewModel
+import kotlin.math.ceil
+import kotlin.math.floor
 
 @OptIn(UnstableApi::class) @Composable
 fun homeScreen(
@@ -48,7 +50,7 @@ fun homeScreen(
     var videoUris by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
     var videoCapt by remember { mutableStateOf(mutableMapOf<String, String>()) }
 
-    var userWeights by remember  { mutableStateOf(mutableMapOf<String, Any>()) }
+    var userWeights by remember  { mutableStateOf(mutableMapOf<String, Long>()) }
 
     var currentPost by remember { mutableStateOf("") }
 
@@ -66,7 +68,7 @@ fun homeScreen(
 
     LaunchedEffect(true) {
         // Get Videos
-        dbCalls.getVideos {ids ->
+        dbCalls.getVideos(5) {ids ->
             postIds = ids.toMutableList()
 
             dbCalls.getAllUris(postIds) { videoUriMap ->
@@ -76,7 +78,10 @@ fun homeScreen(
                     videoCapt = captionMap.toMutableMap()
 
                     dbCalls.getUserWeights {weightMap ->
-                        userWeights = weightMap.toMutableMap()
+                        val theWeights = weightMap.toMutableMap()
+
+                        userWeights = theWeights
+                            .mapValues { it.value as Long } as MutableMap<String, Long>
 
                         Log.d("VIDEOID", postIds.toString())
 
@@ -133,8 +138,9 @@ fun homeScreen(
                                     currentPost = postIds[currPostIndex]
 
                                     // Logic for retrieving additional videos
-                                    // Penultimate Post
-                                    if (currPostIndex == (postIds.size - 1)) {  // change to 2
+                                    // If we are half way through list
+                                    val pointToCheck = ceil(postIds.size / 2.0).toInt()
+                                    if (currPostIndex+1 >= pointToCheck ) {
                                         dbCalls.getAdditionalVideo(postIds) { additionalVid ->
                                             postIds.add(additionalVid)
 
@@ -149,7 +155,9 @@ fun homeScreen(
                                                     videoCapt[additionalVid] = capt
 
                                                     // NOW NEED TO ORDER THE LIST BASED ON USER WEIGHTS
-                                                    dbCalls.orderOnWeights(postIds, videoCapt, userWeights, currPostIndex)
+                                                    dbCalls.orderOnWeights(postIds, videoCapt, userWeights, currPostIndex) {newVideoList ->
+                                                        postIds = newVideoList.toMutableList()
+                                                    }
 
                                                 }
                                             }

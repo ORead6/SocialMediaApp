@@ -209,12 +209,11 @@ fun GroupPreviewScreen (
                 }
             }
 
-
-
             val coroutineScope = rememberCoroutineScope()
 
-            LaunchedEffect(groupPosts) {
+            LaunchedEffect(true) {
                 dbCalls.getGroupPosts(groupID) { theIds ->
+                    Log.d("GROUP MEDIA", theIds.toString())
                     groupPosts = theIds.toMutableList()
                     groupPosts.forEach { post ->
                         dbCalls.getPostMedia(post) { uri, postType ->
