@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.media3.common.util.Util.split
 import androidx.navigation.NavController
+import com.example.socialmediaapp.viewModels.editprofileViewModel
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
@@ -1076,5 +1077,66 @@ class databaseCalls (
         return words
     }
 
+    fun getUserBio(completion: (String) -> Unit) {
+        val db = Firebase.firestore
+        val currUser = auth.currentUser?.uid
+
+        if (currUser != null) {
+            val userRef = db.collection("Users").document(currUser)
+            userRef.get()
+                .addOnSuccessListener {
+                    val theBio = it.get("bio")
+                    completion(theBio.toString())
+                }
+
+        } else {
+            completion("")
+        }
+
+    }
+
+    fun applyProfileChanges(editViewModel: editprofileViewModel, context: Context, completion: () -> Unit) {
+        val db = Firebase.firestore
+        val currUser = auth.currentUser?.uid
+
+        if (editViewModel.username.value == "") {
+            Toast.makeText(context, "Username Can not be Blank", Toast.LENGTH_SHORT).show()
+        } else {
+            if (currUser != null) {
+
+                val updates = hashMapOf<String, Any>(
+                    "username" to editViewModel.username.value,
+                    "bio" to editViewModel.bio.value
+                )
+
+                val userDoc = db.collection("Users").document(currUser)
+                userDoc.update(updates)
+                    .addOnSuccessListener {
+                        completion()
+                    }
+                    .addOnFailureListener {
+                        Log.d("UPDATE_USER", "$it")
+                    }
+            }
+        }
+    }
+
+    fun getUsername(completion: (String) -> Unit) {
+        val db = Firebase.firestore
+        val currUser = auth.currentUser?.uid
+
+        if (currUser != null) {
+            val userDoc = db.collection("Users").document(currUser)
+            userDoc.get()
+                .addOnSuccessListener {
+                    val theName = it.get("username")
+                    completion(theName.toString())
+                }
+
+                .addOnFailureListener {
+                    completion("404")
+                }
+        }
+    }
 
 }

@@ -40,6 +40,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.signIn.UserData
@@ -116,9 +118,9 @@ fun editPfpCircle(
 
 val myViewModel = editprofileViewModel()
 
-@OptIn(ExperimentalMaterial3Api::class)
+@androidx.annotation.OptIn(UnstableApi::class) @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun textField(labelValue: String, viewModel: editprofileViewModel = myViewModel) {
+fun textField(labelValue: String, viewModel: editprofileViewModel) {
 
     val textValue = remember {
         mutableStateOf(labelValue)
@@ -151,9 +153,10 @@ fun textField(labelValue: String, viewModel: editprofileViewModel = myViewModel)
             textStyle = TextStyle(fontSize = 18.sp, lineHeight = 20.sp)
         )
     }
+
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@androidx.annotation.OptIn(UnstableApi::class) @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun bioField(labelValue: String, viewModel: editprofileViewModel = myViewModel) {
     val textValue = remember {
@@ -177,7 +180,7 @@ fun bioField(labelValue: String, viewModel: editprofileViewModel = myViewModel) 
             onValueChange = {
                 if (it.length <= 100) {
                     textValue.value = it
-                    viewModel.setUsername(it)
+                    viewModel.setBio(it)
                     exceededLimit.value = false
                 } else {
                     borderColor = Color.Red
@@ -207,6 +210,7 @@ fun bioField(labelValue: String, viewModel: editprofileViewModel = myViewModel) 
             color = if (exceededLimit.value) Color.Red else Color.Gray
         )
     }
+
 }
 
 @Composable

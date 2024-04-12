@@ -87,7 +87,7 @@ fun pfpCircle(
 
 @Composable
 fun GroupsCounter(
-    number: Int = 12,
+    number: Int = 0,
     modifier: Modifier = Modifier
 ) {
 

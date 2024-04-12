@@ -18,7 +18,14 @@ import com.google.firebase.auth.auth
 class editprofileViewModel() : ViewModel(){
 
     private val _username = mutableStateOf("")
-    val usernameVal: State<String> = _username
+    val username: State<String> = _username
+
+    private val _bio = mutableStateOf("")
+    val bio: State<String> = _bio
+
+    fun setBio(text: String) {
+        _bio.value = text
+    }
 
     fun setUsername(text: String) {
         _username.value = text
