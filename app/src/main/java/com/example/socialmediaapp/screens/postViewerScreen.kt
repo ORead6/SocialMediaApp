@@ -85,15 +85,16 @@ fun postViewerScreen(
     }
 
     LaunchedEffect(userHasLiked) {
-        dbCalls.getLikesWithPost(postID) {
-            numberOfLikes.value = it
+        dbCalls.getLikesWithPost(postID) {likeNum ->
+            dbCalls.getLikeStatusOfUser(postID) {likeStatus ->
+                userHasLiked.value = likeStatus
+                numberOfLikes.value = likeNum
+            }
         }
     }
 
     LaunchedEffect(userHasLiked) {
-        dbCalls.getLikeStatusOfUser(postID) {
-            userHasLiked.value = it
-        }
+
     }
 
     LaunchedEffect(thePostCaption) {
@@ -220,8 +221,8 @@ fun postViewerScreen(
                     if (userHasLiked.value) {
                         // User has liked and wants to unlike
                         dbCalls.removeLikeFromPost(postID) {
-                            userHasLiked.value = false
                             dbCalls.getLikesWithPost(postID) {
+                                userHasLiked.value = false
                                 numberOfLikes.value = it
                             }
                         }
@@ -229,8 +230,8 @@ fun postViewerScreen(
                     } else {
                         // User has not liked and wants to like
                         dbCalls.addLikeToPost(postID) {
-                            userHasLiked.value = true
                             dbCalls.getLikesWithPost(postID) {
+                                userHasLiked.value = true
                                 numberOfLikes.value = it
                             }
                         }

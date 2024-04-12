@@ -15,6 +15,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
@@ -853,10 +854,12 @@ class databaseCalls (
                         }
                     } else {
                         // Handle case where document does not exist
+                        completion(weightMap)
                     }
                 }
                 .addOnFailureListener { exception ->
                     // Handle failure
+                    Log.d("WEIGHTFAIL", exception.toString())
                     completion(weightMap)
                 }
         }
@@ -999,15 +1002,78 @@ class databaseCalls (
         // Order newVids based on their key value in captWeightMap
         newVids.sortByDescending { captWeightMap[it] }
 
-        Log.d("WEIGHTCALC", watchedVids.toString())
-        Log.d("WEIGHTCALC", newVids.toString())
-
-        Log.d("WEIGHTCALC", videoCapt.toString())
-
         watchedVids.addAll(newVids)
 
         completion(watchedVids)
 
+    }
+
+    fun interactionChange(caption: String, userWeights: MutableMap<String, Long>, type: String, completion: (Map<String, Long>) -> Unit) {
+        val db = Firebase.firestore
+        val currUser = auth.currentUser?.uid
+
+        // Get formatted caption
+        val words = formatCaption(caption)
+
+        if (words != null) {
+            for (word in words) {
+                if (type == "+") {
+                    val currentWeight = userWeights[word] ?: 0
+                    userWeights[word] = currentWeight + 1
+                } else {
+                    val currentWeight = userWeights[word] ?: 0
+                    userWeights[word] = maxOf(0, currentWeight - 1)
+                }
+
+            }
+
+            // Update the DB
+            if (currUser != null) {
+                val userWeightRef = db.collection("Users")
+                    .document(currUser)
+                    .collection("Weights")
+                    .document("userWeights")
+
+                userWeightRef.set(userWeights, SetOptions.merge())
+                    .addOnSuccessListener {
+                        Log.d("POSTINTERACTION", "NEW MAP:  $userWeights")
+                        completion(userWeights)
+                    }
+                    .addOnFailureListener {
+                        Log.d("POSTINTERACTION", "Couldnt Merge: ${it.toString()}")
+                        completion(userWeights)
+                    }
+            }
+
+
+        } else {
+            completion(userWeights)
+        }
+
+    }
+
+    fun formatCaption(caption: String): List<String>? {
+        // remove common words that wont affect weighting
+        // Can review common words after large training and add them in
+        val commonWords = listOf(
+            "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+            "the", "be", "to", "of", "and", "in", "that", "have", "it", "for", "not", "is", "on", "with", "he", "as", "you", "do", "at", "this",
+            "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their",
+            "what", "so", "up", "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time", "no", "just",
+            "him", "know", "take", "people", "into", "year", "your", "good", "some", "could", "them", "see", "other", "than", "then", "now",
+            "look", "only", "come", "its", "over", "think", "also", "back", "after", "use", "two", "how", "our", "work", "first", "well",
+            "way", "even", "new", "want", "because", "any", "these", "give", "day", "most", "us"
+        )
+
+        val words = caption
+            .replace("[^a-zA-Z0-9#\\s]".toRegex(), "")
+            .lowercase()
+            .split("\\s+".toRegex())
+            .filter { word ->
+                word !in commonWords && !word.any { it.isLetterOrDigit().not() }
+            }
+
+        return words
     }
 
 
