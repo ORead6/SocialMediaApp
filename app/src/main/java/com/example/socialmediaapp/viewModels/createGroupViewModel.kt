@@ -7,6 +7,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
@@ -15,10 +16,11 @@ import com.google.firebase.storage.storage
 import java.math.BigInteger
 import java.security.SecureRandom
 
-class createGroupViewModel() : ViewModel(){
+class createGroupViewModel(
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+) : ViewModel(){
 
-    private val auth = Firebase.auth
-    private val firestore = Firebase.firestore
 
     private val _groupName = mutableStateOf("")
     val groupName: State<String> = _groupName
@@ -38,7 +40,7 @@ class createGroupViewModel() : ViewModel(){
     }
 
     // 36^6 = 2.176.782.336 possibilities -> For scope there wont be 2 of the same codes
-    private fun generateRandomCode(length: Int): String {
+    fun generateRandomCode(length: Int): String {
         val secureRandom = SecureRandom()
         val randomBytes = ByteArray(length / 2)
         secureRandom.nextBytes(randomBytes)

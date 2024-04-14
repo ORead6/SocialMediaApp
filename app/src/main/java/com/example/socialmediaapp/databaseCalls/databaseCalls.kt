@@ -483,15 +483,25 @@ class databaseCalls (
             }
     }
 
-    fun getGroupInvite(groupID: String, completion: (String) -> Unit,) {
+    fun getGroupInvite(groupID: String, context: Context, completion: (String) -> Unit,) {
         val db = Firebase.firestore
         val groupRef = db.collection("Groups").document(groupID)
 
         groupRef.get()
             .addOnSuccessListener {
-                val theInviteCode = it.get("inviteCode")
 
-                completion(theInviteCode.toString())
+                val privacyStatus = it.get("privacyStatus")
+
+                if(privacyStatus != "true") {
+                    val theInviteCode = it.get("inviteCode")
+
+                    completion(theInviteCode.toString())
+                }
+
+                else {
+                    Toast.makeText(context, "Group is set to private", Toast.LENGTH_SHORT).show()
+                }
+
             }
 
             .addOnFailureListener {

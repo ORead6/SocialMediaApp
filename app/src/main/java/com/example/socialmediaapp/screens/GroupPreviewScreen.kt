@@ -263,7 +263,7 @@ fun GroupPreviewScreen (
 
                     GroupThreeDotsMenu(isCurrUserOwner, onMenuItemClick = {
                         if (it == "Invite") {
-                            dbCalls.getGroupInvite(groupID) { inviteCode ->
+                            dbCalls.getGroupInvite(groupID, theContext) { inviteCode ->
                                 val clipboard =
                                     theContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 val clipData = ClipData.newPlainText("Invite Code", inviteCode)
