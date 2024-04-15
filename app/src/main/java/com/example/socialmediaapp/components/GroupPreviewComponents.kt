@@ -571,7 +571,7 @@ fun userGrid(
                     val metricVal = userValues[userID]
 
                     if (username != null && metricVal != null) {
-                        userGridItem(username = username, metricValue = metricVal, placement = (index + 1).toString(), navController = navController, id = userID)
+                        userGridItem(username = username, metricValue = metricVal, placement = (index + 1).toString(), navController = navController, id = userID, groupID = groupID)
                     }
                 }
             }
@@ -596,7 +596,8 @@ fun userGridItem(
     metricValue: String,
     placement: String,
     navController: NavHostController,
-    id: String
+    id: String,
+    groupID: String
 ){
     Row(
         modifier = Modifier
@@ -620,7 +621,7 @@ fun userGridItem(
             .fillMaxWidth()
             .height(75.dp)
             .clickable {
-                navController.navigate("viewOtherProfile/${id}")
+                navController.navigate("viewOtherProfile/${id}/${groupID}")
             }
             .border(width = 1.dp, color = myGradientGrey, shape = RoundedCornerShape(20.dp)),
             shape = RoundedCornerShape(20.dp),

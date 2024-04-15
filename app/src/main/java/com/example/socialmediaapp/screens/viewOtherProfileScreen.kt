@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.screens
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import com.example.socialmediaapp.components.FollowerCounter
 import com.example.socialmediaapp.components.FollowingCounter
 import com.example.socialmediaapp.components.GridScreen
 import com.example.socialmediaapp.components.GroupsCounter
+import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.bioSection
 import com.example.socialmediaapp.components.myDarkGrey
 import com.example.socialmediaapp.components.myGradientGrey
@@ -42,7 +44,8 @@ import com.example.socialmediaapp.signIn.UserData
 @Composable
 fun viewOtherProfileScreen(
     userID: String,
-    navBarController: NavController
+    navBarController: NavController,
+    groupID: String
 ) {
 
     val dbCalls = databaseCalls("")
@@ -53,6 +56,10 @@ fun viewOtherProfileScreen(
 
     var userPosts by remember {
         mutableStateOf(mutableListOf<String>())
+    }
+
+    var pfp = remember {
+        mutableStateOf<Uri?>(null)
     }
 
     var groupCount by remember {
@@ -74,7 +81,12 @@ fun viewOtherProfileScreen(
                     dbCalls.getUsername(userID) {username ->
                         thisUsername.value = username
 
-                        dataReady.value = true
+                        dbCalls.getPfp(userID) { thePFP ->
+                            pfp.value = thePFP
+                            dataReady.value = true
+                        }
+
+
                     }
                 }
             }
@@ -99,14 +111,23 @@ fun viewOtherProfileScreen(
         ) {
 
             if (dataReady.value) {
-                Spacer(modifier = Modifier.padding(5.dp))
-                userNameDisplay(thisUsername.value)
+                Row (modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 28.dp, top = 5.dp, end = 28.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    backButton {
+                        navBarController.navigate("GroupPreview/${groupID}/leaderboard")
+                    }
+                    userNameDisplay(thisUsername.value)
+                }
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 28.dp, top = 14.dp, end = 28.dp)
                 ) {
-                    //pfpCircle(userData = userData)    // GET USER PROFILE PIC
+                    pfpCircle(pfp)    // GET USER PROFILE PIC
                     GroupsCounter(number = groupCount, modifier = Modifier.weight(1f))
                     FollowerCounter(modifier = Modifier.weight(1f))
                     FollowingCounter(modifier = Modifier.weight(1f))
@@ -120,7 +141,7 @@ fun viewOtherProfileScreen(
                     bioSection(userBio.value)
                     Spacer(modifier = Modifier.padding(10.dp))
 
-                    // ADD BACK BUTTON HERE
+                    // ADD FOLLOW BUTTON
                 }
 
                 Spacer(modifier = Modifier.padding(25.dp))

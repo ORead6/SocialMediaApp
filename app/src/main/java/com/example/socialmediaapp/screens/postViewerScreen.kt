@@ -53,7 +53,8 @@ fun postViewerScreen(
     navController: NavHostController,
     postType: String,
     postID: String,
-    groupID: String? = ""
+    groupID: String? = "",
+    userID: String? = ""
 ) {
 
     var numberOfLikes = remember {
@@ -93,10 +94,6 @@ fun postViewerScreen(
         }
     }
 
-    LaunchedEffect(userHasLiked) {
-
-    }
-
     LaunchedEffect(thePostCaption) {
         dbCalls.getPostCaption(postID) {
             thePostCaption.value = it
@@ -132,6 +129,10 @@ fun postViewerScreen(
 
                     if (backStackEntry?.destination?.route == "GroupPreview/{groupID}/{page}") {
                         navController.navigate("GroupPreview/${groupID}/media")
+                    }
+
+                    if (backStackEntry?.destination?.route == "viewOtherProfile/{userID}/{groupID}") {
+                        navController.popBackStack()
                     }
 
 

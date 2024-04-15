@@ -241,16 +241,17 @@ fun myNavBar(
         )
 
         composable(
-            route = "viewOtherProfile/{userID}",
+            route = "viewOtherProfile/{userID}/{groupID}",
             content = {
                 val arguments = navBackStackEntry?.arguments
                 val parameter1 = arguments?.getString("userID")
+                val parameter2 = arguments?.getString("groupID") ?: ""
 
                 if (parameter1 == null) {
-                    viewOtherProfileScreen(userID = "", navBarController = navController)
+                    viewOtherProfileScreen(userID = "", navBarController = navController, groupID = parameter2)
                 }
                 else {
-                    viewOtherProfileScreen(userID = parameter1, navBarController = navController)
+                    viewOtherProfileScreen(userID = parameter1, navBarController = navController, groupID = parameter2)
                 }
 
 
