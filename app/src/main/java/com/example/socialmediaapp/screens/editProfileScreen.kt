@@ -123,7 +123,11 @@ fun EditProfileScreen(
 
                 editViewModel.setUsername(username)
                 editViewModel.setBio(userBio)
-                editViewModel.setOldPfp(profilePicUri.value)
+
+                if (editViewModel.oldpfp.value == null) {
+                    editViewModel.setOldPfp(profilePicUri.value)
+                }
+
                 editViewModel.setPfp(profilePicUri.value)
 
                 Box(

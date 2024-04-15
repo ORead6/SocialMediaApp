@@ -32,6 +32,7 @@ import com.example.socialmediaapp.components.GridScreen
 import com.example.socialmediaapp.components.GroupsCounter
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.bioSection
+import com.example.socialmediaapp.components.followUserButton
 import com.example.socialmediaapp.components.myDarkGrey
 import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.components.offWhiteBack
@@ -54,6 +55,8 @@ fun viewOtherProfileScreen(
 
     val thisUsername = remember { mutableStateOf("") }
 
+    val followingStatus = remember { mutableStateOf(false) }
+
     var userPosts by remember {
         mutableStateOf(mutableListOf<String>())
     }
@@ -72,21 +75,23 @@ fun viewOtherProfileScreen(
         dbCalls.getUserBio(userID) {
             userBio.value = it
 
-            dbCalls.getPosts(userID) {theIds ->
+            dbCalls.getPosts(userID) { theIds ->
                 userPosts = theIds.toMutableList()
 
-                dbCalls.getGroups(userID) {groupIds ->
+                dbCalls.getGroups(userID) { groupIds ->
                     groupCount = groupIds.size
 
-                    dbCalls.getUsername(userID) {username ->
+                    dbCalls.getUsername(userID) { username ->
                         thisUsername.value = username
 
                         dbCalls.getPfp(userID) { thePFP ->
                             pfp.value = thePFP
-                            dataReady.value = true
+
+                            dbCalls.getFollowingStatus(userID) { followStatus ->
+                                followingStatus.value = followStatus
+                                dataReady.value = true
+                            }
                         }
-
-
                     }
                 }
             }
@@ -111,9 +116,10 @@ fun viewOtherProfileScreen(
         ) {
 
             if (dataReady.value) {
-                Row (modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 28.dp, top = 5.dp, end = 28.dp),
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 28.dp, top = 5.dp, end = 28.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     backButton {
@@ -127,7 +133,7 @@ fun viewOtherProfileScreen(
                         .fillMaxWidth()
                         .padding(start = 28.dp, top = 14.dp, end = 28.dp)
                 ) {
-                    pfpCircle(pfp)    // GET USER PROFILE PIC
+                    pfpCircle(pfp)
                     GroupsCounter(number = groupCount, modifier = Modifier.weight(1f))
                     FollowerCounter(modifier = Modifier.weight(1f))
                     FollowingCounter(modifier = Modifier.weight(1f))
@@ -141,25 +147,29 @@ fun viewOtherProfileScreen(
                     bioSection(userBio.value)
                     Spacer(modifier = Modifier.padding(10.dp))
 
-                    // ADD FOLLOW BUTTON
-                }
+                    followUserButton(followingStatus.value) {
+                        followingStatus.value = !followingStatus.value
 
-                Spacer(modifier = Modifier.padding(25.dp))
+                        if (followingStatus.value) {
+                            dbCalls.addFollowing(userThatIsViewed = userID) {
 
-                postDivider()
+                            }
+                        } else {
+                            dbCalls.removeFollowing(userThatIsViewed = userID) {
 
-                GridScreen(userPosts, dbCalls, navBarController)
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = offWhiteBack)
+                            }
+                        }
+                    }
                 }
             }
+
+            Spacer(modifier = Modifier.padding(25.dp))
+
+            postDivider()
+
+            GridScreen(userPosts, dbCalls, navBarController)
         }
-
-
     }
 }
+
 

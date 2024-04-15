@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
@@ -1162,7 +1163,6 @@ class databaseCalls (
                         .addOnSuccessListener { taskSnapshot ->
                             // Get the download URL for the uploaded pfp
                             pfpRef.downloadUrl.addOnSuccessListener { uri ->
-                                updates["pfpUrl"] = uri.toString() // save the download URL to Firestore
                                 updateUserDocument(currUser, updates, completion)
                             }
                         }
@@ -1237,5 +1237,97 @@ class databaseCalls (
                 completion(Uri.EMPTY)
             }
     }
+
+    fun getFollowingStatus(userFollowing: String, completion: (Boolean) -> Unit) {
+        val db = Firebase.firestore
+        val currUser = auth.currentUser?.uid.toString()
+
+        if (userFollowing != "") {
+            val userRef = db.collection("Users").document(currUser).collection("Following")
+            userRef.whereEqualTo(FieldPath.documentId(), userFollowing).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        completion(true)
+                    } else {
+                        completion(false)
+                    }
+
+
+                }
+
+        }
+        else {
+            completion(false)
+        }
+    }
+
+    fun addFollowing(userThatIsViewed: String, completion: () -> Unit) {
+        val db = Firebase.firestore
+        val auth = Firebase.auth
+        val currUser = auth.currentUser?.uid.toString()
+
+        // Add document to the "Following" collection of the current user
+        db.collection("Users").document(currUser).collection("Following").document(userThatIsViewed)
+            .set(hashMapOf("followedUserId" to userThatIsViewed))
+            .addOnSuccessListener {
+                // Document added successfully to the "Following" collection
+                addFollower(userThatIsViewed, currUser, completion)
+            }
+            .addOnFailureListener { exception ->
+                // Handle failure
+                Log.e("ADD_FOLLOWING", "Error adding document to 'Following' collection: $exception")
+            }
+    }
+
+    fun addFollower(userThatIsViewed: String, currUser: String, completion: () -> Unit) {
+        val db = Firebase.firestore
+
+        // Add document to the "Followers" collection of the viewed user
+        db.collection("Users").document(userThatIsViewed).collection("Followers").document(currUser)
+            .set(hashMapOf("followerUserId" to currUser))
+            .addOnSuccessListener {
+                // Document added successfully to the "Followers" collection
+                completion()
+            }
+            .addOnFailureListener { exception ->
+                // Handle failure
+                Log.e("ADD_FOLLOWER", "Error adding document to 'Followers' collection: $exception")
+            }
+    }
+
+    fun removeFollowing(userThatIsViewed: String, completion: () -> Unit) {
+        val db = Firebase.firestore
+        val auth = Firebase.auth
+        val currUser = auth.currentUser?.uid.toString()
+
+        // Remove document from the "Following" collection of the current user
+        db.collection("Users").document(currUser).collection("Following").document(userThatIsViewed)
+            .delete()
+            .addOnSuccessListener {
+                // Document removed successfully from the "Following" collection
+                removeFollower(userThatIsViewed, currUser, completion)
+            }
+            .addOnFailureListener { exception ->
+                // Handle failure
+                Log.e("REMOVE_FOLLOWING", "Error removing document from 'Following' collection: $exception")
+            }
+    }
+
+    fun removeFollower(userThatIsViewed: String, currUser: String, completion: () -> Unit) {
+        val db = Firebase.firestore
+
+        // Remove document from the "Followers" collection of the viewed user
+        db.collection("Users").document(userThatIsViewed).collection("Followers").document(currUser)
+            .delete()
+            .addOnSuccessListener {
+                // Document removed successfully from the "Followers" collection
+                completion()
+            }
+            .addOnFailureListener { exception ->
+                // Handle failure
+                Log.e("REMOVE_FOLLOWER", "Error removing document from 'Followers' collection: $exception")
+            }
+    }
+
 
 }

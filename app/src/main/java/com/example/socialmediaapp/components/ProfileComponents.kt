@@ -65,7 +65,10 @@ import kotlinx.coroutines.withContext
 fun pfpCircle(
     profileUri: MutableState<Uri?>
 ) {
-    if (profileUri.value == null){
+
+    Log.d("PROFILEPIC", profileUri.toString())
+
+    if (profileUri.value.toString() == ""){
         Image(
             painter = painterResource(id = R.drawable.userpfp),
             contentDescription = null,
