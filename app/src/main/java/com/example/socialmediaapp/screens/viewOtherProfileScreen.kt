@@ -1,6 +1,5 @@
 package com.example.socialmediaapp.screens
 
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -41,13 +40,12 @@ import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
 
 @Composable
-fun ProfileScreen(
-    userData: UserData?,
-    onSignOut: () -> Unit,
+fun viewOtherProfileScreen(
+    userID: String,
     navBarController: NavController
 ) {
 
-    val dbCalls = databaseCalls(userData?.userId ?: "")
+    val dbCalls = databaseCalls("")
 
     val userBio = remember { mutableStateOf("") }
 
@@ -63,27 +61,20 @@ fun ProfileScreen(
 
     var dataReady = remember { mutableStateOf(false) }
 
-    var profilePicUri = remember {
-        mutableStateOf<Uri?>(null)
-    }
-
     LaunchedEffect(true) {
-        dbCalls.getUserBio {
+        dbCalls.getUserBio(userID) {
             userBio.value = it
 
-            dbCalls.getPosts {theIds ->
+            dbCalls.getPosts(userID) {theIds ->
                 userPosts = theIds.toMutableList()
 
-                dbCalls.getGroups {groupIds ->
+                dbCalls.getGroups(userID) {groupIds ->
                     groupCount = groupIds.size
 
-                    dbCalls.getUsername {username ->
+                    dbCalls.getUsername(userID) {username ->
                         thisUsername.value = username
 
-                        dbCalls.getPfp { thePfp ->
-                            profilePicUri.value = thePfp
-                            dataReady.value = true
-                        }
+                        dataReady.value = true
                     }
                 }
             }
@@ -115,7 +106,7 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .padding(start = 28.dp, top = 14.dp, end = 28.dp)
                 ) {
-                    pfpCircle(profilePicUri)
+                    //pfpCircle(userData = userData)    // GET USER PROFILE PIC
                     GroupsCounter(number = groupCount, modifier = Modifier.weight(1f))
                     FollowerCounter(modifier = Modifier.weight(1f))
                     FollowingCounter(modifier = Modifier.weight(1f))
@@ -128,9 +119,8 @@ fun ProfileScreen(
                 ) {
                     bioSection(userBio.value)
                     Spacer(modifier = Modifier.padding(10.dp))
-                    EditProfileButton(thisOnClick = {
-                        navBarController.navigate("EditProfile")
-                    })
+
+                    // ADD BACK BUTTON HERE
                 }
 
                 Spacer(modifier = Modifier.padding(25.dp))

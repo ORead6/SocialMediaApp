@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
@@ -428,7 +427,13 @@ fun GroupPreviewScreen (
                                         AnimatedNumberDisplay(totalWeightLifted)
 
                                         // LISTVIEW
-                                        userGrid(userIDs = userIds, userNames = usernames, metric = "TotalWeightLifted", groupID = groupID)
+                                        userGrid(
+                                            userIDs = userIds,
+                                            userNames = usernames,
+                                            metric = "TotalWeightLifted",
+                                            groupID = groupID,
+                                            navController = navController
+                                        )
 
                                     }
 
@@ -492,7 +497,7 @@ fun GroupPreviewScreen (
                                         AnimatedNumberDisplay(totalWeightGained)
 
                                         // LISTVIEW
-                                        userGrid(userIDs = userIds, userNames = usernames, metric = "TotalWeightGained", groupID = groupID)
+                                        userGrid(userIDs = userIds, userNames = usernames, metric = "TotalWeightGained", groupID = groupID, navController = navController)
 
                                     }
 
@@ -557,7 +562,13 @@ fun GroupPreviewScreen (
                                         AnimatedNumberDisplay(totalWeightLost)
 
                                         // LISTVIEW
-                                        userGrid(userIDs = userIds, userNames = usernames, metric = "TotalWeightLost", groupID = groupID)
+                                        userGrid(
+                                            userIDs = userIds,
+                                            userNames = usernames,
+                                            metric = "TotalWeightLost",
+                                            groupID = groupID,
+                                            navController = navController
+                                        )
 
                                     }
 

@@ -1,6 +1,10 @@
 package com.example.socialmediaapp.screens
 
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +41,8 @@ import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.ThreeDotsMenu
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.bioField
+import com.example.socialmediaapp.components.editGroupPhoto
+import com.example.socialmediaapp.components.editPfp
 import com.example.socialmediaapp.components.editPfpCircle
 import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.components.myViewModel
@@ -71,6 +77,18 @@ fun EditProfileScreen(
 
     val editViewModel = editprofileViewModel()
 
+    var profilePicUri = remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            profilePicUri.value = uri
+            editViewModel.setPfp(profilePicUri.value)
+        }
+    )
+
     LaunchedEffect(true) {
         dbCalls.getUserBio { theBio ->
             userBio = theBio
@@ -78,7 +96,11 @@ fun EditProfileScreen(
             dbCalls.getUsername { theUsername ->
                 username = theUsername
 
-                dataReady = true
+                dbCalls.getPfp {userUri ->
+                    profilePicUri.value = userUri
+
+                    dataReady = true
+                }
             }
         }
     }
@@ -101,6 +123,8 @@ fun EditProfileScreen(
 
                 editViewModel.setUsername(username)
                 editViewModel.setBio(userBio)
+                editViewModel.setOldPfp(profilePicUri.value)
+                editViewModel.setPfp(profilePicUri.value)
 
                 Box(
                     modifier = Modifier
@@ -170,7 +194,11 @@ fun EditProfileScreen(
                         .offset(y = (-40).dp)
 
                 ) {
-                    editPfpCircle(userData = null)
+                    editPfp(profilePicUri) {
+                        singlePhotoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
                 }
                 Column(
                     modifier = Modifier

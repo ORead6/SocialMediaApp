@@ -1,8 +1,10 @@
 package com.example.socialmediaapp.components
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -249,6 +253,59 @@ fun ThreeDotsMenu(onMenuItemClick: (String) -> Unit) {
             }, text = { Text(text = "DELETE ACCOUNT",
                 fontFamily = myCustomFont,
                 color = Color.Red) })
+        }
+    }
+}
+
+@Composable
+fun editPfp(
+    selectedImageUri: MutableState<Uri?>,
+    thisOnClick: () -> Unit = {}
+) {
+    Box(modifier = Modifier
+        .size(80.dp)
+        .graphicsLayer(shadowElevation = 16f, shape = CircleShape)
+    ) {
+
+        if (selectedImageUri.value == null){
+            Image(
+                painter = painterResource(id = R.drawable.userpfp),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape),
+            )
+        } else {
+            AsyncImage(model = selectedImageUri.value,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape),
+            )
+        }
+
+
+        Box(modifier = Modifier
+            .fillMaxSize(0.25f)
+            .background(
+                color = Color.White,
+                shape = CircleShape
+            )
+            .border(width = 1.dp, color = LoginScreensColor, shape = CircleShape)
+            .align(Alignment.BottomEnd)
+            .padding(4.dp)
+            .clickable(onClick = thisOnClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                // Change from email to new pencil
+                // old one corrupted and broke the whole app
+                painter = painterResource(id = R.drawable.email),
+                contentDescription = "Pencil",
+            )
+
         }
     }
 }

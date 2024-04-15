@@ -1,6 +1,7 @@
 package com.example.socialmediaapp.viewModels
 
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -23,12 +24,26 @@ class editprofileViewModel() : ViewModel(){
     private val _bio = mutableStateOf("")
     val bio: State<String> = _bio
 
+    private val _pfp =  mutableStateOf<Uri?>(null)
+    val pfp: State<Uri?> = _pfp
+
+    private val _oldpfp =  mutableStateOf<Uri?>(null)
+    val oldpfp: State<Uri?> = _oldpfp
+
     fun setBio(text: String) {
         _bio.value = text
     }
 
     fun setUsername(text: String) {
         _username.value = text
+    }
+
+    fun setPfp(newUri: Uri?) {
+        _pfp.value = newUri
+    }
+
+    fun setOldPfp(newUri: Uri?) {
+        _oldpfp.value = newUri
     }
 
 }

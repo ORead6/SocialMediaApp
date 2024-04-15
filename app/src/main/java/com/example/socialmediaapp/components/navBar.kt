@@ -54,6 +54,7 @@ import com.example.socialmediaapp.screens.ProfileScreen
 import com.example.socialmediaapp.screens.homeScreen
 import com.example.socialmediaapp.screens.postViewerScreen
 import com.example.socialmediaapp.screens.uploadMediaScreen
+import com.example.socialmediaapp.screens.viewOtherProfileScreen
 import com.example.socialmediaapp.signIn.UserData
 
 data class BottomNavigationItem(
@@ -236,6 +237,24 @@ fun myNavBar(
             route = "CreateGroup",
             content = {
                 CreateGroupScreen(navController =  navController)
+            }
+        )
+
+        composable(
+            route = "viewOtherProfile/{userID}",
+            content = {
+                val arguments = navBackStackEntry?.arguments
+                val parameter1 = arguments?.getString("userID")
+
+                if (parameter1 == null) {
+                    viewOtherProfileScreen(userID = "", navBarController = navController)
+                }
+                else {
+                    viewOtherProfileScreen(userID = parameter1, navBarController = navController)
+                }
+
+
+
             }
         )
     }

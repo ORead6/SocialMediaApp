@@ -28,9 +28,16 @@ class databaseCalls (
 {
     private val auth = Firebase.auth
 
-    fun getPosts(completion: (List<String>) -> Unit) {
+    fun getPosts(userID: String = "", completion: (List<String>) -> Unit) {
         val dbReference = Firebase.firestore
-        val currentUserUUID = auth.currentUser?.uid
+        var currentUserUUID = ""
+
+        if (userID == "") {
+            currentUserUUID = auth.currentUser?.uid.toString()
+        } else {
+            currentUserUUID = userID
+        }
+
         val docRef = dbReference.collection("Posts")
         val postIds = mutableListOf<String>()
 
@@ -69,9 +76,17 @@ class databaseCalls (
             }
     }
 
-    fun getGroups(completion: (List<String>) -> Unit) {
+    fun getGroups(userID: String = "", completion: (List<String>) -> Unit) {
         val dbReference = Firebase.firestore
         val groupIds = mutableListOf<String>()
+
+        var currentUserUUID = ""
+
+        if (userID == "") {
+            currentUserUUID = auth.currentUser?.uid.toString()
+        } else {
+            currentUserUUID = userID
+        }
 
         dbReference.collection("Groups").get()
             .addOnSuccessListener { groups ->
@@ -82,7 +97,7 @@ class databaseCalls (
                     val groupId = group.id
                     val usersRef =
                         dbReference.collection("Groups").document(groupId).collection("Users")
-                    val userQuery = usersRef.whereEqualTo("uuid", userId).get()
+                    val userQuery = usersRef.whereEqualTo("uuid", currentUserUUID).get()
 
                     tasks.add(userQuery)
                 }
@@ -1087,16 +1102,28 @@ class databaseCalls (
         return words
     }
 
-    fun getUserBio(completion: (String) -> Unit) {
+    fun getUserBio(userID: String = "", completion: (String) -> Unit) {
         val db = Firebase.firestore
-        val currUser = auth.currentUser?.uid
+        var currUser = ""
+
+        if (userID == "") {
+            currUser = auth.currentUser?.uid.toString()
+        } else {
+            currUser = userID
+        }
+
 
         if (currUser != null) {
             val userRef = db.collection("Users").document(currUser)
             userRef.get()
                 .addOnSuccessListener {
                     val theBio = it.get("bio")
-                    completion(theBio.toString())
+
+                    if (theBio != null){
+                        completion(theBio.toString())
+                    } else {
+                        completion("")
+                    }
                 }
 
         } else {
@@ -1105,9 +1132,18 @@ class databaseCalls (
 
     }
 
-    fun applyProfileChanges(editViewModel: editprofileViewModel, context: Context, completion: () -> Unit) {
-        val db = Firebase.firestore
+    fun applyProfileChanges(
+        editViewModel: editprofileViewModel,
+        context: Context,
+        completion: () -> Unit
+    ) {
+        val storageRef = FirebaseStorage.getInstance().reference
+
+        val auth = Firebase.auth
         val currUser = auth.currentUser?.uid
+
+        val pfpUri = editViewModel.pfp.value
+        val oldPfp = editViewModel.oldpfp.value
 
         if (editViewModel.username.value == "") {
             Toast.makeText(context, "Username Can not be Blank", Toast.LENGTH_SHORT).show()
@@ -1119,21 +1155,52 @@ class databaseCalls (
                     "bio" to editViewModel.bio.value
                 )
 
-                val userDoc = db.collection("Users").document(currUser)
-                userDoc.update(updates)
-                    .addOnSuccessListener {
-                        completion()
-                    }
-                    .addOnFailureListener {
-                        Log.d("UPDATE_USER", "$it")
-                    }
+                // Upload pfp if it's not null
+                if (pfpUri != null && pfpUri != oldPfp) {
+                    val pfpRef = storageRef.child("Users/$currUser/pfpPic")
+                    pfpRef.putFile(pfpUri)
+                        .addOnSuccessListener { taskSnapshot ->
+                            // Get the download URL for the uploaded pfp
+                            pfpRef.downloadUrl.addOnSuccessListener { uri ->
+                                updates["pfpUrl"] = uri.toString() // save the download URL to Firestore
+                                updateUserDocument(currUser, updates, completion)
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("UPLOAD_PFP", "Failed to upload pfp: $exception")
+                        }
+                } else {
+                    updateUserDocument(currUser, updates, completion)
+                }
             }
         }
     }
 
-    fun getUsername(completion: (String) -> Unit) {
+    private fun updateUserDocument(
+        userId: String,
+        updates: Map<String, Any>,
+        completion: () -> Unit
+    ) {
         val db = Firebase.firestore
-        val currUser = auth.currentUser?.uid
+        val userDoc = db.collection("Users").document(userId)
+        userDoc.update(updates)
+            .addOnSuccessListener {
+                completion()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("UPDATE_USER", "Failed to update user document: $exception")
+            }
+    }
+
+    fun getUsername(userID:String = "", completion: (String) -> Unit) {
+        val db = Firebase.firestore
+        var currUser = ""
+
+        if (userID == "") {
+            currUser = auth.currentUser?.uid.toString()
+        } else {
+            currUser = userID
+        }
 
         if (currUser != null) {
             val userDoc = db.collection("Users").document(currUser)
@@ -1147,6 +1214,28 @@ class databaseCalls (
                     completion("404")
                 }
         }
+    }
+
+    fun getPfp(userID: String = "", completion: (Uri?) -> Unit) {
+
+        var currUser = ""
+        if (userID == "") {
+            currUser = auth.currentUser?.uid.toString()
+        } else {
+            currUser = userID
+        }
+
+        val storage = FirebaseStorage.getInstance()
+
+        val fileRef = storage.reference.child("Users/${currUser}/pfpPic")
+
+        fileRef.downloadUrl
+            .addOnSuccessListener { uri ->
+                completion(uri)
+            }
+            .addOnFailureListener { e ->
+                completion(Uri.EMPTY)
+            }
     }
 
 }

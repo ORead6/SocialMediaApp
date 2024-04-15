@@ -68,7 +68,6 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.databaseCalls.databaseCalls
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -531,7 +530,8 @@ fun userGrid(
     userIDs: List<String>,
     userNames: Map<String, String>,
     metric: String,
-    groupID: String
+    groupID: String,
+    navController: NavHostController
 ) {
     val spacing = 25.dp
 
@@ -571,7 +571,7 @@ fun userGrid(
                     val metricVal = userValues[userID]
 
                     if (username != null && metricVal != null) {
-                        userGridItem(username = username, metricValue = metricVal, placement = (index + 1).toString())
+                        userGridItem(username = username, metricValue = metricVal, placement = (index + 1).toString(), navController = navController, id = userID)
                     }
                 }
             }
@@ -594,18 +594,15 @@ fun userGrid(
 fun userGridItem(
     username: String,
     metricValue: String,
-    placement: String
+    placement: String,
+    navController: NavHostController,
+    id: String
 ){
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-//        Text(text = username)
-//        Spacer(modifier = Modifier.padding(4.dp))
-//        Text(text = metricValue)
-//        Spacer(modifier = Modifier.padding(4.dp))
-//        Text(text = placement)
 
         var circleColor = Color(0xffeb9834)
 
@@ -622,6 +619,9 @@ fun userGridItem(
         Card (modifier = Modifier
             .fillMaxWidth()
             .height(75.dp)
+            .clickable {
+                navController.navigate("viewOtherProfile/${id}")
+            }
             .border(width = 1.dp, color = myGradientGrey, shape = RoundedCornerShape(20.dp)),
             shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(
