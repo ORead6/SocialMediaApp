@@ -35,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -137,8 +138,8 @@ fun EmailTextField(labelValue: String, painterResource: Painter, viewModel: regi
             cursorColor = Primary,
             containerColor = textFieldBG,
             unfocusedBorderColor = textFieldOutline,
-            placeholderColor = Color.LightGray,
-            textColor = darkBG
+//            placeholderColor = Color.LightGray,
+//            textColor = darkBG
         ),
         keyboardOptions = KeyboardOptions.Default,
         shape = RoundedCornerShape(10.dp),
@@ -179,8 +180,8 @@ fun UsernameTextField(labelValue: String, painterResource: Painter, viewModel: r
             cursorColor = Primary,
             containerColor = textFieldBG,
             unfocusedBorderColor = textFieldOutline,
-            placeholderColor = Color.LightGray,
-            textColor = darkBG
+//            placeholderColor = Color.LightGray,
+//            textColor = darkBG
         ),
         keyboardOptions = KeyboardOptions.Default,
         shape = RoundedCornerShape(10.dp),
@@ -235,8 +236,8 @@ fun PasswordTextField(
             cursorColor = Primary,
             containerColor = textFieldBG,
             unfocusedBorderColor = textFieldOutline,
-            placeholderColor = Color.LightGray,
-            textColor = darkBG
+//            placeholderColor = Color.LightGray,
+//            textColor = darkBG
         ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         shape = RoundedCornerShape(10.dp),
@@ -575,8 +576,8 @@ fun BioInputWithCharacterLimit(
                 cursorColor = Primary,
                 containerColor = textFieldBG,
                 unfocusedBorderColor = textFieldOutline,
-                placeholderColor = Color.LightGray,
-                textColor = darkBG
+//                placeholderColor = Color.LightGray,
+//                textColor = darkBG
             ),
 
             singleLine = false,
@@ -647,8 +648,8 @@ fun LoginPasswordTextField(
             cursorColor = Primary,
             containerColor = textFieldBG,
             unfocusedBorderColor = textFieldOutline,
-            placeholderColor = Color.LightGray,
-            textColor = darkBG
+//            placeholderColor = Color.LightGray,
+//            textColor = darkBG
         ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         shape = RoundedCornerShape(10.dp),
@@ -709,8 +710,8 @@ fun LoginEmailTextField(labelValue: String, painterResource: Painter, viewModel:
             cursorColor = Primary,
             containerColor = textFieldBG,
             unfocusedBorderColor = textFieldOutline,
-            placeholderColor = Color.LightGray,
-            textColor = darkBG
+//            placeholderColor = Color.LightGray,
+//            textColor = darkBG
         ),
         keyboardOptions = KeyboardOptions.Default,
         shape = RoundedCornerShape(10.dp),

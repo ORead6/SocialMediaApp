@@ -210,8 +210,8 @@ fun SearchBar(myViewModel: groupViewModel) {
             cursorColor = Primary,
             containerColor = textFieldBG,
             unfocusedBorderColor = textFieldOutline,
-            placeholderColor = Color.LightGray,
-            textColor = darkBG
+//            placeholderColor = Color.LightGray,
+//            textColor = darkBG
         )
     )
 }

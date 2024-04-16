@@ -149,8 +149,8 @@ fun textField(labelValue: String, viewModel: editprofileViewModel) {
                 cursorColor = Primary,
                 containerColor = textFieldBG,
                 unfocusedBorderColor = textFieldOutline,
-                placeholderColor = Color.LightGray,
-                textColor = darkBG
+//                placeholderColor = Color.LightGray,
+//                textColor = darkBG
             ),
             keyboardOptions = KeyboardOptions.Default,
             shape = RoundedCornerShape(10.dp),
@@ -197,8 +197,8 @@ fun bioField(labelValue: String, viewModel: editprofileViewModel = myViewModel) 
                 cursorColor = Primary,
                 containerColor = textFieldBG,
                 unfocusedBorderColor = textFieldOutline,
-                placeholderColor = Color.LightGray,
-                textColor = darkBG
+//                placeholderColor = Color.LightGray,
+//                textColor = darkBG
             ),
             keyboardOptions = KeyboardOptions.Default,
             shape = RoundedCornerShape(10.dp),

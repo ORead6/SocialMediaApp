@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.media3.common.util.Util.split
 import androidx.navigation.NavController
+import com.example.socialmediaapp.messaging.messagingDataStruc
 import com.example.socialmediaapp.viewModels.editprofileViewModel
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -19,6 +20,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import kotlin.random.Random
@@ -1297,7 +1299,6 @@ class databaseCalls (
 
     fun removeFollowing(userThatIsViewed: String, completion: () -> Unit) {
         val db = Firebase.firestore
-        val auth = Firebase.auth
         val currUser = auth.currentUser?.uid.toString()
 
         // Remove document from the "Following" collection of the current user
@@ -1329,5 +1330,86 @@ class databaseCalls (
             }
     }
 
+    fun getFollowing(userID: String = "", completion: (Map<String, String>) -> Unit) {
+        var thisUser = ""
+
+        var following = mutableMapOf<String, String>()
+
+        if (userID == "") {
+            thisUser = auth.currentUser?.uid.toString()
+        }
+
+        val db = Firebase.firestore
+        val userFollowingRef = db.collection("Users").document(thisUser).collection("Following")
+        var count = 0
+
+        userFollowingRef.get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val id = document.id
+                    getUsername(id) {
+                        val username = it
+
+                        following[username] = id
+
+                        if (count >= documents.size() - 1) {
+                            completion(following)
+                        }
+
+                        count++
+                    }
+                }
+            }
+
+            .addOnFailureListener {
+                completion(emptyMap())
+            }
+
+
+    }
+
+    fun getMessages(secondUser: String, completion: (List<messagingDataStruc>) -> Unit) {
+        val thisUser = auth.currentUser?.uid
+        val db = Firebase.firestore
+
+        val msgRef = db.collection("Messages")
+
+        val firstQueryTask = msgRef.whereEqualTo("senderID", thisUser)
+            .whereEqualTo("receiverID", secondUser)
+            .get()
+
+        val secondQueryTask = msgRef.whereEqualTo("senderID", secondUser)
+            .whereEqualTo("receiverID", thisUser)
+            .get()
+
+        val combinedTask = Tasks.whenAllSuccess<QuerySnapshot>(firstQueryTask, secondQueryTask)
+
+        combinedTask
+            .addOnSuccessListener { results ->
+                val messages = mutableListOf<messagingDataStruc>()
+
+                // Process results from the first query
+                val firstQueryResult = results[0] as QuerySnapshot
+                for (document in firstQueryResult) {
+                    val message = document.toObject<messagingDataStruc>()
+                    messages.add(message)
+                }
+
+                // Process results from the second query
+                val secondQueryResult = results[1] as QuerySnapshot
+                for (document in secondQueryResult) {
+                    val message = document.toObject<messagingDataStruc>()
+                    messages.add(message)
+                }
+
+                // Call completion with the combined messages
+                completion(messages)
+            }
+            .addOnFailureListener { exception ->
+                // Handle failure
+                Log.e("SEARCHBARLIST", "Error getting messages: ", exception)
+                completion(emptyList())
+            }
+    }
 
 }

@@ -46,6 +46,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.socialmediaapp.screens.CreateGroupScreen
+import com.example.socialmediaapp.screens.DirectMessagingScreen
 import com.example.socialmediaapp.screens.EditProfileScreen
 import com.example.socialmediaapp.screens.GroupPreviewScreen
 import com.example.socialmediaapp.screens.GroupScreen
@@ -176,7 +177,7 @@ fun myNavBar(
         composable(
             route = "Inbox",
             content = {
-                InboxScreen(userData)
+                InboxScreen(userData, navBarController = navController)
             }
         )
 
@@ -198,17 +199,16 @@ fun myNavBar(
                 )
             }
         )
-        
+
         composable(
-            route = "GroupPreview/{groupID}/{page}",
+            route = "DirectMessaging/{thatUserID}",
             content = {
                 val arguments = navBackStackEntry?.arguments
-                val parameter = arguments?.getString("groupID")
-                val parameter2 = arguments?.getString("page")
-
-                if (parameter != null) {
-                    GroupPreviewScreen(parameter, navController =  navController, page = parameter2)
+                val theUserID = arguments?.getString("thatUserID")
+                if (theUserID != null) {
+                    DirectMessagingScreen(navController = navController, userMessageID = theUserID)
                 }
+
             }
         )
 
