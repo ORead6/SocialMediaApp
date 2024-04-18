@@ -44,7 +44,7 @@ fun messageCardGrid(messageList: MutableState<List<messagingDataStruc>>, userMes
     Log.d("MESSAGES", messageList.toString())
 
     LazyVerticalGrid(
-        modifier = Modifier.fillMaxWidth(0.6f),
+        modifier = Modifier.fillMaxWidth(),
         columns = GridCells.Fixed(1)
     ) {
         items(messageList.value) { post ->
@@ -63,48 +63,51 @@ fun messageCardGrid(messageList: MutableState<List<messagingDataStruc>>, userMes
 fun messageItem(message: String, received: Boolean, timestamp: Timestamp) {
 
     val date = timestamp.toDate()
-
     val sdf = SimpleDateFormat("HH:mm")
+    val theTime = sdf.format(date)
 
-   val theTime = sdf.format(date)
-
-
-    Card (
-        modifier = Modifier
-            .fillMaxSize()
-            .heightIn(40.dp)
-            .widthIn(350.dp)
-            .background(offWhiteBack, shape = RoundedCornerShape(5.dp))
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = if (received.not()) Alignment.Start else Alignment.End
     ) {
-        Column (
-            modifier = Modifier.padding(8.dp)
-        ){
-            Text(
-                text = message,
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = myCustomFont,
-                    color = Color.Black
-                )
-            )
-
-            Spacer(Modifier.padding(4.dp))
-
-            Row (modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+        Row(
+            modifier = Modifier.fillMaxWidth(0.6f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(offWhiteBack, shape = RoundedCornerShape(5.dp))
             ) {
-                Text(
-                    text = theTime,
-                    style = TextStyle(
-                        fontFamily = myCustomFont,
-                        color = Color.Black
+                Column(
+                    modifier = Modifier.padding(8.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = message,
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = myCustomFont,
+                            color = Color.Black
+                        )
                     )
-                )
+
+                    Spacer(Modifier.padding(4.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = theTime,
+                            style = TextStyle(
+                                fontFamily = myCustomFont,
+                                color = Color.Black
+                            )
+                        )
+                    }
+                }
             }
-
         }
-
     }
-
-
 }
+
