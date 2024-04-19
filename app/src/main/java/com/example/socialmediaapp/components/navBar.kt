@@ -201,6 +201,18 @@ fun myNavBar(
         )
 
         composable(
+            route = "GroupPreview/{groupID}/{page}",
+            content = {
+                val arguments = navBackStackEntry?.arguments
+                val parameter = arguments?.getString("groupID")
+                val parameter2 = arguments?.getString("page")
+                if (parameter != null) {
+                    GroupPreviewScreen(parameter, navController =  navController, page = parameter2)
+                }
+            }
+        )
+
+        composable(
             route = "DirectMessaging/{thatUserID}",
             content = {
                 val arguments = navBackStackEntry?.arguments
