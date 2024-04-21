@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -36,10 +35,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,7 +53,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.databaseCalls.databaseCalls
-import com.example.socialmediaapp.signIn.UserData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -300,49 +296,25 @@ fun userNameDisplay(username: String? = "Test") {
 @Composable
 fun GridScreen(
     userPosts: MutableList<String>,
-    dbCalls: databaseCalls,
-    navBarController: NavController
+    navBarController: NavController,
+    mediaMap: MutableMap<String, Uri?>,
+    typeMap: MutableMap<String, String>
 ) {
-    val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
-    val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
-
-    var dataReady by remember { mutableStateOf(false) }
 
     Log.d("USERPOSTS", userPosts.toString())
 
-    LaunchedEffect(userPosts) {
-        userPosts.forEach { post ->
-            dbCalls.getPostMedia(post) { uri, postType ->
-                mediaMap[post] = uri
-                typeMap[post] = postType
-            }
-        }
 
-        dataReady = true
-    }
-
-    if (dataReady){
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3)
-        ) {
-            items(userPosts) { post ->
-                val uri = mediaMap[post]
-                val type = typeMap[post]
-                if (uri != null) {
-                    if (type != null) {
-                        GridItem(post, uri, type, navBarController)
-                    }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3)
+    ) {
+        items(userPosts) { post ->
+            val uri = mediaMap[post]
+            val type = typeMap[post]
+            if (uri != null) {
+                if (type != null) {
+                    GridItem(post, uri, type, navBarController)
                 }
             }
-        }
-    } else {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-                .fillMaxHeight(0.5f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Spacer(modifier = Modifier.padding(75.dp))
-            CircularProgressIndicator(color = offWhiteBack)
         }
     }
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
+import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.components.offWhiteBack
 import com.example.socialmediaapp.databaseCalls.databaseCalls
@@ -76,6 +77,11 @@ fun DirectMessagingScreen(
             .background(myGradientGrey)
             .padding(start = 4.dp, end = 4.dp)
         ) {
+
+            backButton(thisOnClick = {
+                navController.navigate("Inbox")
+            })
+
             if (dataReady) {
                 Spacer(Modifier.weight(1f))
 

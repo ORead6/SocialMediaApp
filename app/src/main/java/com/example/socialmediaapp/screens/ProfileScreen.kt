@@ -22,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.socialmediaapp.components.EditProfileButton
@@ -57,6 +56,9 @@ fun ProfileScreen(
         mutableStateOf(mutableListOf<String>())
     }
 
+    val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
+    val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
+
     var groupCount by remember {
         mutableIntStateOf(0)
     }
@@ -74,6 +76,8 @@ fun ProfileScreen(
             dbCalls.getPosts {theIds ->
                 userPosts = theIds.toMutableList()
 
+                var count = 0
+
                 dbCalls.getGroups {groupIds ->
                     groupCount = groupIds.size
 
@@ -82,7 +86,20 @@ fun ProfileScreen(
 
                         dbCalls.getPfp { thePfp ->
                             profilePicUri.value = thePfp
-                            dataReady.value = true
+
+                            userPosts.forEach { post ->
+                                dbCalls.getPostMedia(post) { uri, postType ->
+                                    mediaMap[post] = uri
+                                    typeMap[post] = postType
+                                    count++
+                                }
+                            }
+
+                            if (count == userPosts.size - 1) {
+                                Log.d("POSTING", userPosts.toString())
+
+                                dataReady.value = true
+                            }
                         }
                     }
                 }
@@ -137,7 +154,7 @@ fun ProfileScreen(
 
                 postDivider()
 
-                GridScreen(userPosts, dbCalls, navBarController)
+                GridScreen(userPosts, navBarController, mediaMap, typeMap)
             } else {
                 Box(
                     modifier = Modifier.fillMaxSize(),

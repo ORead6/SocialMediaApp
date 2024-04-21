@@ -3,14 +3,12 @@ package com.example.socialmediaapp.screens
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,10 +20,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.socialmediaapp.components.EditProfileButton
 import com.example.socialmediaapp.components.FollowerCounter
 import com.example.socialmediaapp.components.FollowingCounter
 import com.example.socialmediaapp.components.GridScreen
@@ -35,12 +31,10 @@ import com.example.socialmediaapp.components.bioSection
 import com.example.socialmediaapp.components.followUserButton
 import com.example.socialmediaapp.components.myDarkGrey
 import com.example.socialmediaapp.components.myGradientGrey
-import com.example.socialmediaapp.components.offWhiteBack
 import com.example.socialmediaapp.components.pfpCircle
 import com.example.socialmediaapp.components.postDivider
 import com.example.socialmediaapp.components.userNameDisplay
 import com.example.socialmediaapp.databaseCalls.databaseCalls
-import com.example.socialmediaapp.signIn.UserData
 
 @Composable
 fun viewOtherProfileScreen(
@@ -61,6 +55,9 @@ fun viewOtherProfileScreen(
         mutableStateOf(mutableListOf<String>())
     }
 
+    val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
+    val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
+
     var pfp = remember {
         mutableStateOf<Uri?>(null)
     }
@@ -78,6 +75,8 @@ fun viewOtherProfileScreen(
             dbCalls.getPosts(userID) { theIds ->
                 userPosts = theIds.toMutableList()
 
+                var count = 0
+
                 dbCalls.getGroups(userID) { groupIds ->
                     groupCount = groupIds.size
 
@@ -89,6 +88,22 @@ fun viewOtherProfileScreen(
 
                             dbCalls.getFollowingStatus(userID) { followStatus ->
                                 followingStatus.value = followStatus
+
+                                userPosts.forEach { post ->
+                                    dbCalls.getPostMedia(post) { uri, postType ->
+                                        mediaMap[post] = uri
+                                        typeMap[post] = postType
+                                        count++
+                                    }
+                                }
+
+                                if (count == userPosts.size - 1) {
+                                    Log.d("POSTING", userPosts.toString())
+
+                                    dataReady.value = true
+                                }
+
+
                                 dataReady.value = true
                             }
                         }
@@ -167,7 +182,7 @@ fun viewOtherProfileScreen(
 
             postDivider()
 
-            GridScreen(userPosts, dbCalls, navBarController)
+            GridScreen(userPosts, navBarController, mediaMap, typeMap)
         }
     }
 }

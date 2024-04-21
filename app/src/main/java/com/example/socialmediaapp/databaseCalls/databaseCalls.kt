@@ -1426,4 +1426,57 @@ class databaseCalls (
             }
     }
 
+    fun getFirstMessages(completion: (List<messagingDataStruc>) -> Unit) {
+
+        val thisUser = auth.currentUser?.uid
+        val db = Firebase.firestore
+
+        val msgRef = db.collection("Messages")
+
+        val firstQueryTask = msgRef
+            .whereEqualTo("senderID", thisUser)
+            .get()
+
+        val secondQueryTask = msgRef
+            .whereEqualTo("receiverID", thisUser)
+            .get()
+
+        val combinedTask = Tasks.whenAllSuccess<QuerySnapshot>(firstQueryTask, secondQueryTask)
+
+        combinedTask
+            .addOnSuccessListener { results ->
+
+                var messages = mutableListOf<messagingDataStruc>()
+
+                var firstMessages = mutableListOf<messagingDataStruc>()
+
+                // Process results from the first query
+                val firstQueryResult = results[0] as QuerySnapshot
+                for (document in firstQueryResult) {
+                    val message = document.toObject<messagingDataStruc>()
+                    messages.add(message)
+                }
+
+                // Process results from the second query
+                val secondQueryResult = results[1] as QuerySnapshot
+                for (document in secondQueryResult) {
+                    val message = document.toObject<messagingDataStruc>()
+                    messages.add(message)
+                }
+
+                messages = messages.sortedBy { it.timestamp }.toList().toMutableList()
+
+                val groupedMessages = messages.groupBy { if (it.senderID == thisUser) it.receiverID else it.senderID }
+
+                val latestMessages: List<messagingDataStruc> = groupedMessages
+                    .mapValues { (_, messages) ->
+                        messages.maxByOrNull { it.timestamp }
+                    }
+                    .values
+                    .filterNotNull()
+
+                completion(latestMessages)
+
+            }
+    }
 }

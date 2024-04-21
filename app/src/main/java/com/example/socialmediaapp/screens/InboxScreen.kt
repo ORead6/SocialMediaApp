@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -31,8 +32,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.components.offWhiteBack
 import com.example.socialmediaapp.databaseCalls.databaseCalls
+import com.example.socialmediaapp.messaging.messagingDataStruc
 import com.example.socialmediaapp.signIn.UserData
 import com.example.socialmediaapp.viewModels.inboxViewModel
+import messageGrid
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -49,6 +52,8 @@ fun InboxScreen(
     var dataReady = mutableStateOf(false)
     var userMap = mutableMapOf<String, String>()
 
+    val messageList = remember { mutableStateOf<List<messagingDataStruc>>(emptyList()) }
+
     LaunchedEffect(dataReady) {
         // Get Users Following
 
@@ -64,7 +69,14 @@ fun InboxScreen(
 
             viewModel.setUserList(listOfUsers)
 
-            dataReady.value = true
+            dbCalls.getFirstMessages {
+
+                messageList.value = it
+
+                dataReady.value = true
+            }
+
+
 
         }
     }
@@ -90,8 +102,6 @@ fun InboxScreen(
                 val usersList by viewModel.userList.collectAsState()
 
                 val theContext = LocalContext.current
-
-                Text(text = "TEST", color = Color.White)
 
                 SearchBar(
                     query = searchText,
@@ -129,6 +139,21 @@ fun InboxScreen(
                         }
                     }
                 }
+
+                messageGrid(messageList, thisOnClick = { receiver, sender ->
+                    dbCalls.getCurrUser {
+                        val userID = it?.uid ?: ""
+
+                        if (receiver != userID) {
+                            navBarController.navigate("DirectMessaging/$receiver")
+                        }
+
+                        if (sender != userID) {
+                            navBarController.navigate("DirectMessaging/$sender")
+                        }
+                    }
+
+                })
 
             } else {
                 CircularProgressIndicator(color = offWhiteBack)
