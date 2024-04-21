@@ -20,7 +20,11 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Send
@@ -33,6 +37,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,21 +70,30 @@ fun messageCardGrid(messageList: MutableState<List<messagingDataStruc>>, userMes
 
     Log.d("MESSAGES", messageList.toString())
 
+    val lazyGridState = rememberLazyGridState()
+
+    LaunchedEffect(messageList.value.size) {
+        lazyGridState.scrollToItem(messageList.value.size - 1)
+    }
+
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth(),
         columns = GridCells.Fixed(1),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        state = lazyGridState
     ) {
         items(messageList.value) { post ->
-                val received = (post.senderID == userMessageID)
-                val message = post.msg
-                val timestamp = post.timestamp
+            val received = (post.senderID == userMessageID)
+            val message = post.msg
+            val timestamp = post.timestamp
 
-                messageItem(message = message, received = received, timestamp = timestamp)
+            messageItem(message = message, received = received, timestamp = timestamp)
 
-            }
         }
     }
+
+
+}
 
 @SuppressLint("SimpleDateFormat")
 @Composable
@@ -89,7 +103,7 @@ fun messageItem(message: String, received: Boolean, timestamp: Timestamp) {
     val sdf = SimpleDateFormat("HH:mm dd-MM")
     val theTime = sdf.format(date)
 
-    val bgColor = if (received.not()) {
+    val bgColor = if (received) {
         offWhiteBack
     } else {
         messageBlue
@@ -97,7 +111,7 @@ fun messageItem(message: String, received: Boolean, timestamp: Timestamp) {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (received.not()) Alignment.Start else Alignment.End
+        horizontalAlignment = if (received) Alignment.Start else Alignment.End
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(0.6f)
@@ -108,7 +122,8 @@ fun messageItem(message: String, received: Boolean, timestamp: Timestamp) {
                     .background(bgColor, shape = RoundedCornerShape(5.dp))
             ) {
                 Column(
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
                         .fillMaxWidth()
                 ) {
                     Text(
@@ -143,10 +158,7 @@ fun messageItem(message: String, received: Boolean, timestamp: Timestamp) {
 
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun messageField(myViewModel: directMessageViewModel) {
-    val textvalue = remember {
-        mutableStateOf("")
-    }
+fun messageField(textvalue: MutableState<String>, myViewModel: directMessageViewModel) {
 
     OutlinedTextField(
         value = textvalue.value,

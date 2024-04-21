@@ -1412,4 +1412,18 @@ class databaseCalls (
             }
     }
 
+    fun sendMessage(newMsg: messagingDataStruc) {
+        val thisUser = auth.currentUser?.uid
+        val db = Firebase.firestore
+
+        newMsg.senderID = thisUser.toString()
+
+        val msgRef = db.collection("Messages")
+
+        msgRef.add(newMsg)
+            .addOnSuccessListener {
+                Log.d("MESSAGEDM", newMsg.toString())
+            }
+    }
+
 }

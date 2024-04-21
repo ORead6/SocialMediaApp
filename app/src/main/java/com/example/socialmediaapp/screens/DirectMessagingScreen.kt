@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.example.socialmediaapp.components.myGradientGrey
@@ -27,6 +31,7 @@ import com.example.socialmediaapp.components.offWhiteBack
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.messaging.messagingDataStruc
 import com.example.socialmediaapp.viewModels.directMessageViewModel
+import com.google.firebase.Timestamp
 import messageCardGrid
 import messageField
 import sendMsgButton
@@ -44,11 +49,17 @@ fun DirectMessagingScreen(
 
     var myViewModel = directMessageViewModel()
 
+    val context = LocalContext.current
+    var keyboardController = LocalSoftwareKeyboardController.current
+
+    var text = remember { mutableStateOf("") }
 
 
     LaunchedEffect(dataReady) {
-        dbCalls.getMessages(userMessageID) {
-            messageList.value = it.toList()
+        dbCalls.getMessages(userMessageID) {returnedList ->
+            messageList.value = returnedList.toList()
+
+            messageList.value = messageList.value.sortedBy { it.timestamp }.toList()
 
             dataReady = true
         }
@@ -68,18 +79,43 @@ fun DirectMessagingScreen(
             if (dataReady) {
                 Spacer(Modifier.weight(1f))
 
-                messageCardGrid(messageList, userMessageID)
+                Box (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.8f)
+                ) {
+                    messageCardGrid(messageList, userMessageID)
+                }
 
                 Spacer(Modifier.padding(2.dp))
 
                 Row (
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    messageField(myViewModel = myViewModel)
+                    messageField(textvalue = text, myViewModel = myViewModel)
 
                     Spacer(Modifier.padding(2.dp))
 
                     sendMsgButton {
+                        val msgToSend = myViewModel.msg
+                        keyboardController?.hide()
+
+                        text.value = ""
+
+                        val newMsg  = messagingDataStruc(
+                            senderID = "",
+                            receiverID = userMessageID,
+                            msg = msgToSend.value,
+                            timestamp = Timestamp.now()
+                        )
+
+                        dbCalls.sendMessage(newMsg)
+
+                        messageList.value = messageList.value.toMutableList().apply {
+                            add(newMsg)
+                        }
+
+                        messageList.value = messageList.value.sortedBy { it.timestamp }.toList()
 
                     }
 
