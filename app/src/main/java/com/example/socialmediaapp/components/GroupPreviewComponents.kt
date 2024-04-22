@@ -233,8 +233,34 @@ fun groupGridScreen(
 
     Log.d("GROUP MEDIA", groupPosts.toString())
 
+    var isLoading by remember { mutableStateOf(loading) }
+
     if (loading) {
-        CircularProgressIndicator(color = myGradientGrey)
+
+        Box (
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.8f),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(color = myGradientGrey)
+                LaunchedEffect(Unit) {
+                    delay(2000) // Display for 2 seconds (adjust the time as needed)
+                    // Set loading to false after the delay
+                    isLoading = false
+                }
+            } else {
+                Text(text = "No Media on the Group...",
+                    style = TextStyle(
+                        fontFamily = myCustomFont,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
+        }
 
     } else {
 
@@ -599,6 +625,17 @@ fun userGridItem(
     id: String,
     groupID: String
 ){
+
+    var thisUser by remember { mutableStateOf("") }
+
+    LaunchedEffect(thisUser) {
+        databaseCalls("").getCurrUser {
+            if (it != null) {
+                thisUser = it.uid
+            }
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -621,7 +658,9 @@ fun userGridItem(
             .fillMaxWidth()
             .height(75.dp)
             .clickable {
-                navController.navigate("viewOtherProfile/${id}/${groupID}")
+                if (id != thisUser) {
+                    navController.navigate("viewOtherProfile/${id}/${groupID}")
+                }
             }
             .border(width = 1.dp, color = myGradientGrey, shape = RoundedCornerShape(20.dp)),
             shape = RoundedCornerShape(20.dp),

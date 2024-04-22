@@ -58,6 +58,9 @@ fun viewOtherProfileScreen(
     val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
     val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
 
+    var followerCount = remember { mutableIntStateOf(0) }
+    var followingCount = remember { mutableIntStateOf(0) }
+
     var pfp = remember {
         mutableStateOf<Uri?>(null)
     }
@@ -97,14 +100,19 @@ fun viewOtherProfileScreen(
                                     }
                                 }
 
-                                if (count == userPosts.size - 1) {
+                                if (count == userPosts.size - 1 || userPosts.size == 0 && count == 0) {
                                     Log.d("POSTING", userPosts.toString())
 
-                                    dataReady.value = true
+                                    dbCalls.getFollowers(userID) { followers ->
+                                        followerCount.value = followers
+
+                                        dbCalls.getFollowingSize(userID) { followingSize ->
+                                            followingCount.value = followingSize
+
+                                            dataReady.value = true
+                                        }
+                                    }
                                 }
-
-
-                                dataReady.value = true
                             }
                         }
                     }
@@ -150,8 +158,8 @@ fun viewOtherProfileScreen(
                 ) {
                     pfpCircle(pfp)
                     GroupsCounter(number = groupCount, modifier = Modifier.weight(1f))
-                    FollowerCounter(modifier = Modifier.weight(1f))
-                    FollowingCounter(modifier = Modifier.weight(1f))
+                    FollowerCounter(number = followerCount.value, modifier = Modifier.weight(1f))
+                    FollowingCounter(number = followingCount.value, modifier = Modifier.weight(1f))
                 }
 
                 Column(

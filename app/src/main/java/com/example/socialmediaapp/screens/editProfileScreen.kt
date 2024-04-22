@@ -23,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,6 +63,8 @@ fun EditProfileScreen(
     var userBio by remember {
         mutableStateOf("")
     }
+
+    var count by remember { mutableIntStateOf(0) }
 
     var username by remember {
         mutableStateOf("")
@@ -124,8 +127,9 @@ fun EditProfileScreen(
                 editViewModel.setUsername(username)
                 editViewModel.setBio(userBio)
 
-                if (editViewModel.oldpfp.value == null) {
+                if (editViewModel.oldpfp.value == null && count == 0) {
                     editViewModel.setOldPfp(profilePicUri.value)
+                    count++
                 }
 
                 editViewModel.setPfp(profilePicUri.value)

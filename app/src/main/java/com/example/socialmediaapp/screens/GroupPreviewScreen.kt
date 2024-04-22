@@ -280,6 +280,10 @@ fun GroupPreviewScreen (
                             }
                         }
 
+                        if (it == "GroupOptions") {
+                            navController.navigate("GroupEdit/$groupID")
+                        }
+
                     })
                 }
 

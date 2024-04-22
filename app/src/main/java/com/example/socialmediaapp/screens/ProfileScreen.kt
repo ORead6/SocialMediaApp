@@ -52,6 +52,9 @@ fun ProfileScreen(
 
     val thisUsername = remember { mutableStateOf("") }
 
+    var followerCount = remember { mutableIntStateOf(0) }
+    var followingCount = remember { mutableIntStateOf(0) }
+
     var userPosts by remember {
         mutableStateOf(mutableListOf<String>())
     }
@@ -98,7 +101,19 @@ fun ProfileScreen(
                             if (count == userPosts.size - 1) {
                                 Log.d("POSTING", userPosts.toString())
 
-                                dataReady.value = true
+
+                                dbCalls.getFollowing {following ->
+                                    followingCount.value = following.size
+
+                                    dbCalls.getFollowers {followers ->
+                                        followerCount.value = followers
+
+                                        dataReady.value = true
+                                    }
+
+                                }
+
+
                             }
                         }
                     }
@@ -134,8 +149,8 @@ fun ProfileScreen(
                 ) {
                     pfpCircle(profilePicUri)
                     GroupsCounter(number = groupCount, modifier = Modifier.weight(1f))
-                    FollowerCounter(modifier = Modifier.weight(1f))
-                    FollowingCounter(modifier = Modifier.weight(1f))
+                    FollowerCounter(number = followerCount.value, modifier = Modifier.weight(1f))
+                    FollowingCounter(number = followingCount.value, modifier = Modifier.weight(1f))
                 }
 
                 Column(

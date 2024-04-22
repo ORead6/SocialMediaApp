@@ -52,6 +52,7 @@ import com.example.socialmediaapp.screens.GroupPreviewScreen
 import com.example.socialmediaapp.screens.GroupScreen
 import com.example.socialmediaapp.screens.InboxScreen
 import com.example.socialmediaapp.screens.ProfileScreen
+import com.example.socialmediaapp.screens.groupOptionsScreen
 import com.example.socialmediaapp.screens.homeScreen
 import com.example.socialmediaapp.screens.postViewerScreen
 import com.example.socialmediaapp.screens.uploadMediaScreen
@@ -86,7 +87,7 @@ fun myNavBar(
             title = "Groups",
             selectedIcon = Icons.Filled.Groups,
             unselectedItem = Icons.Outlined.Groups,
-            hasNews = true
+            hasNews = false
         ),
 
         BottomNavigationItem(
@@ -208,6 +209,17 @@ fun myNavBar(
                 val parameter2 = arguments?.getString("page")
                 if (parameter != null) {
                     GroupPreviewScreen(parameter, navController =  navController, page = parameter2)
+                }
+            }
+        )
+
+        composable(
+            route = "GroupEdit/{groupID}",
+            content = {
+                val arguments = navBackStackEntry?.arguments
+                val parameter = arguments?.getString("groupID")
+                if (parameter != null) {
+                    groupOptionsScreen(groupID = parameter, navController = navController)
                 }
             }
         )

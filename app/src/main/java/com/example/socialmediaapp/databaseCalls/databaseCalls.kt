@@ -1479,4 +1479,115 @@ class databaseCalls (
 
             }
     }
+
+    fun getFollowers(userID: String = "", completion: (Int) -> Unit) {
+        var thisUser = ""
+        val db = Firebase.firestore
+
+        if (userID == "") {
+            thisUser = auth.currentUser?.uid.toString()
+        } else {
+            thisUser = userID
+        }
+
+        var followersRef = db.collection("Users").document(thisUser).collection("Followers")
+
+        followersRef.get()
+            .addOnSuccessListener {
+                completion(it.size())
+            }
+    }
+
+    fun getFollowingSize(userID: String = "", completion: (Int) -> Unit) {
+        var thisUser = ""
+        val db = Firebase.firestore
+
+        if (userID == "") {
+            thisUser = auth.currentUser?.uid.toString()
+        } else {
+            thisUser = userID
+        }
+
+        var followersRef = db.collection("Users").document(thisUser).collection("Following")
+
+        followersRef.get()
+            .addOnSuccessListener {
+                completion(it.size())
+            }
+    }
+
+    fun getGroupDesc(groupID: String, completion: (String) -> Unit) {
+        val db = Firebase.firestore
+
+        val groupRef = db.collection("Groups").document(groupID)
+
+        groupRef.get()
+            .addOnSuccessListener {
+                val theDesc = it.get("groupBio")
+
+                completion(theDesc.toString())
+            }
+
+            .addOnFailureListener {
+                completion("")
+            }
+
+    }
+
+    fun getGroupPrivacy(groupID: String, completion: (String) -> Unit) {
+        val db = Firebase.firestore
+
+        val groupRef = db.collection("Groups").document(groupID)
+
+        groupRef.get()
+            .addOnSuccessListener {
+                val status = it.get("privacyStatus")
+
+                completion(status.toString())
+            }
+
+            .addOnFailureListener {
+                completion("false")
+            }
+    }
+
+    fun applyGroupChanges(groupID: String, name: String, desc: String, priv: Boolean, oldPhoto: Uri?, newPhoto: Uri?, completion: (Boolean) -> Unit) {
+        val db = Firebase.firestore
+        val groupRef = db.collection("Groups").document(groupID)
+
+        val storageRef = FirebaseStorage.getInstance().reference
+
+        val updates = hashMapOf<String, Any>(
+            "groupName" to name,
+            "groupBio" to desc,
+            "privacyStatus" to priv.toString()
+        )
+
+        groupRef.update(updates)
+            .addOnSuccessListener {
+
+                Log.d("PHOTOSGroup", newPhoto.toString())
+                Log.d("PHOTOSGroup", oldPhoto.toString())
+                if (newPhoto != null && newPhoto != oldPhoto) {
+
+                    val photoRef = storageRef.child("Groups/$groupID/groupPhoto.jpg")
+                    photoRef.putFile(newPhoto)
+                        .addOnSuccessListener { taskSnapshot ->
+                            completion(true)
+                        }
+                        .addOnFailureListener { exception ->
+                            completion(true)
+                        }
+
+                } else {
+                    completion(true)
+                }
+
+            }
+
+            .addOnFailureListener {
+                completion(false)
+            }
+    }
 }
+
