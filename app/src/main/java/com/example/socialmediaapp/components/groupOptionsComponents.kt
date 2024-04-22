@@ -222,7 +222,7 @@ fun groupOptionsPhoto(
             Image(
                 // Change from email to new pencil
                 // old one corrupted and broke the whole app
-                painter = painterResource(id = R.drawable.email),
+                painter = painterResource(id = R.drawable.edit),
                 contentDescription = "Pencil",
             )
 

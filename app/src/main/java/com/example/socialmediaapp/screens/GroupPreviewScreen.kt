@@ -10,6 +10,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -101,6 +103,10 @@ fun GroupPreviewScreen (
             val dbCalls = databaseCalls("")
 
             var groupName by remember {
+                mutableStateOf("")
+            }
+
+            var groupDesc by remember {
                 mutableStateOf("")
             }
 
@@ -193,6 +199,12 @@ fun GroupPreviewScreen (
             LaunchedEffect(groupName) {
                 dbCalls.getGroupName(groupID) {theGroupName ->
                     groupName = theGroupName
+                }
+            }
+
+            LaunchedEffect(groupDesc) {
+                dbCalls.getGroupDesc(groupID) {theGroupDesc ->
+                    groupDesc = theGroupDesc
                 }
             }
 
@@ -333,9 +345,43 @@ fun GroupPreviewScreen (
                                 .padding(start = 10.dp, top = 10.dp, end = 10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-
                             groupPhoto(groupPhoto)
 
+                            Spacer(Modifier.padding(4.dp))
+
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                Text(text = "Group Description",
+                                    style = TextStyle(
+                                        fontFamily = myCustomFont,
+                                        color = myGradientGrey,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp
+                                    )
+                                )
+
+                                Spacer(Modifier.padding(4.dp))
+
+                                Column (modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(
+                                        width = 2.dp,
+                                        color = myGradientGrey,
+                                        shape = RoundedCornerShape(5.dp)
+                                    )
+                                    .padding(8.dp))
+                                {
+                                    Row(modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center) {
+                                        Text(text = groupDesc, style = TextStyle(
+                                            fontFamily = myCustomFont,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = myGradientGrey,
+                                            textAlign = TextAlign.Center
+                                        ))
+                                    }
+                                }
+                            }
                         }
                     }
                 }
