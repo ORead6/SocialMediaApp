@@ -21,10 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.components.ClickableTextElement
+import com.example.socialmediaapp.components.DarkerPrimary
 import com.example.socialmediaapp.components.GoogleLoginButtonComponent
 import com.example.socialmediaapp.components.HeadingTextComponent
-import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.NormalTextComponent
+import com.example.socialmediaapp.components.Primary
 import com.example.socialmediaapp.components.RegisterButtonComponent
 import com.example.socialmediaapp.components.myDarkGrey
 import com.example.socialmediaapp.components.myGradientGrey
@@ -58,8 +59,8 @@ fun LoginSelectionScreen(
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            myDarkGrey,
-                            myGradientGrey
+                            Primary,
+                            DarkerPrimary
                         )
                     )
                 )

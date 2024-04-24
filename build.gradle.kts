@@ -1,7 +1,10 @@
 buildscript {
     dependencies {
         classpath("com.google.gms:google-services:4.4.0")
+
+        classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.9.20")
     }
+
 }
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

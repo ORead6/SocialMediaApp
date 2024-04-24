@@ -26,8 +26,8 @@ import com.example.socialmediaapp.components.ClickableTextElement
 import com.example.socialmediaapp.components.HeadingTextComponent
 import com.example.socialmediaapp.components.LoginEmailTextField
 import com.example.socialmediaapp.components.LoginPasswordTextField
-import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.NormalTextComponent
+import com.example.socialmediaapp.components.Primary
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.darkBG
 import com.example.socialmediaapp.components.loginButtonComponent
@@ -45,7 +45,7 @@ fun LoginScreen(navController: NavController){
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(myGradientGrey)
+                .background(Primary)
         ) {
 
             val myLoginViewModel = LoginViewModel()
@@ -114,7 +114,7 @@ fun LoginScreen(navController: NavController){
                     Spacer(modifier = Modifier.padding(8.dp))
                     ClickableTextElement(
                         nonClickColor = Color.White,
-                        clickColor = LoginScreensColor,
+                        clickColor = Primary,
                         fullText = "Forgot Password?",
                         clickableText = "Forgot Password?",
                         alignment = Alignment.Start,
@@ -135,7 +135,7 @@ fun LoginScreen(navController: NavController){
                     Spacer(modifier = Modifier.weight(1f))
                     ClickableTextElement(
                         nonClickColor = Color.Gray,
-                        clickColor = LoginScreensColor,
+                        clickColor = Primary,
                         fullText = "Don't have an account? Sign up",
                         clickableText = "Sign up",
                         onClick = {

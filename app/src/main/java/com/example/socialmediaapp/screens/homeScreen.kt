@@ -7,7 +7,6 @@ import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,7 +27,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -38,15 +36,14 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
-import com.example.socialmediaapp.components.likeButton
 import com.example.socialmediaapp.components.myCustomFont
 import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.databaseCalls.databaseCalls
+import com.example.socialmediaapp.languageTranslation.getTranslatedString
 import com.example.socialmediaapp.signIn.UserData
 import com.example.socialmediaapp.viewModels.homeViewModel
 import fypLikeButton
 import kotlin.math.ceil
-import kotlin.math.floor
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -163,7 +160,7 @@ fun homeScreen(
 
     Surface(modifier = Modifier
         .fillMaxSize()
-        .background(Color.Black) // Set the background color of the entire surface to black
+        .background(myGradientGrey) // Set the background color of the entire surface to black
         .pointerInput(Unit) {
             detectVerticalDragGestures(onDragStart = {}, onDragEnd = {
                 isGestureInProgress = false
@@ -232,7 +229,8 @@ fun homeScreen(
             })
         }) {
         Box(
-            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            modifier = Modifier.fillMaxSize()
+                .background(color = myGradientGrey), contentAlignment = Alignment.Center
         ) {
 
             if (!dataReady) {

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SocialMediaApp</string>
-    <string name="web_client_id">781631215272-jod445l8co386ejn4i4tdkkgu5d3ru49.apps.googleusercontent.com</string>
+    <string name="dog">Dog</string>
+    <string name="web_client_id" translatable="false">781631215272-jod445l8co386ejn4i4tdkkgu5d3ru49.apps.googleusercontent.com</string>
 </resources>

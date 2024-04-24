@@ -78,8 +78,6 @@ class registerViewModel(theContext: Context) : ViewModel(){
 
                         auth.currentUser?.updateProfile(userProfileChangeRequest)
 
-                        // WRITES NEW EMAIL PASS USER TO DB
-
                         val dbReference = Firebase.firestore
 
                         val thisUser = mapOf<String, String?>(

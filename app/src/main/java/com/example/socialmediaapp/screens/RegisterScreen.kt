@@ -22,9 +22,9 @@ import com.example.socialmediaapp.R
 import com.example.socialmediaapp.components.ClickableTextElement
 import com.example.socialmediaapp.components.EmailTextField
 import com.example.socialmediaapp.components.HeadingTextComponent
-import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.NormalTextComponent
 import com.example.socialmediaapp.components.PasswordTextField
+import com.example.socialmediaapp.components.Primary
 import com.example.socialmediaapp.components.UsernameTextField
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.darkBG
@@ -41,7 +41,7 @@ fun RegisterScreen(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(myGradientGrey)
+                .background(Primary)
         ){
             Column( modifier = Modifier
                 .fillMaxWidth()
@@ -126,7 +126,7 @@ fun RegisterScreen(navController: NavHostController) {
                     Spacer(modifier = Modifier.weight(1f))
                     ClickableTextElement(
                         nonClickColor = Color.Gray,
-                        clickColor = LoginScreensColor,
+                        clickColor = Primary,
                         fullText = "Already have an account? Sign in",
                         clickableText = "Sign in",
                         onClick = {

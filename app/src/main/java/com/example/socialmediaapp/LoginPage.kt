@@ -43,6 +43,9 @@ import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * Main Activity that is the application
+ */
 class MainActivity : ComponentActivity() {
 
     private val googleAuthUiClient by lazy {
@@ -52,6 +55,9 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Creates Application
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -59,7 +65,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             val myNavGraph = navController.createGraph(startDestination = "loginSelection") {
-                
+
                 composable(
                     route = "loginSelection",
                     content = {

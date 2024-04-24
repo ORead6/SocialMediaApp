@@ -76,6 +76,7 @@ fun myNavBar(
 ) {
 
     val items = listOf(
+        // Home Icon
         BottomNavigationItem(
             title = "Home",
             selectedIcon = Icons.Filled.Home,
@@ -83,6 +84,7 @@ fun myNavBar(
             hasNews = false
         ),
 
+        // Groups Icon
         BottomNavigationItem(
             title = "Groups",
             selectedIcon = Icons.Filled.Groups,
@@ -90,6 +92,7 @@ fun myNavBar(
             hasNews = false
         ),
 
+        // Upload Icon
         BottomNavigationItem(
             title = "Upload",
             selectedIcon = Icons.Filled.AddCircleOutline,
@@ -97,6 +100,7 @@ fun myNavBar(
             hasNews = false
         ),
 
+        // Inbox Icon
         BottomNavigationItem(
             title = "Inbox",
             selectedIcon = Icons.Filled.Message,
@@ -105,6 +109,7 @@ fun myNavBar(
             badgeCount = 10
         ),
 
+        // Profile Icon
         BottomNavigationItem(
             title = "Profile",
             selectedIcon = Icons.Filled.Person,

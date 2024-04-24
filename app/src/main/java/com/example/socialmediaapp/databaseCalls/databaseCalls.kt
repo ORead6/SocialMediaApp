@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.media3.common.util.Util.split
 import androidx.navigation.NavController
 import com.example.socialmediaapp.messaging.messagingDataStruc
 import com.example.socialmediaapp.viewModels.editprofileViewModel
@@ -1105,10 +1104,16 @@ class databaseCalls (
         return words
     }
 
+    /**
+     * Take User ID, if null use logged in user
+     * if not null use that user ID
+     * Find User document in database and collect the field 'bio'
+     */
     fun getUserBio(userID: String = "", completion: (String) -> Unit) {
         val db = Firebase.firestore
         var currUser = ""
 
+        // get UserID
         if (userID == "") {
             currUser = auth.currentUser?.uid.toString()
         } else {
@@ -1117,6 +1122,7 @@ class databaseCalls (
 
 
         if (currUser != null) {
+            // Get Referenced Doc
             val userRef = db.collection("Users").document(currUser)
             userRef.get()
                 .addOnSuccessListener {
@@ -1136,44 +1142,47 @@ class databaseCalls (
     }
 
     fun applyProfileChanges(
-        editViewModel: editprofileViewModel,
         context: Context,
+        username: String,
+        bio: String,
+        newPfp: Uri?,
+        oldPfp: Uri?,
         completion: () -> Unit
     ) {
         val storageRef = FirebaseStorage.getInstance().reference
+        val db = Firebase.firestore
 
         val auth = Firebase.auth
         val currUser = auth.currentUser?.uid
 
-        val pfpUri = editViewModel.pfp.value
-        val oldPfp = editViewModel.oldpfp.value
-
-        if (editViewModel.username.value == "") {
+        if (username == "") {
             Toast.makeText(context, "Username Can not be Blank", Toast.LENGTH_SHORT).show()
         } else {
             if (currUser != null) {
-
                 val updates = hashMapOf<String, Any>(
-                    "username" to editViewModel.username.value,
-                    "bio" to editViewModel.bio.value
+                    "username" to username,
+                    "bio" to bio
                 )
 
-                // Upload pfp if it's not null
-                if (pfpUri != null && pfpUri != oldPfp) {
-                    val pfpRef = storageRef.child("Users/$currUser/pfpPic")
-                    pfpRef.putFile(pfpUri)
-                        .addOnSuccessListener { taskSnapshot ->
-                            // Get the download URL for the uploaded pfp
-                            pfpRef.downloadUrl.addOnSuccessListener { uri ->
-                                updateUserDocument(currUser, updates, completion)
-                            }
+                val userRef = db.collection("Users").document(currUser)
+                userRef.update(updates)
+                    .addOnSuccessListener{
+                        if (newPfp != null && newPfp != oldPfp) {
+                            val photoRef = storageRef.child("Users/$currUser/pfpPic")
+                            photoRef.putFile(newPfp)
+                                .addOnSuccessListener {
+                                    completion()
+                                }
+                                .addOnFailureListener{
+                                    Log.d("PHOTO_ERROR", it.printStackTrace().toString())
+                                    completion()
+                                }
                         }
-                        .addOnFailureListener { exception ->
-                            Log.e("UPLOAD_PFP", "Failed to upload pfp: $exception")
-                        }
-                } else {
-                    updateUserDocument(currUser, updates, completion)
-                }
+                    }
+
+                    .addOnFailureListener{
+                        completion()
+                    }
             }
         }
     }
@@ -1218,8 +1227,15 @@ class databaseCalls (
         }
     }
 
+    /**
+     * Take User ID, if null use logged in user
+     * if not null use that user ID
+     * Find User Profile picture, download and return
+     * If no picture exists at reference return an empty URI
+     */
     fun getPfp(userID: String = "", completion: (Uri?) -> Unit) {
 
+        // get User ID
         var currUser = ""
         if (userID == "") {
             currUser = auth.currentUser?.uid.toString()
@@ -1229,8 +1245,10 @@ class databaseCalls (
 
         val storage = FirebaseStorage.getInstance()
 
+        // Get Storage Ref
         val fileRef = storage.reference.child("Users/${currUser}/pfpPic")
 
+        // Download URL and do appropriate return
         fileRef.downloadUrl
             .addOnSuccessListener { uri ->
                 completion(uri)

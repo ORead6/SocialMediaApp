@@ -72,6 +72,9 @@ val myCustomFont = FontFamily(
     Font(R.font.montserratreg, weight = FontWeight.Normal)
 )
 
+/**
+ * Text component
+ */
 @Composable
 fun NormalTextComponent(
     value: String,
@@ -95,6 +98,9 @@ fun NormalTextComponent(
     )
 }
 
+/**
+ * Text component
+ */
 @Composable
 fun HeadingTextComponent(value: String, thisColor: Color, alignment: TextAlign) {
 
@@ -114,6 +120,9 @@ fun HeadingTextComponent(value: String, thisColor: Color, alignment: TextAlign) 
     )
 }
 
+/**
+ * Email Text Field
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmailTextField(labelValue: String, painterResource: Painter, viewModel: registerViewModel) {
@@ -156,6 +165,9 @@ fun EmailTextField(labelValue: String, painterResource: Painter, viewModel: regi
     )
 }
 
+/**
+ * Username Text component
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsernameTextField(labelValue: String, painterResource: Painter, viewModel: registerViewModel) {
@@ -198,6 +210,9 @@ fun UsernameTextField(labelValue: String, painterResource: Painter, viewModel: r
     )
 }
 
+/**
+ * Password Text component
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordTextField(
@@ -274,6 +289,9 @@ fun PasswordTextField(
     )
 }
 
+/**
+ * Login Button
+ */
 @Composable
 fun loginButtonComponent(value: String, thisOnClick: () -> Unit) {
     Button(
@@ -282,7 +300,7 @@ fun loginButtonComponent(value: String, thisOnClick: () -> Unit) {
             .fillMaxWidth()
             .heightIn(48.dp),
         contentPadding = PaddingValues(),
-        colors = ButtonDefaults.buttonColors(LoginScreensColor),
+        colors = ButtonDefaults.buttonColors(Primary),
         shape = RoundedCornerShape(10.dp)
     ) {
         Box(modifier = Modifier
@@ -298,39 +316,9 @@ fun loginButtonComponent(value: String, thisOnClick: () -> Unit) {
     }
 }
 
-@Composable
-fun dividerTextComponent(value: String) {
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            color = GrayColor,
-            thickness = 1.dp
-        )
-
-        Text(modifier = Modifier.padding(8.dp),
-            text = value,
-            fontSize = 18.sp,
-            color = TextColor,
-            fontFamily = myCustomFont)
-
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            color = GrayColor,
-            thickness = 1.dp
-        )
-    }
-
-}
-
+/**
+ * Text that has a portion of it that is clickable
+ */
 @Composable
 fun ClickableTextElement(
     nonClickColor: Color,
@@ -340,19 +328,19 @@ fun ClickableTextElement(
     onClick: () -> Unit,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
-    val gradBrush = Brush.horizontalGradient(
-        colors = listOf(
-            Color(0xff613bf7),
-            Color(0xff9178f5)
-        )
-    )
+//    val gradBrush = Brush.horizontalGradient(
+//        colors = listOf(
+//            Color(0xff613bf7),
+//            Color(0xff9178f5)
+//        )
+//    )
 
     val clickText = remember(fullText, clickableText) {
         buildAnnotatedString {
             withStyle(style = SpanStyle(fontSize = 14.sp, color = nonClickColor, fontFamily = myCustomFont)) {
                 append(fullText.substring(0, fullText.indexOf(clickableText)))
             }
-            withStyle(style = SpanStyle(fontSize = 14.sp, brush = gradBrush, fontWeight = FontWeight.Bold, fontFamily = myCustomFont)) {
+            withStyle(style = SpanStyle(fontSize = 14.sp, color = clickColor, fontWeight = FontWeight.Bold, fontFamily = myCustomFont)) {
                 append(clickableText)
                 addStringAnnotation(
                     tag = "Clickable",
@@ -382,6 +370,9 @@ fun ClickableTextElement(
     }
 }
 
+/**
+ * Button to start google login process
+ */
 @Composable
 fun GoogleLoginButtonComponent(label: String, onSignInClick: () -> Unit) {
     Button(
@@ -412,7 +403,7 @@ fun GoogleLoginButtonComponent(label: String, onSignInClick: () -> Unit) {
                 text = label,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = LoginScreensColor,
+                color = Primary,
                 textAlign = TextAlign.Center,
                 fontFamily = myCustomFont
             )
@@ -420,6 +411,9 @@ fun GoogleLoginButtonComponent(label: String, onSignInClick: () -> Unit) {
     }
 }
 
+/**
+ * Button to begin registration process
+ */
 @Composable
 fun RegisterButtonComponent(label: String, registerOnClick: () -> Unit){
     Button(
@@ -428,7 +422,7 @@ fun RegisterButtonComponent(label: String, registerOnClick: () -> Unit){
             .fillMaxWidth()
             .height(40.dp),
         contentPadding = PaddingValues(),
-        colors = ButtonDefaults.buttonColors(LoginScreensColor),
+        colors = ButtonDefaults.buttonColors(Primary),
         shape = RoundedCornerShape(15.dp),
         border = BorderStroke(1.dp, Color.White)
     ) {
@@ -446,18 +440,10 @@ fun RegisterButtonComponent(label: String, registerOnClick: () -> Unit){
     }
 }
 
-@Composable
-fun boxBackground(colorOfBox: Color, heightOfBox: Dp) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .heightIn(heightOfBox)
-        .background(color = colorOfBox)
-    ) {
 
-    }
-
-}
-
+/**
+ * Button to handle back actions
+ */
 @Composable
 fun backButton(thisOnClick: () -> Unit) {
     Button(
@@ -485,135 +471,10 @@ fun backButton(thisOnClick: () -> Unit) {
     }
 }
 
-@Composable
-fun uploadPfpButton(label: String) {
-    Box(modifier = Modifier
-        .fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Button(
-            onClick = { /* TODO: Handle button click */ },
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(40.dp),
-            contentPadding = PaddingValues(),
-            colors = ButtonDefaults.buttonColors(textFieldBG),
-            shape = RoundedCornerShape(15.dp)
-        ) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.upload),
-                    contentDescription = "upload",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .fillMaxHeight()
-                        .align(Alignment.CenterStart)
-                        .padding(start = 8.dp)
-                )
 
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = label,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = darkBG,
-                    textAlign = TextAlign.Center,
-                    fontFamily = myCustomFont
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun pfpIcon() {
-    Box(modifier = Modifier
-        .then(Modifier.sizeIn(maxWidth = 200.dp)),
-        contentAlignment = Alignment.CenterStart) {
-        Image(
-            painter = painterResource(id = R.drawable.userpfp),
-            contentDescription = null,
-            modifier = Modifier
-                .graphicsLayer {
-                    shape = RoundedCornerShape(50.dp)
-                    clip = true
-                    shadowElevation = 12f
-                },
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BioInputWithCharacterLimit(
-    maxCharacterLimit: Int,
-    labelValue: String = "Enter your Bio"
-) {
-    val textValue = remember {
-        mutableStateOf("")
-    }
-
-    Column  {
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(20.dp),
-            value = textValue.value,
-
-            onValueChange = {
-                if (it.length <= maxCharacterLimit)
-                    textValue.value = it
-            },
-
-            label = { Text(labelValue, fontFamily = myCustomFont) },
-
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = textFieldOutline,
-                focusedLabelColor = textFieldOutline,
-                cursorColor = Primary,
-                containerColor = textFieldBG,
-                unfocusedBorderColor = textFieldOutline,
-//                placeholderColor = Color.LightGray,
-//                textColor = darkBG
-            ),
-
-            singleLine = false,
-            keyboardOptions = KeyboardOptions.Default,
-            shape = RoundedCornerShape(10.dp),
-            textStyle = TextStyle(fontSize = 18.sp, lineHeight = 20.sp)
-        )
-
-        Text(
-            text = "Characters used: ${textValue.toString().length  - 30}/$maxCharacterLimit",
-            color = if (textValue.toString().length > maxCharacterLimit) Color.Red else Color.LightGray,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(end = 16.dp, bottom = 8.dp, start = 16.dp)
-        )
-    }
-}
-
-@Composable
-fun smallTextComponent(value: String, thisColor: Color, alignment: TextAlign = TextAlign.Center, bold: Boolean = false) {
-    Text(
-        text = value,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 20.dp),
-        style = TextStyle(
-            fontSize = 12.sp,
-            fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal,
-            fontStyle = FontStyle.Normal,
-            color = thisColor,
-            fontFamily = myCustomFont
-        ),
-        textAlign = alignment,
-
-        )
-}
-
+/**
+ * Password Text component
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginPasswordTextField(
@@ -686,6 +547,9 @@ fun LoginPasswordTextField(
     )
 }
 
+/**
+ * Email Text component
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginEmailTextField(labelValue: String, painterResource: Painter, viewModel: LoginViewModel) {

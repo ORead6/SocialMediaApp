@@ -1,6 +1,7 @@
 package com.example.socialmediaapp.screens
 
 import android.net.Uri
+import android.os.LocaleList
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,8 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.socialmediaapp.R
 import com.example.socialmediaapp.components.EditProfileButton
 import com.example.socialmediaapp.components.FollowerCounter
 import com.example.socialmediaapp.components.FollowingCounter
@@ -38,6 +43,7 @@ import com.example.socialmediaapp.components.postDivider
 import com.example.socialmediaapp.components.userNameDisplay
 import com.example.socialmediaapp.databaseCalls.databaseCalls
 import com.example.socialmediaapp.signIn.UserData
+import java.util.Locale
 
 @Composable
 fun ProfileScreen(
@@ -49,28 +55,18 @@ fun ProfileScreen(
     val dbCalls = databaseCalls(userData?.userId ?: "")
 
     val userBio = remember { mutableStateOf("") }
-
     val thisUsername = remember { mutableStateOf("") }
-
-    var followerCount = remember { mutableIntStateOf(0) }
-    var followingCount = remember { mutableIntStateOf(0) }
-
-    var userPosts by remember {
-        mutableStateOf(mutableListOf<String>())
-    }
-
+    val followerCount = remember { mutableIntStateOf(0) }
+    val followingCount = remember { mutableIntStateOf(0) }
+    var userPosts by remember { mutableStateOf(mutableListOf<String>()) }
     val mediaMap by remember { mutableStateOf(mutableMapOf<String, Uri?>()) }
     val typeMap by remember { mutableStateOf(mutableMapOf<String, String>()) }
+    var groupCount by remember { mutableIntStateOf(0) }
+    val profilePicUri = remember { mutableStateOf<Uri?>(null) }
 
-    var groupCount by remember {
-        mutableIntStateOf(0)
-    }
+    val dataReady = remember { mutableStateOf(false) }
 
-    var dataReady = remember { mutableStateOf(false) }
 
-    var profilePicUri = remember {
-        mutableStateOf<Uri?>(null)
-    }
 
     LaunchedEffect(true) {
         dbCalls.getUserBio {
@@ -138,7 +134,6 @@ fun ProfileScreen(
                     )
                 )
         ) {
-
             if (dataReady.value) {
                 Spacer(modifier = Modifier.padding(5.dp))
                 userNameDisplay(thisUsername.value)
@@ -184,3 +179,7 @@ fun ProfileScreen(
     }
 }
 
+private fun setLocale(localeToSet: String) {
+    val localeListToSet = LocaleList(Locale(localeToSet))
+    LocaleList.setDefault(localeListToSet)
+}

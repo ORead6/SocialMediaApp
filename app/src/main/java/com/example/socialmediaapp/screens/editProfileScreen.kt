@@ -33,20 +33,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.components.Header
-import com.example.socialmediaapp.components.LoginScreensColor
 import com.example.socialmediaapp.components.ThreeDotsMenu
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.bioField
-import com.example.socialmediaapp.components.editGroupPhoto
 import com.example.socialmediaapp.components.editPfp
-import com.example.socialmediaapp.components.editPfpCircle
 import com.example.socialmediaapp.components.myGradientGrey
-import com.example.socialmediaapp.components.myViewModel
 import com.example.socialmediaapp.components.offWhiteBack
 import com.example.socialmediaapp.components.textField
 import com.example.socialmediaapp.databaseCalls.databaseCalls
@@ -60,15 +55,10 @@ fun EditProfileScreen(
     onSignOut: () -> Unit = {},
     navController: NavController
 ) {
-    var userBio by remember {
-        mutableStateOf("")
-    }
+    var userBio by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
 
     var count by remember { mutableIntStateOf(0) }
-
-    var username by remember {
-        mutableStateOf("")
-    }
 
     var dataReady by remember {
         mutableStateOf(false)
@@ -81,6 +71,10 @@ fun EditProfileScreen(
     val editViewModel = editprofileViewModel()
 
     var profilePicUri = remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    var oldProfilePicUri = remember {
         mutableStateOf<Uri?>(null)
     }
 
@@ -121,7 +115,12 @@ fun EditProfileScreen(
         ) {
 
             if (!dataReady) {
-                CircularProgressIndicator(color = offWhiteBack)
+                Box(modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center)
+                {
+                    CircularProgressIndicator(color = offWhiteBack)
+                }
+
             } else {
 
                 editViewModel.setUsername(username)
@@ -145,7 +144,8 @@ fun EditProfileScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         backButton(thisOnClick = {
-                            dbCalls.applyProfileChanges(editViewModel, theContext) {
+                            dbCalls.applyProfileChanges(theContext, editViewModel.username.value,
+                                editViewModel.bio.value, editViewModel.pfp.value, editViewModel.oldpfp.value) {
                                 navController.navigate("Profile")
                             }
                     })
@@ -154,9 +154,7 @@ fun EditProfileScreen(
 
                     ThreeDotsMenu(onMenuItemClick = {
                         if (it == "Logout") {
-                            dbCalls.applyProfileChanges(editViewModel, theContext) {
-                                onSignOut()
-                            }
+                            onSignOut()
                         }
 
                         if (it == "DELETE") {

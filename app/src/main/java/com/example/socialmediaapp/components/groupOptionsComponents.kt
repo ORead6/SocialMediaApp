@@ -213,7 +213,7 @@ fun groupOptionsPhoto(
                 color = Color.White,
                 shape = CircleShape
             )
-            .border(width = 1.dp, color = LoginScreensColor, shape = CircleShape)
+            .border(width = 1.dp, color = Primary, shape = CircleShape)
             .align(Alignment.BottomEnd)
             .padding(4.dp)
             .clickable(onClick = thisOnClick),

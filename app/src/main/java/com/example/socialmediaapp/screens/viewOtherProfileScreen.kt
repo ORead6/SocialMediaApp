@@ -3,12 +3,14 @@ package com.example.socialmediaapp.screens
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +33,7 @@ import com.example.socialmediaapp.components.bioSection
 import com.example.socialmediaapp.components.followUserButton
 import com.example.socialmediaapp.components.myDarkGrey
 import com.example.socialmediaapp.components.myGradientGrey
+import com.example.socialmediaapp.components.offWhiteBack
 import com.example.socialmediaapp.components.pfpCircle
 import com.example.socialmediaapp.components.postDivider
 import com.example.socialmediaapp.components.userNameDisplay
@@ -175,22 +178,30 @@ fun viewOtherProfileScreen(
 
                         if (followingStatus.value) {
                             dbCalls.addFollowing(userThatIsViewed = userID) {
-
+                                followerCount.value++
                             }
                         } else {
                             dbCalls.removeFollowing(userThatIsViewed = userID) {
-
+                                followerCount.value--
                             }
                         }
                     }
                 }
+                Spacer(modifier = Modifier.padding(25.dp))
+
+                postDivider()
+
+                GridScreen(userPosts, navBarController, mediaMap, typeMap)
+            } else{
+                Box(modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center)
+                {
+                    CircularProgressIndicator(color = offWhiteBack)
+                }
             }
 
-            Spacer(modifier = Modifier.padding(25.dp))
 
-            postDivider()
 
-            GridScreen(userPosts, navBarController, mediaMap, typeMap)
         }
     }
 }

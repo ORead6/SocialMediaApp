@@ -276,7 +276,8 @@ fun userNameDisplay(username: String? = "Test") {
                 fontFamily = myCustomFont,
                 style = TextStyle(
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
                 )
             )
         } else {
@@ -286,7 +287,8 @@ fun userNameDisplay(username: String? = "Test") {
                 fontFamily = myCustomFont,
                 style = TextStyle(
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
                 )
             )
         }
