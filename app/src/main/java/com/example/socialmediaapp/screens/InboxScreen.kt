@@ -118,7 +118,10 @@ fun InboxScreen(
                     onActiveChange = { viewModel.onToogleSearch() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    placeholder = {
+                        Text(text = "Search Your Messages...")
+                    }
                 ) {
                     LazyColumn {
                         itemsIndexed(usersList) { _, username ->

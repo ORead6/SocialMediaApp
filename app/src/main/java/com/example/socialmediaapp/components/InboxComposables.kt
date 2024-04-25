@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -71,21 +72,27 @@ fun messageCardGrid(messageList: MutableState<List<messagingDataStruc>>, userMes
         lazyGridState.scrollToItem(messageList.value.size - 1)
     }
 
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxWidth(),
-        columns = GridCells.Fixed(1),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        state = lazyGridState
-    ) {
-        items(messageList.value) { post ->
-            val received = (post.senderID == userMessageID)
-            val message = post.msg
-            val timestamp = post.timestamp
+    Column(modifier = Modifier.fillMaxWidth()
+        .fillMaxHeight())
+    {
+        Spacer(Modifier.weight(1f))
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxWidth(),
+            columns = GridCells.Fixed(1),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            state = lazyGridState
+        ) {
+            items(messageList.value) { post ->
+                val received = (post.senderID == userMessageID)
+                val message = post.msg
+                val timestamp = post.timestamp
 
-            messageItem(message = message, received = received, timestamp = timestamp)
+                messageItem(message = message, received = received, timestamp = timestamp)
 
+            }
         }
     }
+
 
 
 }

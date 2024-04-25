@@ -2,6 +2,7 @@ package com.example.socialmediaapp.screens
 
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
+import com.example.socialmediaapp.components.Header
 import com.example.socialmediaapp.components.backButton
 import com.example.socialmediaapp.components.myGradientGrey
 import com.example.socialmediaapp.components.offWhiteBack
@@ -55,6 +57,7 @@ fun DirectMessagingScreen(
 
     var text = remember { mutableStateOf("") }
 
+    var messagedUsername = remember { mutableStateOf("") }
 
     LaunchedEffect(dataReady) {
         dbCalls.getMessages(userMessageID) {returnedList ->
@@ -62,7 +65,12 @@ fun DirectMessagingScreen(
 
             messageList.value = messageList.value.sortedBy { it.timestamp }.toList()
 
-            dataReady = true
+            dbCalls.getUsername(userMessageID) {
+                messagedUsername.value = it
+                dataReady = true
+            }
+
+
         }
     }
 
@@ -75,12 +83,23 @@ fun DirectMessagingScreen(
         Column(modifier = Modifier
             .fillMaxSize()
             .background(myGradientGrey)
-            .padding(start = 4.dp, end = 4.dp)
+            .padding(start = 4.dp, end = 4.dp, top = 4.dp)
         ) {
 
-            backButton(thisOnClick = {
-                navController.navigate("Inbox")
-            })
+            Row (modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start) {
+                backButton(thisOnClick = {
+                    navController.navigate("Inbox")
+                })
+                Box(modifier = Modifier.fillMaxWidth(0.9f),
+                    contentAlignment = Alignment.Center)
+                {
+                    Header(value = messagedUsername.value)
+                }
+
+
+            }
+
 
             if (dataReady) {
                 Spacer(Modifier.weight(1f))
@@ -90,7 +109,9 @@ fun DirectMessagingScreen(
                         .fillMaxWidth()
                         .fillMaxHeight(0.8f)
                 ) {
-                    messageCardGrid(messageList, userMessageID)
+                    if (messageList.value.size > 0) {
+                        messageCardGrid(messageList, userMessageID)
+                    }
                 }
 
                 Spacer(Modifier.padding(2.dp))
@@ -119,6 +140,7 @@ fun DirectMessagingScreen(
 
                         messageList.value = messageList.value.toMutableList().apply {
                             add(newMsg)
+                            myViewModel.setMsg("")
                         }
 
                         messageList.value = messageList.value.sortedBy { it.timestamp }.toList()
