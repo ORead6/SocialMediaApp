@@ -87,7 +87,7 @@ fun groupGridItem(
 ) {
     if (id != "") {
 
-        var groupPhotoUri = remember {
+        val groupPhotoUri = remember {
             mutableStateOf<Uri?>(null)
         }
 

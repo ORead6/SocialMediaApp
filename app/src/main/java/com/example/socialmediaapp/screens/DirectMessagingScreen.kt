@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.screens
 
+import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,7 @@ fun DirectMessagingScreen(
     var dataReady by remember { mutableStateOf(false) }
     val dbCalls = databaseCalls("")
     val messageList = remember { mutableStateOf<List<messagingDataStruc>>(emptyList()) }
+    val theContext = LocalContext.current
 
     var myViewModel = directMessageViewModel()
 
@@ -125,26 +127,30 @@ fun DirectMessagingScreen(
 
                     sendMsgButton {
                         val msgToSend = myViewModel.msg
-                        keyboardController?.hide()
 
-                        text.value = ""
+                        if (msgToSend.value != "") {
+                            keyboardController?.hide()
 
-                        val newMsg  = messagingDataStruc(
-                            senderID = "",
-                            receiverID = userMessageID,
-                            msg = msgToSend.value,
-                            timestamp = Timestamp.now()
-                        )
+                            text.value = ""
 
-                        dbCalls.sendMessage(newMsg)
+                            val newMsg  = messagingDataStruc(
+                                senderID = "",
+                                receiverID = userMessageID,
+                                msg = msgToSend.value,
+                                timestamp = Timestamp.now()
+                            )
 
-                        messageList.value = messageList.value.toMutableList().apply {
-                            add(newMsg)
-                            myViewModel.setMsg("")
+                            dbCalls.sendMessage(newMsg)
+
+                            messageList.value = messageList.value.toMutableList().apply {
+                                add(newMsg)
+                                myViewModel.setMsg("")
+                            }
+
+                            messageList.value = messageList.value.sortedBy { it.timestamp }.toList()
+                        } else {
+                            Toast.makeText(theContext, "Message field cannot be blank", Toast.LENGTH_SHORT).show()
                         }
-
-                        messageList.value = messageList.value.sortedBy { it.timestamp }.toList()
-
                     }
 
                 }
